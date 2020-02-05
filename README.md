@@ -6,7 +6,9 @@ The idea is to have a big screen that shows the current score and the objectives
 
 In the files there are some community created objectives. Add new ones or remove the ones you don't like. Follow the style of the other objectives but the ID _has_ to be unique.
 
-The server is not tested on other operating systems than MacOS. This readme will focus on how to run it on a Mac.
+The server is not tested on other operating systems than MacOS. This readme will focus on how to run it on a Mac. The app is fiddly on mobile, maybe I'll do a responsive design later on.
+
+The devices that are not the server computer might have to access the app by the servers internal IP address (ie. _http://192.168.1.22/tvajlajt_).
 
 ## How to use
 * Install _nodejs_ (https://nodejs.org/en/)
