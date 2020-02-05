@@ -674,41 +674,117 @@ h3 {
             cursor: default;
         }
 
-#additionalElements {
-    width: calc(100% + 1.1vw);
+#additionalElementsWrapper {
+    width: 100%;
+    height: 23vw;
     background-color: #000000a4;
     text-align: center;
-    float: left;
-    padding-top: 1.5vw;
-    padding-bottom: 1.5vw;
-    margin-top: 6vw;
-    margin-bottom: 4vw;
-    margin-left: -0.6vw;
-    text-align: center;
+    position: fixed;
+    bottom: -20vw;
+    left: 0;
+    z-index: 30;
+    -webkit-transition: all 0.4s ease-out;
+       -moz-transition: all 0.4s ease-out;
+        -ms-transition: all 0.4s ease-out;
+         -o-transition: all 0.4s ease-out;
+            transition: all 0.4s ease-out;
 }
-    #mecatolScore {
-        width: 12vw;
-        height: 12vw;
-        background-image: url("../media/mecatol.png");
-        background-size: contain;
-        background-repeat: no-repeat;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 14.5vw;
-        float: left;
+    #additionalElementsWrapper.open {
+        bottom: 0;
+        -webkit-transition: all 0.4s ease-out;
+           -moz-transition: all 0.4s ease-out;
+            -ms-transition: all 0.4s ease-out;
+             -o-transition: all 0.4s ease-out;
+                transition: all 0.4s ease-out;
+    }
+    .additionalElementsTextArrowWrapper {
+        height: 3vw;
+        color: #FFF;
+        font-family: 'Cuprum', sans-serif;
+        font-size: 1.5vw;
+        line-height: 3vw;
+        display: inline-block;
         cursor: pointer;
     }
-        #mecatolScore img {
-            width: 6vw;
-            filter: drop-shadow(0.1vw 0.2vw 0.3vw #000000);
-            transform: rotate(-8deg);
-        }
-        .addScore {
-            height: 16vw;
-            margin-left: 5vw;
-            margin-right: 1px;
+        .additionalElementsText {
+            height: 3vw;
             float: left;
+            vertical-align: middle;
         }
+        #additionalElementsArrowLeft {
+            margin-left: 3vw;
+            margin-right: 3vw;
+            height: 3vw;
+            float: left;
+            -webkit-transition: all 0.2s ease-out;
+               -moz-transition: all 0.2s ease-out;
+                -ms-transition: all 0.2s ease-out;
+                 -o-transition: all 0.2s ease-out;
+                    transition: all 0.2s ease-out;
+        }
+        #additionalElementsArrowRight {
+            margin-left: 3vw;
+            margin-right: 3vw;
+            height: 3vw;
+            float: left;
+            -webkit-transition: all 0.2s ease-out;
+               -moz-transition: all 0.2s ease-out;
+                -ms-transition: all 0.2s ease-out;
+                 -o-transition: all 0.2s ease-out;
+                    transition: all 0.2s ease-out;
+        }
+        #additionalElementsArrowLeft.open {
+            transform: rotate(180deg);
+            -webkit-transition: all 0.2s ease-out;
+               -moz-transition: all 0.2s ease-out;
+                -ms-transition: all 0.2s ease-out;
+                 -o-transition: all 0.2s ease-out;
+                    transition: all 0.2s ease-out;
+        }
+        #additionalElementsArrowRight.open {
+            transform: rotate(-180deg);
+            -webkit-transition: all 0.2s ease-out;
+               -moz-transition: all 0.2s ease-out;
+                -ms-transition: all 0.2s ease-out;
+                 -o-transition: all 0.2s ease-out;
+                    transition: all 0.2s ease-out;
+        }
+    #additionalElements {
+        height: 16vw;
+        width: calc(100% + 1.1vw);
+        /* background-color: #000000a4; */
+        text-align: center;
+        float: left;
+        padding-top: 1.5vw;
+        padding-bottom: 1.5vw;
+        /* margin-top: 6vw;
+        margin-bottom: 4vw;
+        margin-left: -0.6vw; */
+        text-align: center;
+    }
+        #mecatolScore {
+            width: 12vw;
+            height: 12vw;
+            background-image: url("../media/mecatol.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 14.5vw;
+            float: left;
+            cursor: pointer;
+        }
+            #mecatolScore img {
+                width: 6vw;
+                filter: drop-shadow(0.1vw 0.2vw 0.3vw #000000);
+                transform: rotate(-8deg);
+            }
+            .addScore {
+                height: 16vw;
+                margin-left: 5vw;
+                margin-right: 1px;
+                float: left;
+            }
 
 .custodianPick {
     height: 6vw;

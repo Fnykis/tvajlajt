@@ -507,9 +507,32 @@
 
 			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
 			if (players.length != 0) {
-				var el_AddDiv = document.createElement("div");
-					el_AddDiv.id = "additionalElements";
-				document.getElementById("wrapper").appendChild(el_AddDiv);
+				var el_AddWrapperDiv = document.createElement("div");
+					el_AddWrapperDiv.id = "additionalElementsWrapper";
+					el_AddWrapperDiv.onclick = function() {
+						$("#additionalElementsWrapper").toggleClass("open");
+						$("#additionalElementsArrowLeft").toggleClass("open");
+						$("#additionalElementsArrowRight").toggleClass("open");
+					}
+				document.getElementById("wrapper").appendChild(el_AddWrapperDiv);
+					var el_AddTextArrowWrapperDiv = document.createElement("div");
+						el_AddTextArrowWrapperDiv.className = "additionalElementsTextArrowWrapper";
+						el_AddWrapperDiv.appendChild(el_AddTextArrowWrapperDiv);
+						var el_AddArrowDiv = document.createElement("div");
+							el_AddArrowDiv.id = "additionalElementsArrowLeft";
+							el_AddArrowDiv.innerHTML = "<img src='assets/media/arrow_white.png'>";
+						el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv);
+						var el_AddButtonDiv = document.createElement("div");
+							el_AddButtonDiv.className = "additionalElementsText";
+							el_AddButtonDiv.innerHTML = "Additional Scores";
+						el_AddTextArrowWrapperDiv.appendChild(el_AddButtonDiv);
+						var el_AddArrowDiv = document.createElement("div");
+							el_AddArrowDiv.id = "additionalElementsArrowRight";
+							el_AddArrowDiv.innerHTML = "<img src='assets/media/arrow_white.png'>";
+						el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv);
+					var el_AddDiv = document.createElement("div");
+						el_AddDiv.id = "additionalElements";
+					el_AddWrapperDiv.appendChild(el_AddDiv);
 				createAdditionalPoints();
 			}
 
