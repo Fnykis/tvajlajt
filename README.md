@@ -10,8 +10,8 @@ The server is not tested on other operating systems than MacOS. This readme will
 
 The devices that are not the server computer might have to access the app by the servers internal IP address (ie. _http://192.168.1.22/tvajlajt_).
 
-## How to use
+## Installation (Mac)
 * Install _nodejs_ (https://nodejs.org/en/)
-* Put the directory _tvajlajt_ in _/Library/WebServer/Documents/_
+* Put all content in a directory named _tvajlajt_ in _/Library/WebServer/Documents/_
 * Run the file _startserver.command_ in the Terminal
 * Go to _http://localhost/tvajlajt_
