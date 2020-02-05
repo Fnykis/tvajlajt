@@ -1,0 +1,1102 @@
+
+<!DOCTYPE html>
+
+<!--[if lt IE 7 ]> <html class="ie ie6 ie-lt10 ie-lt9 ie-lt8 ie-lt7 no-js" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie ie7 ie-lt10 ie-lt9 ie-lt8 no-js" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie ie8 ie-lt10 ie-lt9 no-js" lang="en"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie ie9 ie-lt10 no-js" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!--><html class="no-js" lang="en"><!--<![endif]-->
+
+<head>
+
+	<meta charset="UTF-8">
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+	<!--
+		HTML5 Reset: https://github.com/murtaugh/HTML5-Reset
+		Free to use
+	-->
+
+	<!-- Always force latest IE rendering engine (even in intranet) -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<title>TVAJLAJT</title>
+	<meta name="author" content="" />
+	<meta name="description" content="" />
+
+	<!-- Don't forget to set your site up: http://google.com/webmasters -->
+	<meta name="google-site-verification" content="" />
+
+	<!-- Who owns the content of this site? -->
+	<meta name="" content="" />
+
+	<!--  Mobile Viewport
+	http://j.mp/mobileviewport & http://davidbcalhoun.com/2010/viewport-metatag
+	device-width : Occupy full width of the screen in its current orientation
+	initial-scale = 1.0 retains dimensions instead of zooming out if page height > device height
+	maximum-scale = 1.0 retains dimensions instead of zooming in if page width < device width (wrong for most sites)
+	-->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="shortcut icon" href="assets/media/favicon/favicon.ico" />
+	<!-- <link rel="icon" type="image/svg+xml" href="assets/media/favicon/favicon.svg"> SVG file not in use, for practises unclear -->
+
+	<!-- generics -->
+	<link rel="icon" href="assets/media/favicon/favicon-32.png" sizes="32x32">
+	<link rel="icon" href="assets/media/favicon/favicon-57.png" sizes="57x57">
+	<link rel="icon" href="assets/media/favicon/favicon-76.png" sizes="76x76">
+	<link rel="icon" href="assets/media/favicon/favicon-96.png" sizes="96x96">
+	<link rel="icon" href="assets/media/favicon/favicon-128.png" sizes="128x128">
+	<link rel="icon" href="assets/media/favicon/favicon-192.png" sizes="192x192">
+	<link rel="icon" href="assets/media/favicon/favicon-228.png" sizes="228x228">
+
+	<!-- Android -->
+	<link rel="shortcut icon" sizes="196x196" href="assets/media/favicon/favicon-196.png">
+
+	<!-- iOS -->
+	<link rel="apple-touch-icon" href="assets/media/favicon/favicon-120.png" sizes="120x120">
+	<link rel="apple-touch-icon" href="assets/media/favicon-152.png" sizes="152x152">
+	<link rel="apple-touch-icon" href="assets/media/favicon-180.png" sizes="180x180">
+
+	<!-- Windows 8 IE 10-->
+	<meta name="msapplication-TileColor" content="#FFFFFF">
+	<meta name="msapplication-TileImage" content="assets/media/favicon/favicon-144.png">
+
+	<!-- Windows 8.1 + IE11 and above -->
+	<meta name="msapplication-config" content="assets/media/favicon/browserconfig.xml" />
+
+	<link rel="apple-touch-icon" sizes="76x76" href="assets/media/TouchIcons/apple-touch-icon-76x76-precomposed.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="assets/media/TouchIcons/apple-touch-icon-114x114-precomposed.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="assets/media/TouchIcons/apple-touch-icon-120x120-precomposed.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="assets/media/TouchIcons/apple-touch-icon-144x144-precomposed.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="assets/media/TouchIcons/apple-touch-icon-152x152-precomposed.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/media/TouchIcons/apple-touch-icon-180x180-precomposed.png">
+
+	<!-- concatenate and minify fr production -->
+	<link rel="stylesheet" href="assets/css/reset.css" />
+	<link rel="stylesheet" href="assets/css/style.css" />
+	<link rel="stylesheet" href="assets/css/fonts.css" />
+
+	<!-- Lea Verou's prefixfree (http://leaverou.github.io/prefixfree/), lets you use un-prefixed properties in your CSS files -->
+	<script src="assets/js/libs/prefixfree.min.js"></script>
+
+	<!-- This is a minimized, base version of Modernizr. (http://modernizr.com)
+		  You will need to create new builds to get the detects you need. -->
+	<script src="assets/js/libs/modernizr-3.2.0.base.js"></script>
+
+	<script src="assets/js/libs/jquery-3.3.1.min.js"></script>
+
+	<script language="JavaScript">
+	    
+	</script>
+
+</head>
+
+<body>
+
+<div id="wrapper" onclick="closeMenu()">
+
+	<div id="newGameWrapper" onclick="closeMenu()">
+		<div class="newGameForm" onclick="noBubbling(event)">
+			<form action="http://localhost:3000">
+				<input type="hidden" name="request" value="newgame">
+				Settings:
+				<br>
+				<select name="startingcards">
+					<option value="1">1 starting card</option>
+					<option value="2">2 starting cards</option>
+					<option value="3">3 starting cards</option>
+					<option value="4">4 starting cards</option>
+					<option value="5" selected>5 starting cards</option>
+					<option value="6">6 starting cards</option>
+				</select>
+				<br>
+				Use community objectives:
+				<br>
+				<input type="checkbox" class="checkbox" checked name="communitycards" value="true">
+				<br>
+				<br>
+				Players:
+				<br>
+				<input type="text" name="player1_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player1_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec" selected>The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar">The Clan of Saar</option>
+					<option value="muaat">The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss">The Ghosts of Creuss</option>
+					<option value="lizix">The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin">The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player1_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black">Black</option>
+					<option value="blue">Blue</option>
+					<option value="green" selected>Green</option>
+					<option value="purple">Purple</option>
+					<option value="red">Red</option>
+					<option value="yellow">Yellow</option>
+				</select>
+				<br>
+				<input type="text" name="player2_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player2_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec">The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar">The Clan of Saar</option>
+					<option value="muaat">The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss" selected>The Ghosts of Creuss</option>
+					<option value="lizix">The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin">The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player2_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black">Black</option>
+					<option value="blue" selected>Blue</option>
+					<option value="green">Green</option>
+					<option value="purple">Purple</option>
+					<option value="red">Red</option>
+					<option value="yellow">Yellow</option>
+				</select>
+				<br>
+				<input type="text" name="player3_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player3_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec">The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar">The Clan of Saar</option>
+					<option value="muaat">The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss">The Ghosts of Creuss</option>
+					<option value="lizix" selected>The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin">The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player3_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black" selected>Black</option>
+					<option value="blue">Blue</option>
+					<option value="green">Green</option>
+					<option value="purple">Purple</option>
+					<option value="red">Red</option>
+					<option value="yellow">Yellow</option>
+				</select>
+				<br>
+				<input type="text" name="player4_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player4_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec">The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar" selected>The Clan of Saar</option>
+					<option value="muaat">The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss">The Ghosts of Creuss</option>
+					<option value="lizix">The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin">The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player4_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black">Black</option>
+					<option value="blue">Blue</option>
+					<option value="green">Green</option>
+					<option value="purple">Purple</option>
+					<option value="red">Red</option>
+					<option value="yellow" selected>Yellow</option>
+				</select>
+				<br>
+				<input type="text" name="player5_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player5_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec">The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar">The Clan of Saar</option>
+					<option value="muaat">The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss">The Ghosts of Creuss</option>
+					<option value="lizix">The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin" selected>The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player5_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black">Black</option>
+					<option value="blue">Blue</option>
+					<option value="green">Green</option>
+					<option value="purple" selected>Purple</option>
+					<option value="red">Red</option>
+					<option value="yellow">Yellow</option>
+				</select>
+				<br>
+				<input type="text" name="player6_name" placeholder="Player name (leave empty if not in play)" size="49">
+				<br>
+				<select name="player6_faction">
+					<option value="none" disabled>Faction</option>
+					<option disabled>──────────</option>
+					<option value="arborec">The Arborec</option>
+					<option value="letnev">The Barony of Letnev</option>
+					<option value="saar">The Clan of Saar</option>
+					<option value="muaat" selected>The Embers of Muaat</option>
+					<option value="hacan">The Emirates of Hacan</option>
+					<option value="sol">The Federation of Sol</option>
+					<option value="creuss">The Ghosts of Creuss</option>
+					<option value="lizix">The L1Z1X Mindnet</option>
+					<option value="mentak">The Mentak Coalition</option>
+					<option value="naalu">The Naalu Collective</option>
+					<option value="nekro">The Nekro Virus</option>
+					<option value="sardakk">The Sardakk N’orr</option>
+					<option value="jolnar">The Universities of Jol-Nar</option>
+					<option value="winnu">The Winnu</option>
+					<option value="xxcha">The Xxcha Kingdom</option>
+					<option value="yin">The Yin Brotherhood</option>
+					<option value="yssaril">The Yssaril Tribes</option>
+				</select>
+				<select name="player6_color">
+					<option value="none" disabled>Color</option>
+					<option disabled>───</option>
+					<option value="black">Black</option>
+					<option value="blue">Blue</option>
+					<option value="green">Green</option>
+					<option value="purple">Purple</option>
+					<option value="red" selected>Red</option>
+					<option value="yellow">Yellow</option>
+				</select>
+				<br>
+				<br>
+				<input type="submit" value="Start new game">
+				<div class="babySpacer"></div>
+			</form action="/action_page.php">
+		</div>
+	</div>
+	<div id="editScoreWrapper" onclick="closeMenu()"></div>
+	<div id="warnTop"></div><div id="warnBottom"></div><div id="warnLeft"></div><div id="warnRight"></div>
+	<div id="bigletter" onclick="bigletterHide()"></div>
+	<div id="addCardWrapper" onclick="closeMenu()">
+		<div class="objectiveStyleItem" onclick="addCard(event, 1)">Stage 1</div>
+		<div class="objectiveStyleItem" onclick="addCard(event, 2)">Stage 2</div>
+	</div>
+	<div id="adjustCardWrapper" onclick="closeMenu()">
+		<div class="objectiveStyleItem" onclick="adjustCard(event, 'hide')">Hide</div>
+		<div class="objectiveStyleItem" onclick="adjustCard(event, 'change')">Change</div>
+		<div class="objectiveStyleItem" onclick="adjustCard(event, 'remove')">Remove</div>
+	</div>
+	<div id="changeVPWrapper" onclick="closeMenu()">
+		<div class="objectiveStyleItem" onclick="changeVP(event, '-')">-</div>
+		<div class="objectiveStyleItem" onclick="changeVP(event, '+')">+</div>
+	</div>
+	<div id="changeCustodianWrapper" onclick="closeMenu()"></div>
+	<div id="objectiveStyleWrapper" onclick="closeMenu()">
+		<div class="objectiveStyleItem" onclick="chooseCard(event, 'random')">Random</div>
+		<div class="objectiveStyleItem" onclick="chooseCard(event, 'list')">List</div>
+	</div>
+	<div id="objectiveMenuWrapper" onclick="closeMenu()">
+		<div id="objectiveMenu">
+			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'stage1')">Stage 1</div>
+			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'stage2')">Stage 2</div>
+			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'secret')">Secret</div>
+			<div id="objectiveList"></div>
+		</div>
+	</div>
+	<div id="sideMenuBg" onclick="closeMenu()"><div id="sideMenu">
+		<div id="btnNew" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/new.png"><div class="sideMenuItemText">New game</div></div>
+		<div id="btnAddcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/addcard.png"><div class="sideMenuItemText">Add card</div></div>
+		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/changecard.png"><div class="sideMenuItemText">Adjust card</div></div>
+		<!-- <div id="btnEdit" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Tamper score</div></div> -->
+		<!-- <div id="btnReset" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">Reset</div></div> -->
+		<div id="btnSuperuser" class="sideMenuItem" onclick="buttonClick(event, this.id)"></div>
+	</div></div>
+	
+	<div id="header">
+		<div id="sideMenuButton" onclick="showMenu(event)">
+			<img src="assets/media/buttons/menu.png">
+		</div>
+		<div id="logo">
+			<img src="assets/media/tvajlajt.png">
+		</div>
+		<div id="sideMenuRefresh" title="Auto-refresh" onclick="buttonClick(event, this.id)"></div>
+	</div>
+
+	<div id="scoreboard">
+		<!-- Top scoreboard -->
+	</div>
+    <div class="obj" id="objectives1">
+        <!-- Objectives Stage 1 -->
+    </div>
+    <!-- <div class="sides right">.</div> -->
+	<div class="obj" id="objectives2">
+		<!-- Objectives Stage 2 -->
+	</div>
+
+</div>
+
+<script src="assets/js/functions.js"></script>
+
+<script>
+
+	var serverUrl = "http://localhost:3000";
+	var superuser;
+	var autorefresh;
+	var refreshCounter = 30;
+	var autorefreshInterval;
+
+	var stagePressed;
+	var cardPressed;
+	var tokenPressed;
+	var vpPressed;
+
+	var clickMode = null;
+
+	var allObjectives = [];
+	var stageOneObjectives = [];
+	var stageTwoObjectives = [];
+	var secretObjectives = [];
+	var objectivesOnBoard = {"stage1":[], "stage2":[]};
+	var communityObjectives;
+
+	var allPlayers = [];
+	var allScores = [];
+
+    window.onload = function() {
+
+		// Superuser check with cookies
+		var superuserCookie = localStorage.getItem('superuser');
+		if (superuserCookie == null) {
+			localStorage.setItem('superuser', false);
+			superuser = false;
+		} else {
+			superuser = (superuserCookie == "true"); // Set string of boolean to actual boolean
+		}
+		var superuserHtml = (superuser) ? "y" : (!superuser) ? "n" : "";
+		document.getElementById("btnSuperuser").innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/superuser_' + superuserHtml + '.png"><div class="sideMenuItemText">Superuser</div>';
+
+		// Check if refresher
+		var refresherCookies = localStorage.getItem('autorefresh');
+		if (refresherCookies == null) {
+			localStorage.setItem('autorefresh', false);
+			autorefresh = false;
+		} else {
+			autorefresh = (refresherCookies == "true"); // Set string of boolean to actual boolean
+			if (autorefresh) $("sideMenuRefresh").addClass("active");
+		}
+
+		// Read json files and build content
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		$.getJSON( "database.json" + jsonBuster, function(data) {
+
+			for (var i = 0; i < data[0].stage1.length; i++) {
+				allObjectives.push(data[0].stage1[i]);
+				stageOneObjectives.push(data[0].stage1[i]);
+			}
+			for (var i = 0; i < data[0].stage2.length; i++) {
+				allObjectives.push(data[0].stage2[i]);
+				stageTwoObjectives.push(data[0].stage2[i]);
+			}
+			for (var i = 0; i < data[0].secret.length; i++) {
+				allObjectives.push(data[0].secret[i]);
+				secretObjectives.push(data[0].secret[i]);
+			}
+			
+		});
+	
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		$.getJSON( "data.json" + jsonBuster, function(data) {
+
+			// Check if community objectives are in play
+			if (data[3].communitycards) {
+				var oReq = new XMLHttpRequest();
+				oReq.addEventListener("load", function(){
+					communityObjectives = JSON.parse(this.responseText);
+					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
+						allObjectives.push(communityObjectives[0].stage1[i]);
+						stageOneObjectives.push(communityObjectives[0].stage1[i]);
+					}
+					for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
+						allObjectives.push(communityObjectives[0].stage2[i]);
+						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
+					}
+					for (var i = 0; i < communityObjectives[0].secret.length; i++) {
+						allObjectives.push(communityObjectives[0].secret[i]);
+						secretObjectives.push(communityObjectives[0].secret[i]);
+					}
+				});
+				oReq.open("GET", "database_community.json" + jsonBuster);
+				oReq.send();
+			}
+
+			var players = [];
+			var playerScores = [];
+			for (var i = 0; i < data[2].players.length; i++) {
+				if (data[2].players[i].faction != null) {
+					var playah = data[2].players[i];
+					allPlayers.push(playah);
+					allScores.push(0);
+					allScores[i] = playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other;
+					players.push(playah);
+					playerScores.push(playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other);
+				}
+			};
+			
+			// Create elemtns for Stage 1
+			var objectives1HTML = createObjectives(1);
+			// Create elemtns for Stage 2
+			var objectives2HTML = createObjectives(2);
+	
+			// If the objectives don't load do this ugly reload
+			if (data == undefined || data[0].cards.length > document.getElementById("objectives1").childElementCount) window.location.reload();
+
+			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
+			if (players.length != 0) {
+				var el_AddDiv = document.createElement("div");
+					el_AddDiv.id = "additionalElements";
+				document.getElementById("wrapper").appendChild(el_AddDiv);
+				createAdditionalPoints();
+			}
+
+			function createObjectives(stage) {
+				var divHTML = "";
+				var stageIndex = stage-1;
+				stagePressed = stage;
+				// Count card number and assign class name
+				var objectivesCount = data[stageIndex].cards.length;
+
+				var activeCardIndex = 0;
+				for (var i = 0; i < objectivesCount; i++) { // Iterate objectives
+					var cardID = data[stageIndex].cards[i].id;
+					if (stage == 1) {
+						objectivesOnBoard.stage1.push(data[stageIndex].cards[i]);
+					} else {
+						objectivesOnBoard.stage2.push(data[stageIndex].cards[i]);
+					}
+					if (cardID != null) { // If active
+
+						// Get card and create div
+						for (var k = 0; k < allObjectives.length; k++) {
+							if (cardID == allObjectives[k].id) {
+
+								var cardName = allObjectives[k].name;
+								var cardText = allObjectives[k].text;
+								var cardPoints = allObjectives[k].points;
+								var cardStage = allObjectives[k].stage;
+								var cardPhase = allObjectives[k].phase;
+								var phaseColor = "";
+								if (cardPhase == "Action Phase") phaseColor = "red";
+
+								// Create elements
+								var objectiveDiv = document.getElementById("objectives" + stage);
+								
+								var el_TokensAndCard = document.createElement("div");
+									el_TokensAndCard.className = "tokensAndCard";
+								objectiveDiv.appendChild(el_TokensAndCard);
+
+								var el_Objective = document.createElement("div");
+									el_Objective.className = 'objContainer';
+									el_Objective.id = i;
+									el_Objective.innerHTML = "<img src='assets/media/objectivecard_bg_" + cardStage + ".png'>";
+								el_TokensAndCard.appendChild(el_Objective);
+
+								var el_ObjectiveText = document.createElement("div");
+									el_ObjectiveText.className = 'objCard';
+									el_ObjectiveText.id = cardID;
+									el_ObjectiveText.innerHTML = "<h2>" + cardName + "</h2><p>" + cardText + "</p><h3>" + cardPoints + "</h3><p style='margin-top:-1.5vw' class='" + phaseColor + "'>" + cardPhase + "</p></div>";
+									el_ObjectiveText.onclick = function() {
+										cardPressed = this.id;
+										var cardPressedIndex = parseInt(this.parentNode.id);
+										stagePressed = this.parentNode.parentNode.parentNode.id;
+										stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+										if (clickMode != null) {
+											if (clickMode == "hide" || clickMode == "remove") {
+												if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
+													var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
+												}
+											} else {
+												cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
+												document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+												event.stopPropagation();
+											}
+											window.location = serverUrl + urlVars;
+										} else {
+											var cardPressedStage = this.parentNode.parentNode.parentNode.id;
+												cardPressedStage = parseInt(cardPressedStage.substring(cardPressedStage.length - 1, cardPressedStage.length));
+											var blTokensHtml = "";
+											
+											if (cardPressedStage == 1) {
+												var scoreArr = objectivesOnBoard.stage1[cardPressedIndex].scores;
+											} else {
+												var scoreArr = objectivesOnBoard.stage2[cardPressedIndex].scores;
+											}
+											for (var j = 0; j < scoreArr.length; j++) {
+												if (scoreArr[j].scored) blTokensHtml = blTokensHtml + '<img src="assets/media/factions/' + players[j].faction + '.png">';
+											}
+											var cardObjDatabase = getCardInfo(cardPressed);
+											var cardPhase = cardObjDatabase.phase;
+											var phaseColor = "";
+											if (cardPhase == "Action Phase") phaseColor = "red";
+											var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
+														'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
+														'<div class="blText">' + cardObjDatabase.text + '</div>'+
+														'<div class="blPhaseAndPoints">'+
+															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
+															'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
+															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+														'</div>';
+											$('#bigletter').html(html);
+											document.getElementById('bigletter').style.visibility = 'visible';
+										}
+									};
+								el_Objective.appendChild(el_ObjectiveText);
+
+								var el_TokensWrapper = document.createElement("div");
+									el_TokensWrapper.className = "objTokensWrapper";
+									el_TokensWrapper.id = activeCardIndex;
+
+								var tokensHTML = "";
+								for (var j = 0; j < players.length; j++) {
+									var scoredClass = "";
+									if (data[stageIndex].cards[i].scores[j].scored) {
+										scoredClass = " scored";
+										playerScores[j] = playerScores[j] + cardPoints;
+										allScores[j] = allScores[j] + cardPoints;
+									}
+
+									var el_Tokens = document.createElement("div");
+										el_Tokens.className = "objTokens" + scoredClass;
+										el_Tokens.title = decodeURIComponent(players[j].player);
+										el_Tokens.id = j;
+										el_Tokens.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
+										el_Tokens.onclick = function() {
+											if (superuser) {
+												tokenPressed = this.id;
+												var urlVars = "?request=token&stage=" + stageIndex + "&card=" + this.parentNode.id + "&player=" + tokenPressed;
+												window.location = serverUrl + urlVars;
+											} else {
+												notSuperuser();
+											}
+										}
+										el_TokensWrapper.appendChild(el_Tokens);
+								}
+								
+								el_TokensAndCard.appendChild(el_TokensWrapper);
+
+							}
+						}
+						
+						activeCardIndex++;
+
+					} else {
+						var tokensHTML = "";
+						for (var j = 0; j < players.length; j++) {
+							if (players[j].faction == null) {
+								var token = "empty"
+							} else {
+								var token = players[j].faction;
+							}
+							tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '"><img src="assets/media/factions/' + token + '.png"></div>';
+						}
+						
+						// Create elements
+						var objectiveDiv = document.getElementById("objectives" + stage);
+
+						var el_TokensAndCard = document.createElement("div");
+							el_TokensAndCard.className = "tokensAndCard";
+							el_TokensAndCard.id = i;
+						objectiveDiv.appendChild(el_TokensAndCard);
+
+						var el_Objective = document.createElement("div");
+							el_Objective.className = 'objContainer';
+							el_Objective.innerHTML = "<img src='assets/media/backside_stage" + stage + ".png'>";
+							el_Objective.id = "stage" + stage + "_" + i;
+							el_Objective.onclick = function(event) {
+								if (superuser) {
+									cardPressed = this.id;
+									stagePressed = this.parentNode.parentNode.id;
+									stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+									var cardPressedIndex = parseInt(this.parentNode.id);
+									if (clickMode == "remove") {
+										if (confirm("Are you sure you want to remove this card?")) {
+											var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
+											window.location = serverUrl + urlVars;
+										}
+									} else {
+										document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+										event.stopPropagation();
+									}
+								} else {
+									notSuperuser();
+								}
+							};
+						el_TokensAndCard.appendChild(el_Objective);
+
+						var el_TokensWrapper = document.createElement("div");
+							el_TokensWrapper.className = "objTokensWrapper";
+							el_TokensWrapper.innerHTML = tokensHTML;
+						el_TokensAndCard.appendChild(el_TokensWrapper);
+
+					}
+				}
+
+				// Create scoreboard
+				var scoreboardHtml = "";
+				var scoreboardDiv = document.getElementById("scoreboard");
+					scoreboardDiv.innerHTML = "";
+				for (var i = 0; i < players.length; i++) { // Iterate players
+					var el_ScoreToken = document.createElement("div");
+						el_ScoreToken.className = 'scoretile';
+						el_ScoreToken.title = decodeURIComponent(players[i].player);
+						el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
+					scoreboardDiv.appendChild(el_ScoreToken);
+					
+				}
+				
+			}
+
+			function createAdditionalPoints() {
+
+				var addEldiv = document.getElementById("additionalElements");
+
+				// Mecatol VP
+				var custodianHtml = "";
+				for (var i = 0; i < players.length; i++) { // Iterate players
+					if (players[i].vp_custodian) custodianHtml = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+				}
+				var el_MecatolWrapper = document.createElement("div");
+					el_MecatolWrapper.id = "mecatolScoreWrapper";
+					el_MecatolWrapper.style = "display: inline-block; vertical-align: top;"
+
+					var el_Mecatol = document.createElement("div");
+						el_Mecatol.title = "Custodian Token VP";
+						el_Mecatol.id = "mecatolScore";
+						el_Mecatol.innerHTML = custodianHtml;
+						el_Mecatol.onclick = function(event) {
+							if (superuser) {
+								var playerID = this.id.substring(this.id.length - 1, this.id.length);
+								var category = this.id.substring(0, this.id.length - 2);
+
+								var wrapper = document.getElementById('changeCustodianWrapper');
+									wrapper.innerHTML = "Custodian Victory Point<br><br>";
+								for (var i = 0; i < players.length; i++) { // Iterate players
+									var el_Token = document.createElement("div");
+										el_Token.className = 'custodianPick';
+										el_Token.title = decodeURIComponent(players[i].player);
+										el_Token.id = "custodian_" + i;
+										el_Token.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+										el_Token.onclick = function(event) {
+											var playerID = this.id.substring(this.id.length - 1, this.id.length);
+											vpPressed = { "player": playerID, "category": "custodian" };
+											var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=custodian";
+											window.location = serverUrl + urlVars;
+											noBubbling(event);
+										}
+									wrapper.appendChild(el_Token);
+								}
+								document.getElementById('changeCustodianWrapper').style.visibility = 'visible';
+								noBubbling(event);
+							} else {
+								notSuperuser();
+							}
+						}
+					el_MecatolWrapper.appendChild(el_Mecatol);
+				addEldiv.appendChild(el_MecatolWrapper);
+
+				// Imperial VP
+				createAddDiv("Imperial VP", '<img src="assets/media/imperial.png">', "imperial");
+				// Secrets VP
+				createAddDiv("Secrets VP", '<img src="assets/media/backside_secret.png">', "secrets");
+				// Rider VP
+				createAddDiv("Riders VP", '<img src="assets/media/rider.png">', "riders");
+				// Other VPs
+				createAddDiv("Other VPs", '<img src="assets/media/othervp.png">', "other");
+
+				function createAddDiv(title, picture, idPrefix) {
+
+					var el_VPWrapper = document.createElement("div");
+						el_VPWrapper.style = "display: inline-block; vertical-align: top;"
+
+						var el_VPPicture = document.createElement("div");
+							el_VPPicture.title = title;
+							el_VPPicture.className = "addScore";
+							el_VPPicture.innerHTML = picture;
+						el_VPWrapper.appendChild(el_VPPicture);
+
+							var el_TokensWrapper = document.createElement("div");
+								el_TokensWrapper.className = "objTokensWrapper"
+
+							for (var i = 0; i < players.length; i++) { // Iterate players
+
+								switch (idPrefix) {
+									case "imperial": var vpHtml = players[i].vp_imperial; break;
+									case "secrets": var vpHtml = players[i].vp_secrets; break;
+									case "riders": var vpHtml = players[i].vp_riders; break;
+									case "other": var vpHtml = players[i].vp_other; break;
+								}
+
+								var el_TokensAndPoints = document.createElement("div");
+
+								var el_ScoreToken = document.createElement("div");
+									el_ScoreToken.className = 'objTokens scored';
+									el_ScoreToken.style = 'float: left;';
+									el_ScoreToken.title = decodeURIComponent(players[i].player);
+									el_ScoreToken.id = idPrefix + "_" + i;
+									el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+									el_ScoreToken.onclick = function(event) {
+										if (superuser) {
+											var playerID = this.id.substring(this.id.length - 1, this.id.length);
+											var category = this.id.substring(0, this.id.length - 2);
+											vpPressed = { "player": playerID, "category": category };
+											document.getElementById('changeVPWrapper').style.visibility = 'visible';
+											noBubbling(event);
+										} else {
+											notSuperuser();
+										}
+									}
+								el_TokensAndPoints.appendChild(el_ScoreToken);
+
+								var el_Score = document.createElement("div");
+									el_Score.className = 'objTokensScore';
+									el_Score.innerHTML = vpHtml;
+								el_TokensAndPoints.appendChild(el_Score);
+								el_TokensWrapper.appendChild(el_TokensAndPoints);
+							}
+							el_VPWrapper.appendChild(el_TokensWrapper);
+					addEldiv.appendChild(el_VPWrapper);
+				}
+			}
+			
+			newCard(allObjectives);
+
+			if (autorefresh) {
+				document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+				autorefreshInterval = setInterval(refreshPage, 1000);
+			} else {
+				document.getElementById("sideMenuRefresh").innerHTML = "";
+			}
+		
+		});
+			
+    }
+
+	function refreshPage() {
+		refreshCounter--;
+		if (refreshCounter < 0) {
+			window.location.reload();
+		} else {
+			document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+		}
+	}
+
+	function bigletterHide() {
+		document.getElementById('bigletter').style.visibility = 'hidden';
+	}
+
+	function showMenu(event) {
+		document.getElementById('warnTop').style.visibility = 'hidden';
+		document.getElementById('warnBottom').style.visibility = 'hidden';
+		document.getElementById('warnLeft').style.visibility = 'hidden';
+		document.getElementById('warnRight').style.visibility = 'hidden';
+		document.getElementById('sideMenuBg').style.visibility = 'visible';
+		document.getElementById('sideMenu').classList.add("show");
+		event.stopPropagation();
+	}
+
+	function objectiveCategory(event, category) {
+		$('#objectiveList').html("");
+		switch (category) {
+			case ("stage1"): var objArray = stageOneObjectives; break;
+			case ("stage2"): var objArray = stageTwoObjectives; break;
+			case ("secret"): var objArray = secretObjectives; break;
+		}
+		for (var i = 0; i < objArray.length; i++) {
+			var objId = objArray[i].id;
+			var el_ListItem = document.createElement("div");
+				el_ListItem.className = "objectiveListItem";
+				el_ListItem.innerHTML = objArray[i].name;
+				el_ListItem.id = objArray[i].id;
+				el_ListItem.onclick = function() {
+					var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
+					window.location = serverUrl + urlVars;
+				}
+			document.getElementById('objectiveList').appendChild(el_ListItem);
+		}
+		event.stopPropagation();
+	}
+
+	function noBubbling(event) {
+		event.stopPropagation();
+	}
+
+	function closeMenu() {
+		clickMode = null;
+		document.getElementById('editScoreWrapper').style.visibility = 'hidden';
+		document.getElementById('addCardWrapper').style.visibility = 'hidden';
+		document.getElementById('newGameWrapper').style.visibility = 'hidden';
+		document.getElementById('warnTop').style.visibility = 'hidden';
+		document.getElementById('warnBottom').style.visibility = 'hidden';
+		document.getElementById('warnLeft').style.visibility = 'hidden';
+		document.getElementById('warnRight').style.visibility = 'hidden';
+		document.getElementById('adjustCardWrapper').style.visibility = 'hidden';
+		document.getElementById('objectiveStyleWrapper').style.visibility = 'hidden';
+		document.getElementById('changeVPWrapper').style.visibility = 'hidden';
+		document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
+		document.getElementById('objectiveMenuWrapper').style.visibility = 'hidden';
+		document.getElementById('objectiveMenu').style.visibility = 'hidden';
+		document.getElementById('objectiveList').style.visibility = 'hidden';
+		document.getElementById('sideMenuBg').style.visibility = 'hidden';
+		document.getElementById('sideMenu').classList.remove("show");
+    }
+    
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+	}
+	
+	function getCardInfo(id) {
+		for (var allCardIndex = 0; allCardIndex < allObjectives.length; allCardIndex++) {
+			if (cardPressed == allObjectives[allCardIndex].id) {
+				var theObj = allObjectives[allCardIndex];
+				break;
+			}
+		}
+		return theObj;
+	}
+
+	function newCard(arr) {
+		var newId = getUrlVars()["id"];
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i].id == newId) {
+
+				window.history.replaceState({}, document.title, "/tvajlajt");
+				
+				var cardItem = arr[i];
+				var blTokensHtml = "";
+				
+				var cardPhase = cardItem.phase;
+				var phaseColor = "";
+				if (cardPhase == "Action Phase") phaseColor = "red";
+				var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
+							'<div class="blTitle">' + cardItem.name + '</div>'+
+							'<div class="blText">' + cardItem.text + '</div>'+
+							'<div class="blPhaseAndPoints">'+
+								'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
+								'<div class="blPoint">' + cardItem.points + '</div>'+
+								'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+							'</div>';
+				$('#bigletter').html(html);
+				document.getElementById('bigletter').style.visibility = 'visible';
+
+				break;
+			}
+		}
+	}
+
+	function chooseCard(event, style) {
+
+		document.getElementById('objectiveStyleWrapper').style.visibility = 'hidden';
+		
+		if (style == "random") {
+
+			var illegalObjectives = [];
+			for (var i = 0; i < objectivesOnBoard.stage1.length; i++) {
+				if (objectivesOnBoard.stage1[i].id != null) illegalObjectives.push(objectivesOnBoard.stage1[i].id);
+			}
+			for (var i = 0; i < objectivesOnBoard.stage2.length; i++) {
+				if (objectivesOnBoard.stage2[i].id != null) illegalObjectives.push(objectivesOnBoard.stage2[i].id);
+			}
+
+			if (stagePressed == 1) {
+				var objArray = stageOneObjectives;
+			} else {
+				var objArray = stageTwoObjectives;
+			}
+
+			var randomCard = Math.floor((Math.random() * (objArray.length - 1)) + 1);
+			while (illegalObjectives.includes(objArray[randomCard].id)) {
+				randomCard = Math.floor((Math.random() * objArray.length - 1) + 1);
+			}
+
+			var mode = "new";
+			if (clickMode != null) mode = "change";
+			var urlVars = "?request=card&card=" + cardPressed + "&id=" + objArray[randomCard].id + "&mode=" + mode;
+				window.location = serverUrl + urlVars;
+
+		} else {
+			$('#objectiveList').html("");
+			if (stagePressed == 1) {
+				var objArray = stageOneObjectives;
+			} else {
+				var objArray = stageTwoObjectives;
+			}
+			for (var j = 0; j < objArray.length; j++) {
+				var objId = objArray[j].id;
+				var el_ListItem = document.createElement("div");
+					el_ListItem.className = "objectiveListItem";
+					el_ListItem.innerHTML = objArray[j].name;
+					el_ListItem.id = objArray[j].id;
+					el_ListItem.onclick = function() {
+						var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
+						window.location = serverUrl + urlVars;
+					}
+				document.getElementById('objectiveList').appendChild(el_ListItem);
+			}
+			document.getElementById('objectiveMenuWrapper').style.visibility = 'visible';
+			document.getElementById('objectiveMenu').style.visibility = 'visible';
+			document.getElementById('objectiveList').style.visibility = 'visible';
+		}
+		event.stopPropagation();
+
+	}
+
+	function adjustCard(event, adjustment) {
+		clickMode = adjustment;
+		document.getElementById('adjustCardWrapper').style.visibility = 'hidden';
+		document.getElementById('warnTop').style.visibility = 'visible';
+		document.getElementById('warnBottom').style.visibility = 'visible';
+		document.getElementById('warnLeft').style.visibility = 'visible';
+		document.getElementById('warnRight').style.visibility = 'visible';
+		event.stopPropagation();
+	}
+
+	function addCard(event, stage) {
+		var urlVars = "?request=addCard&stage=" + stage;
+		window.location = serverUrl + urlVars;
+	}
+
+	function changeVP(event, adjustment) {
+		if (adjustment == "+") {
+			adjustment = "up";
+		} else {
+			adjustment = "down";
+		}
+		var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=" + vpPressed.category + "&adjust=" + adjustment;
+		window.location = serverUrl + urlVars;
+	}
+
+	function buttonClick(event, id) {
+		if (id == "btnReset" && superuser) {
+			closeMenu();
+			if (confirm("Are you sure you want to reset?\nThis will hide all cards, zero all points and remove all players.")) {
+				var urlVars = "?request=reset";
+				window.location = serverUrl + urlVars;
+			}
+		} else if (id == "btnEdit" && superuser) {
+			closeMenu();
+			document.getElementById('editScoreWrapper').innerHTML = "";
+			var playersHtml = "";
+			
+			for (var i = 0; i < allPlayers.length; i++) {
+				playersHtml = playersHtml + decodeURIComponent(allPlayers[i].player) + ': <input type="text" name="player' + (i + 1) + '_score" value="' + allScores[i] + '" size="6"><br>'
+			}
+			var fullHtml = '<form action="' + serverUrl + '"><input type="hidden" name="request" value="editscore">' + playersHtml + '<input type="submit" value="Set scores"></form>';
+
+			var el_FormScore = document.createElement("div");
+				el_FormScore.className = "newGameForm right";
+				el_FormScore.innerHTML = fullHtml;
+				el_FormScore.onclick = function(event) { noBubbling(event); }
+			document.getElementById('editScoreWrapper').appendChild(el_FormScore);
+
+			document.getElementById('editScoreWrapper').style.visibility = 'visible';
+		} else if (id == "btnNew" && superuser) {
+			closeMenu();
+			document.getElementById('newGameWrapper').style.visibility = 'visible';
+		} else if (id == "btnAddcard" && superuser) {
+			closeMenu();
+			document.getElementById('addCardWrapper').style.visibility = 'visible';
+		} else if (id == "btnAdjustcard" && superuser) {
+			closeMenu();
+			document.getElementById('adjustCardWrapper').style.visibility = 'visible';
+		} else if (id == "sideMenuTime" && superuser) {
+			// console.log("Pause");
+		} else if (id == "sideMenuRefresh") {
+			if (localStorage.getItem('autorefresh') == "true") {
+				clearInterval(autorefreshInterval);
+				localStorage.setItem('autorefresh', "false");
+			} else {
+				localStorage.setItem('autorefresh', "true");
+				document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+				autorefreshInterval = setInterval(refreshPage, 1000);
+				// window.location.reload()
+			}
+		} else if (id == "btnSuperuser") {
+			localStorage.setItem('superuser', String(!superuser));
+			superuser = !superuser;
+			var superuserHtml = (superuser) ? "y" : (!superuser) ? "n" : "";
+			document.getElementById("btnSuperuser").innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/superuser_' + superuserHtml + '.png"><div class="sideMenuItemText">Superuser</div>';
+		} else if (!superuser) {
+			notSuperuser();
+		}
+		event.stopPropagation();
+	}
+
+	function notSuperuser() {
+		var html = '<div class="blTitle"><img style="max-width:20vw" src="assets/media/buttons/superuser_n.png"></div><div class="blText">Not allowed as non-superuser</div>';
+		$('#bigletter').html(html);
+		document.getElementById('bigletter').style.visibility = 'visible';
+		event.stopPropagation();
+	}
+	
+</script>
+
+</body>
+</html>

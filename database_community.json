@@ -1,0 +1,238 @@
+[
+    {
+        "category": "objectives",
+        "stage1":
+            [
+                {
+                    "id": "objOneCommunity01",
+                    "name": "Exploit Advantage",
+                    "text": "Spend 10 resources or 10 influence",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity02",
+                    "name": "Declare Festival",
+                    "text": "Exhaust 5 planets",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity03",
+                    "name": "Make a show of force",
+                    "text": "Have 6 non-fighter ships in the same system",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity04",
+                    "name": "Survey the Quadrant",
+                    "text": "Have 5 commande tokens on the game board",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity05",
+                    "name": "Sponsor Scholarship",
+                    "text": "Own 4 technologies you did not own at the start of the game",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity06",
+                    "name": "Trust Your Neighbors",
+                    "text": "Have at least 2 promissory notes in the possession of at least 2 other players",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity07",
+                    "name": "Extend an Open Hand",
+                    "text": "Be neighbors with all other players",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity08",
+                    "name": "Join the Fray",
+                    "text": "Win a space combat were the total cost of all destroyed ships were of 6 or more",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity09",
+                    "name": "Demoralize Opposition",
+                    "text": "Win a space combat in which you produced 3 or more hits that were not assigned or canceled",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity10",
+                    "name": "Capture Territory",
+                    "text": "Invade and win a ground combat",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity11",
+                    "name": "Signal Scanning",
+                    "text": "Have 2 non-fighter ships in 2 different empty space systems",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOneCommunity12",
+                    "name": "Dark Skies",
+                    "text": "Have 1 or more ships in a system that contain another players ground forces",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                }
+            ],
+        "stage2":
+            [
+                {
+                    "id": "objTwoCommunity01",
+                    "name": "Optimize Efficiency",
+                    "text": "Spend 20 resources or 20 influence",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity02",
+                    "name": "Celebrate Ascension",
+                    "text": "Exhaust 10 planets",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity03",
+                    "name": "Command Armada",
+                    "text": "Have 11 non-fighter ships in the same system",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity04",
+                    "name": "Demonstrate Your Reach",
+                    "text": "Have 10 command tokens on the board",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity05",
+                    "name": "Amass Knowledge",
+                    "text": "Own 7 technologies you did not own at the start of the game",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity06",
+                    "name": "Believe In Destiny",
+                    "text": "Have at least 4 promissory notes in the possession of at least 2 other players",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity07",
+                    "name": "Wield a Clenched Fist",
+                    "text": "Have 1 or more ships in the same systems as space docks that are owned by 2 or more players",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity08",
+                    "name": "Inflict Heavy Losses",
+                    "text": "Win a space combat were the total cost of all destroyed ships were of 15 or more",
+                    "points": 2,
+                    "phase": "Action Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity09",
+                    "name": "Annihilate Adversary",
+                    "text": "Win a space combat in which you produced 7 or more hits that were not assigned or canceled",
+                    "points": 2,
+                    "phase": "Action Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity10",
+                    "name": "Diminsh Their Domain",
+                    "text": "Invade and win a ground combat on a planet that contained another player's only space dock",
+                    "points": 2,
+                    "phase": "Action Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity11",
+                    "name": "Manifest Pacifism",
+                    "text": "Have no tokens (including removed) from your tactic or strategy pool on the board",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity12",
+                    "name": "Tatooine Cosplay",
+                    "text": "Have both of your war suns on the board",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwoCommunity13",
+                    "name": "Obsequiousness",
+                    "text": "Give 10 trade goods to the top player",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                }
+            ],
+        "secret":
+            [
+                {
+                    "id": "objSecretCommunity01",
+                    "name": "Break Peace",
+                    "text": "Attack a player that has your Ceasefire promissory note",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecretCommunity02",
+                    "name": "Personal Fragility",
+                    "text": "Have your racial promissory note in the possession of another player",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecretCommunity03",
+                    "name": "Warmonger",
+                    "text": "Win a space combat against at least 3 opponents this turn",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                }
+            ]
+    }
+]

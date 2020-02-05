@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+	<title>Send update</title>
+</head>
+<body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+
+		var appUrl = "http://localhost/tvajlajt";
+
+		var requestType = getUrlVars()["request"];
+		if (requestType == "card") {
+
+			var dataArray = [getUrlVars()["card"], getUrlVars()["id"], getUrlVars()["mode"]];
+			var socket = io();
+				socket.emit('update', dataArray);
+				socket.on('update', function(data){
+					window.location = appUrl + "?id=" + dataArray[1];
+				});
+
+		} else if (requestType == "token") {
+
+			var dataArray = [getUrlVars()["stage"], getUrlVars()["card"], getUrlVars()["player"]];
+			var socket = io();
+				socket.emit('token', dataArray);
+				socket.on('token', function(data){
+					window.location = appUrl;
+				});
+
+		} else if (requestType == "addCard") {
+
+			var dataArray = getUrlVars()["stage"];
+			var socket = io();
+				socket.emit('addCard', dataArray);
+				socket.on('addCard', function(data){
+					window.location = appUrl;
+				});
+
+		} else if (requestType == "adjust") {
+
+			var dataArray = [getUrlVars()["mode"], getUrlVars()["stage"], getUrlVars()["id"], getUrlVars()["index"]];
+			if (dataArray[0] == "remove") {
+				var socket = io();
+					socket.emit('adjustRemove', dataArray);
+					socket.on('adjustRemove', function(data){
+						window.location = appUrl;
+					});
+			} else if (dataArray[0] == "hide") {
+				var socket = io();
+					socket.emit('adjustHide', dataArray);
+					socket.on('adjustHide', function(data){
+						window.location = appUrl;
+					});
+			}
+
+		} else if (requestType == "editscore") {
+
+			var dataArray = [];
+			try { dataArray.push(getUrlVars()["player1_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player2_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player3_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player4_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player5_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player6_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player7_score"]); } catch(e) {}
+			try { dataArray.push(getUrlVars()["player8_score"]); } catch(e) {}
+
+			var socket = io();
+				socket.emit('editscore', dataArray);
+				socket.on('editscore', function(data){
+					window.location = appUrl;
+				});
+
+		} else if (requestType == "changeVP") {
+
+			var dataArray = [];
+				dataArray.push(getUrlVars()["player"]);
+				dataArray.push(getUrlVars()["category"]);
+				try { dataArray.push(getUrlVars()["adjust"]); } catch(e) {}
+
+			var socket = io();
+				socket.emit('changeVP', dataArray);
+				socket.on('changeVP', function(data){
+					window.location = appUrl;
+				});
+
+		} else if (requestType == "newgame") {
+
+			var players = [];
+			for (var i = 0; i < 6; i++) {
+				var variable = getUrlVars()["player" + (i+1) + "_name"];
+				if (variable != "") players.push(
+					{ 
+						"name":getUrlVars()["player" + (i+1) + "_name"],
+						"faction":getUrlVars()["player" + (i+1) + "_faction"],
+						"color":getUrlVars()["player" + (i+1) + "_color"]
+					}
+				);
+			}
+			var dataArray = [getUrlVars()["startingcards"], players];
+			try { dataArray.push((getUrlVars()["communitycards"] == "true")); } catch(e) {}
+
+			var socket = io();
+				socket.emit('newgame', dataArray);
+				socket.on('newgame', function(data){
+					window.location = appUrl;
+				});
+
+		} else if (requestType == "reset") {
+
+			var socket = io();
+				socket.emit('reset', 'reset');
+				socket.on('reset', function(data){
+					window.location = appUrl;
+				});
+
+		}
+		
+		function getUrlVars() {
+			var vars = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+				vars[key] = value;
+			});
+			return vars;
+		}
+
+	</script>
+</body>
+</html>

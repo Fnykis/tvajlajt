@@ -1,0 +1,334 @@
+[
+    {
+        "category": "objectives",
+        "stage1":
+            [
+                {
+                    "id": "objOne01",
+                    "name": "Corner the Market",
+                    "text": "Control 4 planets that each have the same planet trait",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne02",
+                    "name": "Develop Weaponry",
+                    "text": "Own 2 unit upgrade technologies",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne03",
+                    "name": "Diversify Research",
+                    "text": "Own 2 technologies in each of 2 colors",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne04",
+                    "name": "Erect a Monument",
+                    "text": "Spend 8 resources",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne05",
+                    "name": "Expand Borders",
+                    "text": "Control 6 planets in non-home systems",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne06",
+                    "name": "Found Research Outposts",
+                    "text": "Control 3 planets that have technology specialties",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne07",
+                    "name": "Intimidate Council",
+                    "text": "Have 1 or more ships in 2 systems that are adjacent to Mecatol Rex's System",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne08",
+                    "name": "Lead From the Front",
+                    "text": "Spend a total of 3 tokens from your tactic and/or strategy pools",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne09",
+                    "name": "Negotiate Trade Routes",
+                    "text": "Spend 5 trade goods",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                },
+                {
+                    "id": "objOne10",
+                    "name": "Sway the Council",
+                    "text": "Spend 8 influence",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "stage1"
+                }
+            ],
+        "stage2":
+            [
+                {
+                    "id": "objTwo01",
+                    "name": "Centralize Galactic Trade",
+                    "text": "Spend 10 trade goods",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo02",
+                    "name": "Conquer the Weak",
+                    "text": "Control 1 planet that is in another player's home system",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo03",
+                    "name": "Form Galactic Brain Trust",
+                    "text": "Control 5 planets that have technology specialties",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo04",
+                    "name": "Found a Golden Age",
+                    "text": "Spend 16 resources",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo05",
+                    "name": "Galvanize the People",
+                    "text": "Spend a total of 6 tokens from your tactic and/or strategy pools",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo06",
+                    "name": "Manipulate Galactic Law",
+                    "text": "Spend 16 influence",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo07",
+                    "name": "Master the Sciences",
+                    "text": "Own 2 technologies in each of 4 colors",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo08",
+                    "name": "Revolutionize Warfare",
+                    "text": "Own 3 unit upgrade technologies",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo09",
+                    "name": "Subdue the Galaxy",
+                    "text": "Control 11 planets in non-home systems",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                },
+                {
+                    "id": "objTwo10",
+                    "name": "Unify the Colonies",
+                    "text": "Control 6 planets that each have the same planet trait",
+                    "points": 2,
+                    "phase": "Status Phase",
+                    "stage": "stage2"
+                }
+            ],
+        "secret":
+            [
+                {
+                    "id": "objSecret01",
+                    "name": "Destroy Their Greatest Ship",
+                    "text": "Destroy another player's war sun or flagship",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret02",
+                    "name": "Make an Example of Their World",
+                    "text": "Use BOMBARDMENT to destroy the last of a player's ground forces on a planet",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret03",
+                    "name": "Spark a Rebellion",
+                    "text": "Win a combat against a player who has the most victory points",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret04",
+                    "name": "Turn Their Fleets to Dust",
+                    "text": "Use SPACE CANNON to destroy the last of a player's ships in a system",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret05",
+                    "name": "Unveil Flagship",
+                    "text": "Win a space combat in a system that contains your flagship. You cannot score this objective if your flagship is destroyed in the combat",
+                    "points": 1,
+                    "phase": "Action Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret06",
+                    "name": "Adapt New Strategies",
+                    "text": "Own 2 faction technologies. (Valefar Assimilator technologies do not count toward this objective)",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret07",
+                    "name": "Become the Gatekeeper",
+                    "text": "Have 1 or more ships in a system that contains an alpha wormhole and 1 or more ships in a system that contains a beta wormhole",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret08",
+                    "name": "Control the Region",
+                    "text": "Have 1 or more ships in 6 systems",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret09",
+                    "name": "Cut Supply Lines",
+                    "text": "Have 1 or more ships in the same system as another player's space dock",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret10",
+                    "name": "Establish a Perimeter",
+                    "text": "Have 4 PDS units on the game board",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret11",
+                    "name": "Forge an Alliance",
+                    "text": "Control 4 cultural planets",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret12",
+                    "name": "Form a Spy Network",
+                    "text": "Discard 5 action Cards",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret13",
+                    "name": "Fuel the War Machine",
+                    "text": "Have 3 space docks on the game board",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret14",
+                    "name": "Gather a Mighty Fleet",
+                    "text": "Have 5 dreadnoughts on the game board",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret15",
+                    "name": "Learn the Secrets of the Cosmos",
+                    "text": "Have 1 or more ships in 3 systems that are each adjacent to an anomaly",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret16",
+                    "name": "Master the Laws of Physics",
+                    "text": "Own 4 technologies of the same color",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret17",
+                    "name": "Mine Rare Metals",
+                    "text": "Control 4 hazardous planets",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret18",
+                    "name": "Monopolize Production",
+                    "text": "Control 4 industrial planets",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret19",
+                    "name": "Occupy the Seat of the Empire",
+                    "text": "Control Mecatol Rex and have 3 or more ships in its system",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                },
+                {
+                    "id": "objSecret20",
+                    "name": "Threaten Enemies",
+                    "text": "Have 1 or more ships in a system that is adjacent to another player's home system",
+                    "points": 1,
+                    "phase": "Status Phase",
+                    "stage": "secret"
+                }
+            ]
+    }
+]
