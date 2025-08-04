@@ -472,12 +472,17 @@
 		document.getElementById("btnSuperuser").innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/superuser_' + superuserHtml + '.png"><div class="sideMenuItemText">Superuser</div>';
 
 		// Check if refresher
+		console.log('🔄 CLIENT: Checking auto-refresh settings...');
 		var refresherCookies = localStorage.getItem('autorefresh');
+		console.log('🔄 CLIENT: Auto-refresh cookie value:', refresherCookies);
+		
 		if (refresherCookies == null) {
 			localStorage.setItem('autorefresh', false);
 			autorefresh = false;
+			console.log('🔄 CLIENT: No auto-refresh cookie found, setting to false');
 		} else {
 			autorefresh = (refresherCookies == "true"); // Set string of boolean to actual boolean
+			console.log('🔄 CLIENT: Auto-refresh enabled:', autorefresh);
 			if (autorefresh) $("sideMenuRefresh").addClass("active");
 		}
 
@@ -577,8 +582,22 @@
 			// Create elemtns for Stage 2
 			var objectives2HTML = createObjectives(2);
 	
-			// If the objectives don't load do this ugly reload
-			if (data == undefined || data[0].cards.length > document.getElementById("objectives1").childElementCount) window.location.reload();
+					// If the objectives don't load do this ugly reload
+		console.log('🔍 CLIENT: Checking reload condition...');
+		console.log('📊 CLIENT: data defined:', data !== undefined);
+		console.log('📊 CLIENT: data[0].cards.length:', data ? data[0].cards.length : 'N/A');
+		console.log('📊 CLIENT: objectives1 element exists:', document.getElementById("objectives1") !== null);
+		console.log('📊 CLIENT: objectives1 childElementCount:', document.getElementById("objectives1") ? document.getElementById("objectives1").childElementCount : 'N/A');
+		
+		var shouldReload = data == undefined || data[0].cards.length > document.getElementById("objectives1").childElementCount;
+		console.log('⚠️ CLIENT: Should reload?', shouldReload);
+		
+		if (shouldReload) {
+			console.log('🔄 CLIENT: RELOADING PAGE due to objectives mismatch!');
+			window.location.reload();
+		} else {
+			console.log('✅ CLIENT: No reload needed, continuing...');
+		}
 
 			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
 			if (players.length != 0) {
@@ -922,12 +941,14 @@
 			
 			newCard(allObjectives);
 
-			if (autorefresh) {
-				document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
-				autorefreshInterval = setInterval(refreshPage, 1000);
-			} else {
-				document.getElementById("sideMenuRefresh").innerHTML = "";
-			}
+					if (autorefresh) {
+			console.log('🔄 CLIENT: STARTING AUTO-REFRESH with', refreshCounter, 'second countdown');
+			document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+			autorefreshInterval = setInterval(refreshPage, 1000);
+		} else {
+			console.log('✅ CLIENT: Auto-refresh disabled, no timer set');
+			document.getElementById("sideMenuRefresh").innerHTML = "";
+		}
 		
 		}).fail(function(jqXHR, textStatus, errorThrown) {
 			console.error("❌ CLIENT: Failed to load data.json!");
@@ -941,7 +962,9 @@
 
 	function refreshPage() {
 		refreshCounter--;
+		console.log('🔄 CLIENT: Auto-refresh countdown:', refreshCounter);
 		if (refreshCounter < 0) {
+			console.log('🔄 CLIENT: AUTO-REFRESH TRIGGERED - RELOADING PAGE!');
 			window.location.reload();
 		} else {
 			document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
