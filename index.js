@@ -283,6 +283,7 @@ io.on('connection', function(socket){
     });
 
 	socket.on('changeVP', function(dataToProcess){
+        console.log('📊 SOCKET: Received changeVP event, data:', dataToProcess);
         io.emit('changeVP', dataToProcess);
 
         var jsonData;
@@ -423,6 +424,7 @@ io.on('connection', function(socket){
     });
 
 	socket.on('reset', function(dataToProcess){
+        console.log('🔄 SOCKET: Received reset event');
         io.emit('reset', dataToProcess);
 
         var jsonData;

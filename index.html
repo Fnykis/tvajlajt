@@ -361,8 +361,8 @@
 		<div id="btnNew" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/new.png"><div class="sideMenuItemText">New game</div></div>
 		<div id="btnAddcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/addcard.png"><div class="sideMenuItemText">Add card</div></div>
 		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/changecard.png"><div class="sideMenuItemText">Adjust card</div></div>
-		<!-- <div id="btnEdit" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Tamper score</div></div> -->
-		<!-- <div id="btnReset" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">Reset</div></div> -->
+		            <div id="btnEdit" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Tamper score</div></div>
+            <div id="btnReset" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">Reset</div></div>
 		<div id="btnSuperuser" class="sideMenuItem" onclick="buttonClick(event, this.id)"></div>
 	</div></div>
 	
@@ -889,7 +889,7 @@
 										vpPressed = { "player": playerID, "category": "custodian" };
 										// Direct Socket.IO emission for custodian VP change
 										var vpData = [playerID, "custodian"];
-										console.log('📡 CLIENT: Emitting custodian VP change:', vpData);
+										console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
 										socket.emit('changeVP', vpData);
 										noBubbling(event);
 									}
@@ -1279,16 +1279,19 @@
 		} else {
 			adjustment = "down";
 		}
-		var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=" + vpPressed.category + "&adjust=" + adjustment;
-		window.location = serverUrl + urlVars;
+		// Direct Socket.IO emission for VP adjustment
+		var vpData = [vpPressed.player, vpPressed.category, adjustment];
+		console.log('📡 CLIENT: Emitting VP adjustment:', vpData);
+		socket.emit('changeVP', vpData);
 	}
 
 	function buttonClick(event, id) {
 		if (id == "btnReset" && superuser) {
 			closeMenu();
 			if (confirm("Are you sure you want to reset?\nThis will hide all cards, zero all points and remove all players.")) {
-				var urlVars = "?request=reset";
-				window.location = serverUrl + urlVars;
+				// Direct Socket.IO emission for game reset
+				console.log('📡 CLIENT: Emitting game reset');
+				socket.emit('reset', {});
 			}
 		} else if (id == "btnEdit" && superuser) {
 			closeMenu();
