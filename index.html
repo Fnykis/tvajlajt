@@ -659,6 +659,9 @@
 			var objectives1HTML = createObjectives(1, data, players);
 			// Create elements for Stage 2
 			var objectives2HTML = createObjectives(2, data, players);
+			
+			// Create scoreboard
+			createScoreboard(players, playerScores);
 	
 			// Check if the objectives data is valid (but don't reload immediately)
 			console.log('🔍 CLIENT: Checking objectives data validity...');
@@ -907,20 +910,6 @@
 					}
 					activeCardIndex++;
 				}
-
-				// Create scoreboard
-				var scoreboardHtml = "";
-				var scoreboardDiv = document.getElementById("scoreboard");
-					scoreboardDiv.innerHTML = "";
-				for (var i = 0; i < players.length; i++) { // Iterate players
-					var el_ScoreToken = document.createElement("div");
-						el_ScoreToken.className = 'scoretile';
-						el_ScoreToken.title = decodeURIComponent(players[i].player);
-						el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
-					scoreboardDiv.appendChild(el_ScoreToken);
-					
-				}
-				
 			}
 
 			function createAdditionalPoints(players) {
@@ -960,6 +949,8 @@
 										var vpData = [playerID, "custodian"];
 										console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
 										socket.emit('changeVP', vpData);
+										// Close the custodian menu after selection
+										document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
 										noBubbling(event);
 									}
 									wrapper.appendChild(el_Token);
@@ -1034,6 +1025,25 @@
 							}
 							el_VPWrapper.appendChild(el_TokensWrapper);
 					addEldiv.appendChild(el_VPWrapper);
+				}
+			}
+			
+			// Function to create the scoreboard
+			function createScoreboard(players, playerScores) {
+				console.log('📊 CLIENT: Creating scoreboard...');
+				var scoreboardDiv = document.getElementById("scoreboard");
+				if (scoreboardDiv) {
+					scoreboardDiv.innerHTML = "";
+					for (var i = 0; i < players.length; i++) { // Iterate players
+						var el_ScoreToken = document.createElement("div");
+						el_ScoreToken.className = 'scoretile';
+						el_ScoreToken.title = decodeURIComponent(players[i].player);
+						el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
+						scoreboardDiv.appendChild(el_ScoreToken);
+					}
+					console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
+				} else {
+					console.error('❌ CLIENT: Scoreboard div not found!');
 				}
 			}
 			
@@ -1186,6 +1196,9 @@
 				console.log('🎮 CLIENT: Rebuilding Stage 2 objectives...');
 				createObjectivesForUpdate(2, data, players);
 			}
+			
+			// Recreate scoreboard
+			createScoreboard(players, playerScores);
 			
 			// Recreate additional elements if there are players
 			if (players.length > 0) {
@@ -1448,6 +1461,8 @@
 						var vpData = [playerID, "custodian"];
 						console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
 						socket.emit('changeVP', vpData);
+						// Close the custodian menu after selection
+						document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
 						noBubbling(event);
 					}
 					wrapper.appendChild(el_Token);

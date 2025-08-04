@@ -59,13 +59,11 @@ app.get('/network_status.html', function(req, res){
 
 // Handle favicon requests to prevent 404 errors
 app.get('/favicon.ico', function(req, res) {
-	console.log('🖼️ REQUEST: Favicon request (returning 204)');
 	res.status(204).end();
 });
 
 // Handle other favicon requests
 app.get('/assets/media/favicon/*', function(req, res) {
-	console.log('🖼️ REQUEST: Favicon assets request (returning 204)');
 	res.status(204).end();
 });
 
