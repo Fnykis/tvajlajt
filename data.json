@@ -4,11 +4,11 @@
         "cards":
         [
             {
-                "id":"stage1_1",
+                "id":"objOne01",
                 "scores":[{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false}]
             },
             {
-                "id":null,
+                "id":"objOne02",
                 "scores":[{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false}]
             },
             {
