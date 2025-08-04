@@ -528,6 +528,12 @@
 		var scoreboardDiv = document.getElementById("scoreboard");
 		if (scoreboardDiv) {
 			scoreboardDiv.innerHTML = "";
+			
+			// Add click handler to the scoreboard div
+			scoreboardDiv.onclick = function() {
+				showScoreboardDetails(players, playerScores);
+			};
+			
 			for (var i = 0; i < players.length; i++) { // Iterate players
 				var el_ScoreToken = document.createElement("div");
 				el_ScoreToken.className = 'scoretile';
@@ -539,6 +545,22 @@
 		} else {
 			console.error('❌ CLIENT: Scoreboard div not found!');
 		}
+	}
+	
+	// Function to show scoreboard details in bigletter
+	function showScoreboardDetails(players, playerScores) {
+		console.log('📊 CLIENT: Showing scoreboard details...');
+		var html = '<div class="blTitle">Player Scores</div>';
+		
+		for (var i = 0; i < players.length; i++) {
+			html += '<div class="blText" style="margin: 2vw 0;">';
+			html += '<img src="assets/media/factions/' + players[i].faction + '.png" style="width: 4vw; height: 4vw; margin-right: 2vw;">';
+			html += decodeURIComponent(players[i].player) + ': ' + playerScores[i] + ' VP';
+			html += '</div>';
+		}
+		
+		$('#bigletter').html(html);
+		document.getElementById('bigletter').style.visibility = 'visible';
 	}
 
     window.onload = function() {
@@ -1674,11 +1696,19 @@
 	}
 	
 	function getCardInfo(id) {
+		console.log('🔍 CLIENT: getCardInfo called with id:', id);
+		console.log('🔍 CLIENT: allObjectives length:', allObjectives.length);
+		var theObj = null;
 		for (var allCardIndex = 0; allCardIndex < allObjectives.length; allCardIndex++) {
 			if (id == allObjectives[allCardIndex].id) {
-				var theObj = allObjectives[allCardIndex];
+				theObj = allObjectives[allCardIndex];
+				console.log('✅ CLIENT: Found card info:', theObj);
 				break;
 			}
+		}
+		if (!theObj) {
+			console.error('❌ CLIENT: Card info not found for id:', id);
+			console.log('🔍 CLIENT: Available card IDs:', allObjectives.map(obj => obj.id));
 		}
 		return theObj;
 	}
@@ -1804,6 +1834,8 @@
 		
 		// Extract community cards setting
 		var communityCards = formData.get('communitycards') === 'true';
+		console.log('🔍 CLIENT: Raw community cards value:', formData.get('communitycards'));
+		console.log('🔍 CLIENT: Processed community cards value:', communityCards);
 		
 		// Extract players data
 		var players = [];
