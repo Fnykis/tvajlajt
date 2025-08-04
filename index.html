@@ -1195,16 +1195,25 @@
 		allPlayers = [];
 		allScores = [];
 		
+		// Load objectives first, then update interface
+		loadObjectivesAndUpdateInterface(data);
+	}
+	
+	// Function to load objectives and then update interface
+	function loadObjectivesAndUpdateInterface(data) {
+		console.log('📊 CLIENT: Loading objectives for interface update...');
+		
+		// Clear existing objectives arrays first
+		allObjectives = [];
+		stageOneObjectives = [];
+		stageTwoObjectives = [];
+		secretObjectives = [];
+		
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		
 		// Check if community cards are enabled and load them if needed
 		if (data[3] && data[3].communitycards) {
 			console.log('🎮 CLIENT: Community cards enabled, loading for refresh...');
-			var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-			
-			// Clear existing objectives arrays first
-			allObjectives = [];
-			stageOneObjectives = [];
-			stageTwoObjectives = [];
-			secretObjectives = [];
 			
 			$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
 				console.log('✅ CLIENT: Main database loaded for refresh!');
@@ -1250,14 +1259,6 @@
 			});
 		} else {
 			console.log('ℹ️ CLIENT: Community cards disabled, loading only main database for refresh');
-			
-			// Clear existing objectives arrays first
-			allObjectives = [];
-			stageOneObjectives = [];
-			stageTwoObjectives = [];
-			secretObjectives = [];
-			
-			var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
 			
 			$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
 				console.log('✅ CLIENT: Main database loaded for refresh!');
