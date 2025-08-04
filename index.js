@@ -149,6 +149,7 @@ io.on('connection', function(socket){
     });
     
     socket.on('adjustRemove', function(dataToProcess){
+        console.log('📡 SOCKET: Received adjustRemove event, data:', dataToProcess);
         io.emit('adjustRemove', dataToProcess);
 
         var jsonData;
@@ -166,6 +167,7 @@ io.on('connection', function(socket){
     });
     
     socket.on('adjustHide', function(dataToProcess){
+        console.log('📡 SOCKET: Received adjustHide event, data:', dataToProcess);
         io.emit('adjustHide', dataToProcess);
 
         var jsonData;

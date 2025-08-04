@@ -703,16 +703,18 @@
 										stagePressed = this.parentNode.parentNode.parentNode.id;
 										stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
 										if (clickMode != null) {
-											if (clickMode == "hide" || clickMode == "remove") {
-												if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
-													var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
-												}
-											} else {
-												cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
-												document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
-												event.stopPropagation();
+																					if (clickMode == "hide" || clickMode == "remove") {
+											if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
+												// Direct Socket.IO emission for card adjustment
+												var adjustData = [clickMode, stagePressed, cardPressed, cardPressedIndex];
+												console.log('📡 CLIENT: Emitting card adjustment:', adjustData);
+												socket.emit('adjust' + clickMode.charAt(0).toUpperCase() + clickMode.slice(1), adjustData);
 											}
-											window.location = serverUrl + urlVars;
+										} else {
+											cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
+											document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+											event.stopPropagation();
+										}
 										} else {
 											var cardPressedStage = this.parentNode.parentNode.parentNode.id;
 												cardPressedStage = parseInt(cardPressedStage.substring(cardPressedStage.length - 1, cardPressedStage.length));
@@ -762,15 +764,17 @@
 										el_Tokens.title = decodeURIComponent(players[j].player);
 										el_Tokens.id = j;
 										el_Tokens.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
-										el_Tokens.onclick = function() {
-											if (superuser) {
-												tokenPressed = this.id;
-												var urlVars = "?request=token&stage=" + stageIndex + "&card=" + this.parentNode.id + "&player=" + tokenPressed;
-												window.location = serverUrl + urlVars;
-											} else {
-												notSuperuser();
-											}
+																			el_Tokens.onclick = function() {
+										if (superuser) {
+											tokenPressed = this.id;
+											// Direct Socket.IO emission for token scoring
+											var tokenData = [stageIndex, this.parentNode.id, tokenPressed];
+											console.log('📡 CLIENT: Emitting token scoring:', tokenData);
+											socket.emit('token', tokenData);
+										} else {
+											notSuperuser();
 										}
+									}
 										el_TokensWrapper.appendChild(el_Tokens);
 								}
 								
@@ -983,7 +987,6 @@
 
 	function refreshPage() {
 		refreshCounter--;
-		console.log('🔄 CLIENT: Auto-refresh countdown:', refreshCounter);
 		if (refreshCounter < 0) {
 			console.log('🔄 CLIENT: AUTO-REFRESH TRIGGERED - Updating data via Socket.IO');
 			// Instead of reloading, request fresh data and update the view
@@ -1058,12 +1061,14 @@
 			var el_ListItem = document.createElement("div");
 				el_ListItem.className = "objectiveListItem";
 				el_ListItem.innerHTML = objArray[i].name;
-				el_ListItem.id = objArray[i].id;
-				el_ListItem.onclick = function() {
-					var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
-					window.location = serverUrl + urlVars;
-				}
-			document.getElementById('objectiveList').appendChild(el_ListItem);
+						el_ListItem.id = objArray[i].id;
+		el_ListItem.onclick = function() {
+			// Direct Socket.IO emission instead of page redirect
+			var cardData = [cardPressed, this.id, "normal"];
+			console.log('📡 CLIENT: Emitting card selection:', cardData);
+			socket.emit('update', cardData);
+		}
+	document.getElementById('objectiveList').appendChild(el_ListItem);
 		}
 		event.stopPropagation();
 	}
@@ -1181,12 +1186,14 @@
 				var el_ListItem = document.createElement("div");
 					el_ListItem.className = "objectiveListItem";
 					el_ListItem.innerHTML = objArray[j].name;
-					el_ListItem.id = objArray[j].id;
-					el_ListItem.onclick = function() {
-						var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
-						window.location = serverUrl + urlVars;
-					}
-				document.getElementById('objectiveList').appendChild(el_ListItem);
+									el_ListItem.id = objArray[j].id;
+				el_ListItem.onclick = function() {
+					// Direct Socket.IO emission instead of page redirect
+					var cardData = [cardPressed, this.id, "normal"];
+					console.log('📡 CLIENT: Emitting card selection (community):', cardData);
+					socket.emit('update', cardData);
+				}
+			document.getElementById('objectiveList').appendChild(el_ListItem);
 			}
 			document.getElementById('objectiveMenuWrapper').style.visibility = 'visible';
 			document.getElementById('objectiveMenu').style.visibility = 'visible';
@@ -1207,8 +1214,10 @@
 	}
 
 	function addCard(event, stage) {
-		var urlVars = "?request=addCard&stage=" + stage;
-		window.location = serverUrl + urlVars;
+		// Direct Socket.IO emission for adding cards
+		console.log('📡 CLIENT: Emitting add card for stage:', stage);
+		socket.emit('addCard', stage);
+		closeMenu(); // Close the menu after action
 	}
 
 	function changeVP(event, adjustment) {
