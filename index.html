@@ -730,9 +730,9 @@
 			};
 			
 			// Create elements for Stage 1
-			var objectives1HTML = createObjectives(1, data, players);
+			var objectives1HTML = createObjectives(1, data, players, playerScores);
 			// Create elements for Stage 2
-			var objectives2HTML = createObjectives(2, data, players);
+			var objectives2HTML = createObjectives(2, data, players, playerScores);
 			
 			// Create scoreboard
 			createScoreboard(players, playerScores);
@@ -794,7 +794,7 @@
 			}
 		}
 
-			function createObjectives(stage, data, players) {
+			function createObjectives(stage, data, players, playerScores) {
 				var divHTML = "";
 				var stageIndex = stage-1;
 				stagePressed = stage;
@@ -861,6 +861,7 @@
 												event.stopPropagation();
 											}
 										} else {
+											console.log('🎯 CLIENT: Card clicked - showing bigletter');
 											var cardPressedStage = this.parentNode.parentNode.parentNode.id;
 												cardPressedStage = parseInt(cardPressedStage.substring(cardPressedStage.length - 1, cardPressedStage.length));
 											var blTokensHtml = "";
@@ -874,19 +875,27 @@
 												if (scoreArr[j].scored) blTokensHtml = blTokensHtml + '<img src="assets/media/factions/' + players[j].faction + '.png">';
 											}
 											var cardObjDatabase = getCardInfo(this.id);
-											var cardPhase = cardObjDatabase.phase;
-											var phaseColor = "";
-											if (cardPhase == "Action Phase") phaseColor = "red";
-											var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
-														'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
-														'<div class="blText">' + cardObjDatabase.text + '</div>'+
-														'<div class="blPhaseAndPoints">'+
-															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
-															'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
-															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
-														'</div>';
-											$('#bigletter').html(html);
-											document.getElementById('bigletter').style.visibility = 'visible';
+											console.log('🎯 CLIENT: Card object database:', cardObjDatabase);
+											
+											if (cardObjDatabase) {
+												var cardPhase = cardObjDatabase.phase;
+												var phaseColor = "";
+												if (cardPhase == "Action Phase") phaseColor = "red";
+												var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
+															'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
+															'<div class="blText">' + cardObjDatabase.text + '</div>'+
+															'<div class="blPhaseAndPoints">'+
+																'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
+																'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
+																'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+															'</div>';
+												console.log('🎯 CLIENT: Bigletter HTML:', html);
+												$('#bigletter').html(html);
+												document.getElementById('bigletter').style.visibility = 'visible';
+												console.log('🎯 CLIENT: Bigletter should now be visible');
+											} else {
+												console.error('❌ CLIENT: Card object database is null/undefined');
+											}
 										}
 									};
 								el_Objective.appendChild(el_ObjectiveText);
