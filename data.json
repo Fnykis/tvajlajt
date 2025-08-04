@@ -4,11 +4,11 @@
         "cards":
         [
             {
-                "id":"objOne01",
+                "id":null,
                 "scores":[{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false}]
             },
             {
-                "id":"objOneCommunity01",
+                "id":null,
                 "scores":[{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false},{"scored":false}]
             },
             {

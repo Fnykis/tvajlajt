@@ -625,20 +625,20 @@
 				console.log('📊 CLIENT: Stage 2 objectives:', stageTwoObjectives.length);
 				
 				// Now create the objectives after all cards are loaded
-				createGameInterface(data, players, playerScores);
+				createGameInterface(data);
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				console.error('❌ CLIENT: Failed to load community database:', errorThrown);
 				// Continue without community cards
-				createGameInterface(data, players, playerScores);
+				createGameInterface(data);
 			});
 		} else {
 			console.log('ℹ️ CLIENT: Community cards disabled');
 			// Create objectives immediately if no community cards
-			createGameInterface(data, players, playerScores);
+			createGameInterface(data);
 		}
 		
 		// Function to create the game interface after all cards are loaded
-		function createGameInterface(data, players, playerScores) {
+		function createGameInterface(data) {
 			console.log('🎮 CLIENT: Creating game interface...');
 			
 			// Process players data
