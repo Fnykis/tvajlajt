@@ -44,6 +44,12 @@ app.get('/send.html', function(req, res){
 	res.sendFile(__dirname + '/send.html');
 });
 
+// Test page route
+app.get('/test_cards.html', function(req, res){
+	console.log('🧪 REQUEST: Serving test_cards.html test page');
+	res.sendFile(__dirname + '/test_cards.html');
+});
+
 // Handle favicon requests to prevent 404 errors
 app.get('/favicon.ico', function(req, res) {
 	console.log('🖼️ REQUEST: Favicon request (returning 204)');
