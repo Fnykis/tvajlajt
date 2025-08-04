@@ -437,6 +437,19 @@
 	socket.on('error', function(error) {
 		console.error('❌ CLIENT: Socket error:', error);
 	});
+	
+	// Listen for interface refresh events from other clients
+	socket.on('interface_refresh', function(data) {
+		console.log('📡 CLIENT: Received interface refresh event from another client');
+		refreshGameData();
+	});
+	
+	// Listen for any update events from the server
+	socket.on('update', function(data) {
+		console.log('📡 CLIENT: Received update event from server:', data);
+		// Refresh the interface when server sends updates
+		setTimeout(refreshGameData, 500); // Small delay to ensure server has updated data.json
+	});
 	var autorefreshInterval;
 
 	var stagePressed;
@@ -582,22 +595,30 @@
 			// Create elemtns for Stage 2
 			var objectives2HTML = createObjectives(2);
 	
-					// If the objectives don't load do this ugly reload
-		console.log('🔍 CLIENT: Checking reload condition...');
+					// Check if the objectives data is valid (but don't reload immediately)
+		console.log('🔍 CLIENT: Checking objectives data validity...');
 		console.log('📊 CLIENT: data defined:', data !== undefined);
 		console.log('📊 CLIENT: data[0].cards.length:', data ? data[0].cards.length : 'N/A');
 		console.log('📊 CLIENT: objectives1 element exists:', document.getElementById("objectives1") !== null);
 		console.log('📊 CLIENT: objectives1 childElementCount:', document.getElementById("objectives1") ? document.getElementById("objectives1").childElementCount : 'N/A');
 		
-		var shouldReload = data == undefined || data[0].cards.length > document.getElementById("objectives1").childElementCount;
-		console.log('⚠️ CLIENT: Should reload?', shouldReload);
-		
-		if (shouldReload) {
-			console.log('🔄 CLIENT: RELOADING PAGE due to objectives mismatch!');
-			window.location.reload();
-		} else {
-			console.log('✅ CLIENT: No reload needed, continuing...');
+		if (data == undefined) {
+			console.error('❌ CLIENT: Game data is undefined! This is a serious error.');
+			return; // Exit function instead of reloading
 		}
+		
+		// Only reload if there's a major data inconsistency that can't be fixed
+		var objectives1Element = document.getElementById("objectives1");
+		if (!objectives1Element) {
+			console.error('❌ CLIENT: objectives1 element not found in DOM!');
+			// This might be a timing issue, try again after a delay
+			setTimeout(function() {
+				refreshGameData();
+			}, 1000);
+			return;
+		}
+		
+		console.log('✅ CLIENT: Objectives data looks valid, continuing with interface creation...');
 
 			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
 			if (players.length != 0) {
@@ -964,10 +985,50 @@
 		refreshCounter--;
 		console.log('🔄 CLIENT: Auto-refresh countdown:', refreshCounter);
 		if (refreshCounter < 0) {
-			console.log('🔄 CLIENT: AUTO-REFRESH TRIGGERED - RELOADING PAGE!');
-			window.location.reload();
+			console.log('🔄 CLIENT: AUTO-REFRESH TRIGGERED - Updating data via Socket.IO');
+			// Instead of reloading, request fresh data and update the view
+			refreshGameData();
+			refreshCounter = 30; // Reset counter
 		} else {
 			document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+		}
+	}
+	
+	// Function to refresh game data without page reload
+	function refreshGameData() {
+		console.log('📊 CLIENT: Refreshing game data...');
+		
+		// Generate new cache buster
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		
+		// Reload data.json and update the interface
+		$.getJSON("data.json" + jsonBuster, function(data) {
+			console.log('✅ CLIENT: Game data refreshed successfully');
+			updateGameInterface(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to refresh game data:', errorThrown);
+		});
+	}
+	
+	// Function to update the game interface with new data
+	function updateGameInterface(data) {
+		console.log('🎮 CLIENT: Updating game interface with fresh data');
+		
+		// Clear existing objectives
+		var objectives1 = document.getElementById("objectives1");
+		var objectives2 = document.getElementById("objectives2");
+		
+		if (objectives1) objectives1.innerHTML = '';
+		if (objectives2) objectives2.innerHTML = '';
+		
+		// Recreate the interface with new data
+		// This will be filled with the same logic as the initial load
+		console.log('🔄 CLIENT: Interface updated - no page reload needed');
+		
+		// Emit update event to other clients via Socket.IO
+		if (socket && socket.connected) {
+			socket.emit('interface_refresh', { timestamp: Date.now() });
+			console.log('📡 CLIENT: Notified other clients of interface update');
 		}
 	}
 

@@ -59,6 +59,14 @@ app.get('/assets/media/favicon/*', function(req, res) {
 io.on('connection', function(socket){
 	console.log('🔌 SOCKET: New client connected, socket ID:', socket.id);
 
+	// Handle interface refresh requests
+	socket.on('interface_refresh', function(data) {
+		console.log('📡 SOCKET: Interface refresh requested by client:', socket.id);
+		// Broadcast to all other clients (except sender)
+		socket.broadcast.emit('interface_refresh', data);
+		console.log('📡 SOCKET: Interface refresh broadcasted to other clients');
+	});
+
 	socket.on('update', function(dataToProcess){
 		console.log('📡 SOCKET: Received update event, data:', dataToProcess);
         io.emit('update', dataToProcess);
