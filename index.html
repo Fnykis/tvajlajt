@@ -562,6 +562,67 @@
 		$('#bigletter').html(html);
 		document.getElementById('bigletter').style.visibility = 'visible';
 	}
+	
+	// Function to calculate scores from objectives
+	function calculateScoresFromObjectives(data, playerScores) {
+		console.log('📊 CLIENT: Calculating scores from objectives...');
+		
+		// Reset scores
+		for (var i = 0; i < playerScores.length; i++) {
+			playerScores[i] = 0;
+		}
+		
+		// Calculate from Stage 1 objectives
+		if (data[0] && data[0].cards) {
+			for (var i = 0; i < data[0].cards.length; i++) {
+				var cardID = data[0].cards[i].id;
+				if (cardID != null) {
+					var cardInfo = getCardInfo(cardID);
+					if (cardInfo) {
+						var cardPoints = parseInt(cardInfo.points);
+						for (var j = 0; j < data[0].cards[i].scores.length; j++) {
+							if (data[0].cards[i].scores[j].scored && j < playerScores.length) {
+								playerScores[j] += cardPoints;
+								console.log('📊 CLIENT: Player', j, 'scored', cardPoints, 'VP from Stage 1 card', cardID);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Calculate from Stage 2 objectives
+		if (data[1] && data[1].cards) {
+			for (var i = 0; i < data[1].cards.length; i++) {
+				var cardID = data[1].cards[i].id;
+				if (cardID != null) {
+					var cardInfo = getCardInfo(cardID);
+					if (cardInfo) {
+						var cardPoints = parseInt(cardInfo.points);
+						for (var j = 0; j < data[1].cards[i].scores.length; j++) {
+							if (data[1].cards[i].scores[j].scored && j < playerScores.length) {
+								playerScores[j] += cardPoints;
+								console.log('📊 CLIENT: Player', j, 'scored', cardPoints, 'VP from Stage 2 card', cardID);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Add additional VPs
+		for (var i = 0; i < data[2].players.length; i++) {
+			if (data[2].players[i].faction != null && i < playerScores.length) {
+				var additionalVP = data[2].players[i].vp_custodian + data[2].players[i].vp_imperial + data[2].players[i].vp_secrets + data[2].players[i].vp_riders + data[2].players[i].vp_other;
+				playerScores[i] += additionalVP;
+				if (additionalVP > 0) {
+					console.log('📊 CLIENT: Player', i, 'has', additionalVP, 'additional VP');
+				}
+			}
+		}
+		
+		console.log('📊 CLIENT: Final player scores:', playerScores);
+	}
 
     window.onload = function() {
 		console.log('🚀 CLIENT: Window loaded, initializing application...');
@@ -593,57 +654,13 @@
 			if (autorefresh) $("sideMenuRefresh").addClass("active");
 		}
 
-		// Read json files and build content
-		console.log('📊 CLIENT: Generating cache buster for JSON requests...');
+		// Load game data and initialize interface
+		console.log('📊 CLIENT: Generating cache buster for data.json...');
 		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-		console.log('🔍 CLIENT: Cache buster:', jsonBuster);
+		console.log('🔍 CLIENT: Data cache buster:', jsonBuster);
 		
-		console.log('📊 CLIENT: Loading database.json...');
-		$.getJSON( "database.json" + jsonBuster, function(data) {
-			console.log("✅ CLIENT: Database loaded successfully!");
-			console.log("📊 CLIENT: Database structure:", data);
-
-			try {
-				console.log("🔍 CLIENT: Processing stage 1 objectives...");
-				for (var i = 0; i < data[0].stage1.length; i++) {
-					allObjectives.push(data[0].stage1[i]);
-					stageOneObjectives.push(data[0].stage1[i]);
-				}
-				console.log("✅ CLIENT: Stage 1 objectives loaded:", data[0].stage1.length, "cards");
-				
-				console.log("🔍 CLIENT: Processing stage 2 objectives...");
-				for (var i = 0; i < data[0].stage2.length; i++) {
-					allObjectives.push(data[0].stage2[i]);
-					stageTwoObjectives.push(data[0].stage2[i]);
-				}
-				console.log("✅ CLIENT: Stage 2 objectives loaded:", data[0].stage2.length, "cards");
-				
-				console.log("🔍 CLIENT: Processing secret objectives...");
-				for (var i = 0; i < data[0].secret.length; i++) {
-					allObjectives.push(data[0].secret[i]);
-					secretObjectives.push(data[0].secret[i]);
-				}
-				console.log("✅ CLIENT: Secret objectives loaded:", data[0].secret.length, "cards");
-				console.log("📊 CLIENT: Total objectives loaded:", allObjectives.length);
-			} catch(err) {
-				console.error("❌ CLIENT: Error processing database:", err);
-				console.error("📊 CLIENT: Database data was:", data);
-			}
-			
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-			console.error("❌ CLIENT: Failed to load database.json!");
-			console.error("📊 CLIENT: Status:", textStatus);
-			console.error("🐛 CLIENT: Error:", errorThrown);
-			console.error("🌐 CLIENT: URL attempted:", "database.json" + jsonBuster);
-			console.error("📄 CLIENT: Response:", jqXHR.responseText);
-		});
-	
-			console.log('📊 CLIENT: Generating second cache buster for data.json...');
-	var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-	console.log('🔍 CLIENT: Data cache buster:', jsonBuster);
-	
-	console.log('📊 CLIENT: Loading data.json...');
-	$.getJSON( "data.json" + jsonBuster, function(data) {
+		console.log('📊 CLIENT: Loading data.json...');
+		$.getJSON( "data.json" + jsonBuster, function(data) {
 		console.log("✅ CLIENT: Data.json loaded successfully!");
 		console.log("📊 CLIENT: Game data structure:", data);
 
@@ -723,11 +740,13 @@
 					var playah = data[2].players[i];
 					allPlayers.push(playah);
 					allScores.push(0);
-					allScores[i] = playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other;
 					players.push(playah);
-					playerScores.push(playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other);
+					playerScores.push(0); // Initialize to 0, will be calculated from objectives
 				}
 			};
+			
+			// Calculate scores from objectives
+			calculateScoresFromObjectives(data, playerScores);
 			
 			// Create elements for Stage 1
 			var objectives1HTML = createObjectives(1, data, players, playerScores);
@@ -909,8 +928,6 @@
 									var scoredClass = "";
 									if (data[stageIndex].cards[i].scores[j].scored) {
 										scoredClass = " scored";
-										playerScores[j] = playerScores[j] + cardPoints;
-										allScores[j] = allScores[j] + cardPoints;
 									}
 
 									var el_Tokens = document.createElement("div");
@@ -1264,22 +1281,24 @@
 		}
 	}
 	
-	// Function to update the game interface with cards already loaded
-	function updateGameInterfaceWithCards(data) {
-		try {
-			// Rebuild players array
-			var players = [];
-			var playerScores = [];
-			for (var i = 0; i < data[2].players.length; i++) {
-				if (data[2].players[i].faction != null) {
-					var playah = data[2].players[i];
-					allPlayers.push(playah);
-					allScores.push(0);
-					allScores[i] = playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other;
-					players.push(playah);
-					playerScores.push(playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other);
+			// Function to update the game interface with cards already loaded
+		function updateGameInterfaceWithCards(data) {
+			try {
+				// Rebuild players array
+				var players = [];
+				var playerScores = [];
+				for (var i = 0; i < data[2].players.length; i++) {
+					if (data[2].players[i].faction != null) {
+						var playah = data[2].players[i];
+						allPlayers.push(playah);
+						allScores.push(0);
+						players.push(playah);
+						playerScores.push(0); // Initialize to 0, will be calculated from objectives
+					}
 				}
-			}
+				
+				// Calculate scores from objectives
+				calculateScoresFromObjectives(data, playerScores);
 			
 			// Recreate objectives for both stages if they exist
 			if (data[0] && data[0].cards && data[0].cards.length > 0) {
