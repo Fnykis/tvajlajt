@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Access Status</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        .status.success { 
+            background-color: #d4edda; 
+            color: #155724; 
+            border-color: #c3e6cb;
+        }
+        .status.info { 
+            background-color: #d1ecf1; 
+            color: #0c5460; 
+            border-color: #bee5eb;
+        }
+        .url-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+        .qr-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Network Access Status</h1>
+        
+        <div class="status-section status success">
+            <h2>✅ Server Status</h2>
+            <p>The server is running and accessible from the network!</p>
+        </div>
+        
+        <div class="status-section status info">
+            <h2>📱 Mobile Access URLs</h2>
+            <p>Use one of these URLs to access the application from mobile devices on the same network:</p>
+            
+            <div class="url-box">
+                <strong>Main Application:</strong> <span id="main-url">Loading...</span>
+                <button class="copy-btn" onclick="copyToClipboard('main-url')">Copy</button>
+            </div>
+            
+            <div class="url-box">
+                <strong>Test Page:</strong> <span id="test-url">Loading...</span>
+                <button class="copy-btn" onclick="copyToClipboard('test-url')">Copy</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Instructions for Mobile Access:</h3>
+            <ol>
+                <li>Make sure your mobile device is connected to the same WiFi network as this computer</li>
+                <li>Open your mobile browser and enter one of the URLs above</li>
+                <li>The application should load and work the same as on the desktop</li>
+                <li>All features including card selection, scoring, and real-time updates will work</li>
+            </ol>
+        </div>
+        
+        <div class="status-section">
+            <h2>🔧 Troubleshooting</h2>
+            <ul>
+                <li><strong>Can't connect?</strong> Check that both devices are on the same network</li>
+                <li><strong>Firewall issues?</strong> Make sure port 3000 is not blocked</li>
+                <li><strong>Slow loading?</strong> Check your network connection speed</li>
+                <li><strong>Still having issues?</strong> Try accessing from the host computer first to verify the server is working</li>
+            </ul>
+        </div>
+        
+        <div class="qr-section">
+            <h3>📱 Quick Access QR Code</h3>
+            <p>Scan this QR code with your mobile device to quickly access the application:</p>
+            <div id="qr-code">Loading QR code...</div>
+        </div>
+    </div>
+
+    <script>
+        // Get the current hostname and port
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        
+        // Update URLs
+        document.getElementById('main-url').textContent = `${protocol}//${hostname}:${port}/`;
+        document.getElementById('test-url').textContent = `${protocol}//${hostname}:${port}/test_cards.html`;
+        
+        // Copy to clipboard function
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(function() {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#007bff';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Could not copy to clipboard. Please copy manually.');
+            });
+        }
+        
+        // Generate QR code using a simple API
+        function generateQRCode() {
+            const url = document.getElementById('main-url').textContent;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+            
+            const qrDiv = document.getElementById('qr-code');
+            qrDiv.innerHTML = `<img src="${qrApiUrl}" alt="QR Code for ${url}" style="border: 1px solid #ddd; border-radius: 4px;">`;
+        }
+        
+        // Generate QR code when page loads
+        window.onload = function() {
+            setTimeout(generateQRCode, 500);
+        };
+        
+        // Test network connectivity
+        function testConnectivity() {
+            const testUrl = document.getElementById('main-url').textContent;
+            fetch(testUrl)
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Network connectivity test passed');
+                    } else {
+                        console.warn('⚠️ Network connectivity test returned status:', response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Network connectivity test failed:', error);
+                });
+        }
+        
+        // Run connectivity test
+        testConnectivity();
+    </script>
+</body>
+</html>

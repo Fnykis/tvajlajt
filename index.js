@@ -3,6 +3,7 @@ var app = express();
 var fs = require('fs');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
+var os = require('os');
 
 console.log('🚀 SERVER: Starting Tvajlajt server...');
 console.log('📂 SERVER: Setting up routes and middleware...');
@@ -48,6 +49,12 @@ app.get('/send.html', function(req, res){
 app.get('/test_cards.html', function(req, res){
 	console.log('🧪 REQUEST: Serving test_cards.html test page');
 	res.sendFile(__dirname + '/test_cards.html');
+});
+
+// Network status page route
+app.get('/network_status.html', function(req, res){
+	console.log('🌐 REQUEST: Serving network_status.html page');
+	res.sendFile(__dirname + '/network_status.html');
 });
 
 // Handle favicon requests to prevent 404 errors
@@ -460,16 +467,36 @@ io.on('connection', function(socket) {
     });
 });
 
-http.listen(3000, function(){
+http.listen(3000, '0.0.0.0', function(){
+	// Get the host's IP address for network access
+	function getLocalIPAddress() {
+		const interfaces = os.networkInterfaces();
+		for (const name of Object.keys(interfaces)) {
+			for (const interface of interfaces[name]) {
+				// Skip internal and non-IPv4 addresses
+				if (interface.family === 'IPv4' && !interface.internal) {
+					return interface.address;
+				}
+			}
+		}
+		return 'localhost';
+	}
+	
+	const hostIP = getLocalIPAddress();
+	
 	console.log('\n🎉 SERVER: Successfully started!');
-	console.log('🌐 SERVER: Listening on http://localhost:3000');
+	console.log('🌐 SERVER: Listening on http://0.0.0.0:3000');
+	console.log('🖥️  SERVER: Access from host: http://localhost:3000');
+	console.log('📱 SERVER: Access from network: http://' + hostIP + ':3000');
 	console.log('🛑 SERVER: To stop the server use Ctrl+C');
 	console.log('\n📋 SERVER: Available routes:');
-	console.log('  - GET /               -> index.html (main app)');
-	console.log('  - GET /send.html      -> send.html (utility)');
-	console.log('  - GET /data.json      -> game data');
-	console.log('  - GET /database.json  -> card database');
-	console.log('  - GET /assets/*       -> static files');
+	console.log('  - GET /                    -> index.html (main app)');
+	console.log('  - GET /send.html           -> send.html (utility)');
+	console.log('  - GET /test_cards.html     -> test_cards.html (testing)');
+	console.log('  - GET /network_status.html -> network_status.html (network info)');
+	console.log('  - GET /data.json           -> game data');
+	console.log('  - GET /database.json       -> card database');
+	console.log('  - GET /assets/*            -> static files');
 	console.log('\n📡 SOCKET: WebSocket server ready for connections');
 	console.log('\n🔍 LOG: Event logging started...\n');
 });
