@@ -1204,26 +1204,36 @@
 
 						for (var j = 0; j < players.length; j++) {
 							var el_Token = document.createElement("div");
-							el_Token.className = "objToken";
-							el_Token.id = "stage" + stage + "_card" + activeCardIndex + "_player" + j;
 							
+							// Use correct CSS classes for scored/unscored tokens
 							if (data[stageIndex].cards[i].scores[j].scored) {
-								el_Token.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
+								el_Token.className = "objTokens scored";
 							} else {
-								el_Token.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '_bw.png">';
+								el_Token.className = "objTokens";
 							}
 							
-							// Add click handler for token scoring
-							el_Token.onclick = function(event) {
-								var tokenData = this.id.split("_");
-								var tokenStage = tokenData[0].replace("stage", "");
-								var tokenCard = tokenData[1].replace("card", "");
-								var tokenPlayer = tokenData[2].replace("player", "");
-								
-								console.log('📡 CLIENT: Emitting token score:', [tokenStage, tokenCard, tokenPlayer]);
-								socket.emit('token', [tokenStage, tokenCard, tokenPlayer]);
-								noBubbling(event);
-							};
+							el_Token.title = decodeURIComponent(players[j].player);
+							el_Token.id = j; // Simple player ID like in original
+							el_Token.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
+							
+							// Add click handler for token scoring (matching original logic)
+							(function(cardIndex) {
+								el_Token.onclick = function(event) {
+									if (superuser) {
+										var tokenPressed = this.id;
+										var stagePressed = stage;
+										var cardPressed = cardIndex;
+										
+										// Direct Socket.IO emission for token scoring
+										var tokenData = [stagePressed - 1, cardPressed, tokenPressed]; // stageIndex, cardIndex, playerIndex
+										console.log('📡 CLIENT: Emitting token scoring:', tokenData);
+										socket.emit('token', tokenData);
+									} else {
+										notSuperuser();
+									}
+									noBubbling(event);
+								};
+							})(activeCardIndex);
 							
 							el_TokensWrapper.appendChild(el_Token);
 						}
@@ -1270,8 +1280,118 @@
 		el_AddDiv.id = "additionalElements";
 		el_AddWrapperDiv.appendChild(el_AddDiv);
 		
-		// Create additional points elements (simplified version)
-		createAdditionalPoints();
+		// Create additional points elements with proper implementation
+		createAdditionalPointsComplete(players, data);
+	}
+	
+	// Complete implementation of additional points creation
+	function createAdditionalPointsComplete(players, data) {
+		var addEldiv = document.getElementById("additionalElements");
+
+		// Mecatol VP
+		var custodianHtml = "";
+		for (var i = 0; i < players.length; i++) { // Iterate players
+			if (players[i].vp_custodian) custodianHtml = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+		}
+		var el_MecatolWrapper = document.createElement("div");
+		el_MecatolWrapper.id = "mecatolScoreWrapper";
+		el_MecatolWrapper.style = "display: inline-block; vertical-align: top;"
+
+		var el_Mecatol = document.createElement("div");
+		el_Mecatol.title = "Custodian Token VP";
+		el_Mecatol.id = "mecatolScore";
+		el_Mecatol.innerHTML = custodianHtml;
+		el_Mecatol.onclick = function(event) {
+			if (superuser) {
+				var wrapper = document.getElementById('changeCustodianWrapper');
+				wrapper.innerHTML = "Custodian Victory Point<br><br>";
+				for (var i = 0; i < players.length; i++) { // Iterate players
+					var el_Token = document.createElement("div");
+					el_Token.className = 'custodianPick';
+					el_Token.title = decodeURIComponent(players[i].player);
+					el_Token.id = "custodian_" + i;
+					el_Token.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+					el_Token.onclick = function(event) {
+						var playerID = this.id.substring(this.id.length - 1, this.id.length);
+						vpPressed = { "player": playerID, "category": "custodian" };
+						// Direct Socket.IO emission for custodian VP change
+						var vpData = [playerID, "custodian"];
+						console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
+						socket.emit('changeVP', vpData);
+						noBubbling(event);
+					}
+					wrapper.appendChild(el_Token);
+				}
+				document.getElementById('changeCustodianWrapper').style.visibility = 'visible';
+				noBubbling(event);
+			} else {
+				notSuperuser();
+			}
+		}
+		el_MecatolWrapper.appendChild(el_Mecatol);
+		addEldiv.appendChild(el_MecatolWrapper);
+
+		// Imperial VP
+		createAddDivForUpdate("Imperial VP", '<img src="assets/media/imperial.png">', "imperial", players, addEldiv);
+		// Secrets VP
+		createAddDivForUpdate("Secrets VP", '<img src="assets/media/backside_secret.png">', "secrets", players, addEldiv);
+		// Rider VP
+		createAddDivForUpdate("Riders VP", '<img src="assets/media/rider.png">', "riders", players, addEldiv);
+		// Other VPs
+		createAddDivForUpdate("Other VPs", '<img src="assets/media/othervp.png">', "other", players, addEldiv);
+	}
+	
+	// Helper function to create additional VP divs
+	function createAddDivForUpdate(title, picture, idPrefix, players, addEldiv) {
+		var el_VPWrapper = document.createElement("div");
+		el_VPWrapper.style = "display: inline-block; vertical-align: top;"
+
+		var el_VPPicture = document.createElement("div");
+		el_VPPicture.title = title;
+		el_VPPicture.className = "addScore";
+		el_VPPicture.innerHTML = picture;
+		el_VPWrapper.appendChild(el_VPPicture);
+
+		var el_TokensWrapper = document.createElement("div");
+		el_TokensWrapper.className = "objTokensWrapper"
+
+		for (var i = 0; i < players.length; i++) { // Iterate players
+			switch (idPrefix) {
+				case "imperial": var vpHtml = players[i].vp_imperial; break;
+				case "secrets": var vpHtml = players[i].vp_secrets; break;
+				case "riders": var vpHtml = players[i].vp_riders; break;
+				case "other": var vpHtml = players[i].vp_other; break;
+			}
+
+			var el_TokensAndPoints = document.createElement("div");
+
+			var el_ScoreToken = document.createElement("div");
+			el_ScoreToken.className = 'objTokens scored';
+			el_ScoreToken.style = 'float: left;';
+			el_ScoreToken.title = decodeURIComponent(players[i].player);
+			el_ScoreToken.id = idPrefix + "_" + i;
+			el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+			el_ScoreToken.onclick = function(event) {
+				if (superuser) {
+					var playerID = this.id.substring(this.id.length - 1, this.id.length);
+					var category = this.id.substring(0, this.id.length - 2);
+					vpPressed = { "player": playerID, "category": category };
+					document.getElementById('changeVPWrapper').style.visibility = 'visible';
+					noBubbling(event);
+				} else {
+					notSuperuser();
+				}
+			}
+			el_TokensAndPoints.appendChild(el_ScoreToken);
+
+			var el_Score = document.createElement("div");
+			el_Score.className = 'objTokensScore';
+			el_Score.innerHTML = vpHtml;
+			el_TokensAndPoints.appendChild(el_Score);
+			el_TokensWrapper.appendChild(el_TokensAndPoints);
+		}
+		el_VPWrapper.appendChild(el_TokensWrapper);
+		addEldiv.appendChild(el_VPWrapper);
 	}
 
 	function bigletterHide() {
