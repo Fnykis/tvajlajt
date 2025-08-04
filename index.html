@@ -98,8 +98,8 @@
 
 	<div id="newGameWrapper" onclick="closeMenu()">
 		<div class="newGameForm" onclick="noBubbling(event)">
-			<form action="http://localhost:3000">
-				<input type="hidden" name="request" value="newgame">
+					<form id="newGameForm" onsubmit="return submitNewGame(event);">
+			<!-- No longer submitting via HTTP, using Socket.IO instead -->
 				Settings:
 				<br>
 				<select name="startingcards">
@@ -1218,6 +1218,53 @@
 		console.log('📡 CLIENT: Emitting add card for stage:', stage);
 		socket.emit('addCard', stage);
 		closeMenu(); // Close the menu after action
+	}
+
+	function submitNewGame(event) {
+		event.preventDefault(); // Prevent default form submission
+		
+		console.log('🎮 CLIENT: Collecting new game data...');
+		
+		// Get form data
+		var form = document.getElementById('newGameForm');
+		var formData = new FormData(form);
+		
+		// Extract starting cards setting
+		var startingCards = formData.get('startingcards') || '5';
+		
+		// Extract community cards setting
+		var communityCards = formData.get('communitycards') === 'true';
+		
+		// Extract players data
+		var players = [];
+		for (var i = 1; i <= 8; i++) {
+			var playerName = formData.get('player' + i + '_name');
+			var playerFaction = formData.get('player' + i + '_faction');
+			var playerColor = formData.get('player' + i + '_color');
+			
+			if (playerName && playerName.trim() !== '' && playerFaction && playerFaction !== 'none') {
+				players.push({
+					name: playerName.trim(),
+					faction: playerFaction,
+					color: playerColor || 'red'
+				});
+				console.log('👤 CLIENT: Added player:', playerName, '-', playerFaction);
+			}
+		}
+		
+		// Prepare data for server (matching expected format)
+		var newGameData = [startingCards, players, communityCards];
+		
+		console.log('🎮 CLIENT: Starting new game with data:', newGameData);
+		console.log('📊 CLIENT: Settings - Cards:', startingCards, 'Community:', communityCards, 'Players:', players.length);
+		
+		// Emit new game data via Socket.IO
+		socket.emit('newgame', newGameData);
+		
+		// Close the new game menu
+		closeMenu();
+		
+		return false; // Prevent form submission
 	}
 
 	function changeVP(event, adjustment) {

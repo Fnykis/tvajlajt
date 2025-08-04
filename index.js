@@ -344,20 +344,28 @@ io.on('connection', function(socket){
     });
     
 	socket.on('newgame', function(dataToProcess){
+        console.log('🎮 SOCKET: Received newgame event, data:', dataToProcess);
         io.emit('newgame', dataToProcess);
 
         var jsonData;
+        console.log('📖 FILE: Reading data.json for new game setup...');
         fs.readFile(`${__dirname}/data.json`, 'utf8', function (err, data) {
-            if (err) throw err;
+            if (err) {
+                console.error('❌ FILE: Error reading data.json for new game:', err);
+                throw err;
+            }
+            console.log('✅ FILE: Successfully read data.json for new game');
             jsonData = JSON.parse(data);
 
             // Create players
+            console.log('👥 GAME: Creating players, received:', dataToProcess[1].length, 'players');
             for (var i = 0; i < jsonData[2].players.length; i++) {
                 if (i < dataToProcess[1].length) {
+                    var player = dataToProcess[1][i];
                     jsonData[2].players[i] = {
-                        "faction": dataToProcess[1][i].faction,
-                        "color": dataToProcess[1][i].color,
-                        "player": dataToProcess[1][i].name,
+                        "faction": player.faction,
+                        "color": player.color,
+                        "player": player.name,
                         "secrets": [],
                         "vp_custodian": false,
                         "vp_imperial": 0,
@@ -365,6 +373,7 @@ io.on('connection', function(socket){
                         "vp_riders": 0,
                         "vp_other": 0
                     };
+                    console.log('👤 GAME: Created player', i + 1, ':', player.name, '-', player.faction);
                 } else {
                     jsonData[2].players[i] = {
                         "faction": null,
@@ -381,6 +390,7 @@ io.on('connection', function(socket){
             }
 
             // Create cards
+            console.log('🎯 GAME: Setting up', dataToProcess[0], 'cards for each stage');
             jsonData[0].cards = [];
             jsonData[1].cards = [];
             for (var i = 0; i < parseInt(dataToProcess[0]); i++) {
@@ -393,17 +403,21 @@ io.on('connection', function(socket){
                     "scores":[{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false}]
                 })
             }
+            console.log('✅ GAME: Created', jsonData[0].cards.length, 'stage 1 cards and', jsonData[1].cards.length, 'stage 2 cards');
             
             // Settings
-            if (dataToProcess[2]) {
-                jsonData[3].communitycards = dataToProcess[2];
-            } else {
-                jsonData[3].communitycards = false;
-            }
+            var communityCards = dataToProcess[2] || false;
+            jsonData[3].communitycards = communityCards;
+            console.log('⚙️ GAME: Community cards setting:', communityCards);
 
+            console.log('💾 FILE: Writing new game data to data.json...');
             fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
-                if (err) throw err;
-                console.log('Starting a new game');
+                if (err) {
+                    console.error('❌ FILE: Error writing new game data to data.json:', err);
+                    throw err;
+                }
+                console.log('✅ GAME: New game started successfully! Data saved to data.json');
+                console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
             });
         });
     });
