@@ -627,39 +627,67 @@
 
 		// Check if community objectives are in play
 		console.log('🎮 CLIENT: Checking for community cards setting...');
-		if (data[3].communitycards) {
-			console.log('✅ CLIENT: Community cards enabled, loading community database...');
-			// Load community cards synchronously to ensure they're available before creating objectives
-			$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
-				console.log('✅ CLIENT: Community database loaded successfully!');
-				for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
-					allObjectives.push(communityObjectives[0].stage1[i]);
-					stageOneObjectives.push(communityObjectives[0].stage1[i]);
-				}
-				for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
-					allObjectives.push(communityObjectives[0].stage2[i]);
-					stageTwoObjectives.push(communityObjectives[0].stage2[i]);
-				}
-				for (var i = 0; i < communityObjectives[0].secret.length; i++) {
-					allObjectives.push(communityObjectives[0].secret[i]);
-					secretObjectives.push(communityObjectives[0].secret[i]);
-				}
+		
+		// Clear existing objectives arrays first
+		allObjectives = [];
+		stageOneObjectives = [];
+		stageTwoObjectives = [];
+		secretObjectives = [];
+		
+		// Load main database first
+		$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+			console.log('✅ CLIENT: Main database loaded successfully!');
+			
+			// Load main objectives
+			for (var i = 0; i < mainObjectives[0].stage1.length; i++) {
+				allObjectives.push(mainObjectives[0].stage1[i]);
+				stageOneObjectives.push(mainObjectives[0].stage1[i]);
+			}
+			for (var i = 0; i < mainObjectives[0].stage2.length; i++) {
+				allObjectives.push(mainObjectives[0].stage2[i]);
+				stageTwoObjectives.push(mainObjectives[0].stage2[i]);
+			}
+			
+			if (data[3].communitycards) {
+				console.log('✅ CLIENT: Community cards enabled, loading community database...');
+				// Load community cards synchronously to ensure they're available before creating objectives
+				$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
+					console.log('✅ CLIENT: Community database loaded successfully!');
+					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
+						allObjectives.push(communityObjectives[0].stage1[i]);
+						stageOneObjectives.push(communityObjectives[0].stage1[i]);
+					}
+					for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
+						allObjectives.push(communityObjectives[0].stage2[i]);
+						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
+					}
+					for (var i = 0; i < communityObjectives[0].secret.length; i++) {
+						allObjectives.push(communityObjectives[0].secret[i]);
+						secretObjectives.push(communityObjectives[0].secret[i]);
+					}
+					console.log('📊 CLIENT: Total objectives loaded:', allObjectives.length);
+					console.log('📊 CLIENT: Stage 1 objectives:', stageOneObjectives.length);
+					console.log('📊 CLIENT: Stage 2 objectives:', stageTwoObjectives.length);
+					
+					// Now create the objectives after all cards are loaded
+					createGameInterface(data);
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					console.error('❌ CLIENT: Failed to load community database:', errorThrown);
+					// Continue without community cards
+					createGameInterface(data);
+				});
+			} else {
+				console.log('ℹ️ CLIENT: Community cards disabled');
 				console.log('📊 CLIENT: Total objectives loaded:', allObjectives.length);
 				console.log('📊 CLIENT: Stage 1 objectives:', stageOneObjectives.length);
 				console.log('📊 CLIENT: Stage 2 objectives:', stageTwoObjectives.length);
-				
-				// Now create the objectives after all cards are loaded
+				// Create objectives immediately if no community cards
 				createGameInterface(data);
-			}).fail(function(jqXHR, textStatus, errorThrown) {
-				console.error('❌ CLIENT: Failed to load community database:', errorThrown);
-				// Continue without community cards
-				createGameInterface(data);
-			});
-		} else {
-			console.log('ℹ️ CLIENT: Community cards disabled');
-			// Create objectives immediately if no community cards
+			}
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to load main database:', errorThrown);
 			createGameInterface(data);
-		}
+		});
 		
 		// Function to create the game interface after all cards are loaded
 		function createGameInterface(data) {
@@ -1124,27 +1152,27 @@
 			console.log('🎮 CLIENT: Community cards enabled, loading for refresh...');
 			var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
 			
-			$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
-				console.log('✅ CLIENT: Community database loaded for refresh!');
+			// Clear existing objectives arrays first
+			allObjectives = [];
+			stageOneObjectives = [];
+			stageTwoObjectives = [];
+			secretObjectives = [];
+			
+			$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+				console.log('✅ CLIENT: Main database loaded for refresh!');
 				
-				// Clear existing objectives arrays and reload
-				allObjectives = [];
-				stageOneObjectives = [];
-				stageTwoObjectives = [];
+				// Load main objectives
+				for (var i = 0; i < mainObjectives[0].stage1.length; i++) {
+					allObjectives.push(mainObjectives[0].stage1[i]);
+					stageOneObjectives.push(mainObjectives[0].stage1[i]);
+				}
+				for (var i = 0; i < mainObjectives[0].stage2.length; i++) {
+					allObjectives.push(mainObjectives[0].stage2[i]);
+					stageTwoObjectives.push(mainObjectives[0].stage2[i]);
+				}
 				
-				// Load main database first
-				$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
-					console.log('✅ CLIENT: Main database loaded for refresh!');
-					
-					// Load main objectives
-					for (var i = 0; i < mainObjectives[0].stage1.length; i++) {
-						allObjectives.push(mainObjectives[0].stage1[i]);
-						stageOneObjectives.push(mainObjectives[0].stage1[i]);
-					}
-					for (var i = 0; i < mainObjectives[0].stage2.length; i++) {
-						allObjectives.push(mainObjectives[0].stage2[i]);
-						stageTwoObjectives.push(mainObjectives[0].stage2[i]);
-					}
+				$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
+					console.log('✅ CLIENT: Community database loaded for refresh!');
 					
 					// Load community objectives
 					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
@@ -1155,22 +1183,53 @@
 						allObjectives.push(communityObjectives[0].stage2[i]);
 						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
 					}
+					for (var i = 0; i < communityObjectives[0].secret.length; i++) {
+						allObjectives.push(communityObjectives[0].secret[i]);
+						secretObjectives.push(communityObjectives[0].secret[i]);
+					}
 					
 					console.log('📊 CLIENT: Total objectives loaded for refresh:', allObjectives.length);
 					
 					// Now update the interface with all cards loaded
 					updateGameInterfaceWithCards(data);
 				}).fail(function(jqXHR, textStatus, errorThrown) {
-					console.error('❌ CLIENT: Failed to load main database for refresh:', errorThrown);
+					console.error('❌ CLIENT: Failed to load community database for refresh:', errorThrown);
 					updateGameInterfaceWithCards(data);
 				});
 			}).fail(function(jqXHR, textStatus, errorThrown) {
-				console.error('❌ CLIENT: Failed to load community database for refresh:', errorThrown);
+				console.error('❌ CLIENT: Failed to load main database for refresh:', errorThrown);
 				updateGameInterfaceWithCards(data);
 			});
 		} else {
-			console.log('ℹ️ CLIENT: Community cards disabled, updating interface directly');
-			updateGameInterfaceWithCards(data);
+			console.log('ℹ️ CLIENT: Community cards disabled, loading only main database for refresh');
+			
+			// Clear existing objectives arrays first
+			allObjectives = [];
+			stageOneObjectives = [];
+			stageTwoObjectives = [];
+			secretObjectives = [];
+			
+			var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+			
+			$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+				console.log('✅ CLIENT: Main database loaded for refresh!');
+				
+				// Load main objectives only
+				for (var i = 0; i < mainObjectives[0].stage1.length; i++) {
+					allObjectives.push(mainObjectives[0].stage1[i]);
+					stageOneObjectives.push(mainObjectives[0].stage1[i]);
+				}
+				for (var i = 0; i < mainObjectives[0].stage2.length; i++) {
+					allObjectives.push(mainObjectives[0].stage2[i]);
+					stageTwoObjectives.push(mainObjectives[0].stage2[i]);
+				}
+				
+				console.log('📊 CLIENT: Total objectives loaded for refresh:', allObjectives.length);
+				updateGameInterfaceWithCards(data);
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				console.error('❌ CLIENT: Failed to load main database for refresh:', errorThrown);
+				updateGameInterfaceWithCards(data);
+			});
 		}
 	}
 	
