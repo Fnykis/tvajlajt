@@ -4,72 +4,118 @@ var fs = require('fs');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
+console.log('🚀 SERVER: Starting Tvajlajt server...');
+console.log('📂 SERVER: Setting up routes and middleware...');
+
 // Serve static files (CSS, JS, images, etc.)
 app.use('/assets', express.static(__dirname + '/assets'));
+console.log('📁 SERVER: Static file serving configured for /assets');
 
 // Serve JSON data files
 app.get('/database.json', function(req, res){
+	console.log('📊 REQUEST: Serving database.json');
 	res.sendFile(__dirname + '/database.json');
 });
 
 app.get('/database_community.json', function(req, res){
+	console.log('📊 REQUEST: Serving database_community.json');
 	res.sendFile(__dirname + '/database_community.json');
 });
 
 app.get('/data.json', function(req, res){
+	console.log('📊 REQUEST: Serving data.json');
 	res.sendFile(__dirname + '/data.json');
 });
 
 app.get('/data_default.json', function(req, res){
+	console.log('📊 REQUEST: Serving data_default.json');
 	res.sendFile(__dirname + '/data_default.json');
 });
 
 // Main application route
 app.get('/', function(req, res){
+	console.log('🏠 REQUEST: Serving main page (index.html)');
 	res.sendFile(__dirname + '/index.html');
 });
 
 // Send utility page route
 app.get('/send.html', function(req, res){
+	console.log('📤 REQUEST: Serving send.html utility page');
 	res.sendFile(__dirname + '/send.html');
 });
 
 // Handle favicon requests to prevent 404 errors
 app.get('/favicon.ico', function(req, res) {
+	console.log('🖼️ REQUEST: Favicon request (returning 204)');
 	res.status(204).end();
 });
 
 // Handle other favicon requests
 app.get('/assets/media/favicon/*', function(req, res) {
+	console.log('🖼️ REQUEST: Favicon assets request (returning 204)');
 	res.status(204).end();
 });
 
 io.on('connection', function(socket){
+	console.log('🔌 SOCKET: New client connected, socket ID:', socket.id);
 
 	socket.on('update', function(dataToProcess){
+		console.log('📡 SOCKET: Received update event, data:', dataToProcess);
         io.emit('update', dataToProcess);
+		console.log('📡 SOCKET: Broadcasted update to all clients');
 
         var cardStageIndex, cardIndex, cardId;
+        console.log('🔍 SOCKET: Processing update data...');
         try {
             cardStageIndex = parseInt(dataToProcess[0].substring(5, dataToProcess[0].indexOf("_"))) - 1;
             cardIndex = parseInt(dataToProcess[0].substring(dataToProcess[0].indexOf("_") + 1, dataToProcess[0].length));
             cardId = dataToProcess[1];
+            console.log('✅ SOCKET: Parsed data - cardStageIndex:', cardStageIndex, 'cardIndex:', cardIndex, 'cardId:', cardId);
         } catch(e) {
-            console.log("Failed to fetch data.\ncardStageIndex: " + (cardStageIndex || 'undefined') + "\ncardId: " + (cardId || 'undefined') + "\nError: " + e.message);
+            console.error("❌ SOCKET: Failed to parse update data!");
+            console.error("📄 SOCKET: Raw data:", dataToProcess);
+            console.error("🐛 SOCKET: Error:", e.message);
+            console.error("📊 SOCKET: cardStageIndex:", (cardStageIndex || 'undefined'), "cardId:", (cardId || 'undefined'));
             return;
         }
 
         var jsonData;
+        console.log('📖 FILE: Reading data.json...');
         fs.readFile(`${__dirname}/data.json`, 'utf8', function (err, data) {
-            if (err) throw err;
-            jsonData = JSON.parse(data);
+            if (err) {
+                console.error('❌ FILE: Error reading data.json:', err);
+                throw err;
+            }
+            console.log('✅ FILE: Successfully read data.json');
+            
+            try {
+                jsonData = JSON.parse(data);
+                console.log('✅ JSON: Successfully parsed data.json');
+            } catch(parseErr) {
+                console.error('❌ JSON: Error parsing data.json:', parseErr);
+                throw parseErr;
+            }
 
-            if (dataToProcess[2] == "new") for (var i = 0; i < jsonData[cardStageIndex].cards.length; i++) if (jsonData[cardStageIndex].cards[i].id == null) { cardIndex = i; break; }
+            if (dataToProcess[2] == "new") {
+                console.log('🔍 CARD: Looking for empty card slot in stage', cardStageIndex + 1);
+                for (var i = 0; i < jsonData[cardStageIndex].cards.length; i++) {
+                    if (jsonData[cardStageIndex].cards[i].id == null) { 
+                        cardIndex = i; 
+                        console.log('✅ CARD: Found empty slot at index', i);
+                        break; 
+                    }
+                }
+            }
+            
+            console.log('💾 CARD: Setting card', cardId, 'at stage', cardStageIndex + 1, 'index', cardIndex);
             jsonData[cardStageIndex].cards[cardIndex].id = cardId;
 
             fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
-                if (err) throw err;
-                console.log('Card update successful');
+                if (err) {
+                    console.error('❌ FILE: Error writing data.json:', err);
+                    throw err;
+                }
+                console.log('✅ CARD: Card update successful - saved to data.json');
             });
         });
     });
@@ -369,7 +415,29 @@ io.on('connection', function(socket){
     
 });
 
+// Add error handling for all socket events
+io.on('connection', function(socket) {
+    console.log('🔌 SOCKET: Client connected from', socket.handshake.address);
+    
+    socket.on('disconnect', function(reason) {
+        console.log('❌ SOCKET: Client disconnected:', socket.id, 'Reason:', reason);
+    });
+    
+    socket.on('error', function(error) {
+        console.error('❌ SOCKET: Socket error:', error);
+    });
+});
+
 http.listen(3000, function(){
-	console.log('\nListening on localhost:3000');
-	console.log('To stop the server use ctrl+C\n\nLog:');
+	console.log('\n🎉 SERVER: Successfully started!');
+	console.log('🌐 SERVER: Listening on http://localhost:3000');
+	console.log('🛑 SERVER: To stop the server use Ctrl+C');
+	console.log('\n📋 SERVER: Available routes:');
+	console.log('  - GET /               -> index.html (main app)');
+	console.log('  - GET /send.html      -> send.html (utility)');
+	console.log('  - GET /data.json      -> game data');
+	console.log('  - GET /database.json  -> card database');
+	console.log('  - GET /assets/*       -> static files');
+	console.log('\n📡 SOCKET: WebSocket server ready for connections');
+	console.log('\n🔍 LOG: Event logging started...\n');
 });

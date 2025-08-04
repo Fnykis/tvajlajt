@@ -394,6 +394,12 @@
 
 <script>
 
+	// Debug logging for application startup
+	console.log('🚀 APP: Tvajlajt application starting...');
+	console.log('🌐 APP: User agent:', navigator.userAgent);
+	console.log('📍 APP: Current URL:', window.location.href);
+	console.log('🔧 APP: jQuery version:', $.fn.jquery);
+	
 	// Security: HTML escaping function to prevent XSS
 	function escapeHtml(unsafe) {
 		if (typeof unsafe !== 'string') return unsafe;
@@ -404,6 +410,7 @@
 			.replace(/"/g, "&quot;")
 			.replace(/'/g, "&#039;");
 	}
+	console.log('🛡️ APP: HTML escaping function initialized');
 
 	var serverUrl = "http://localhost:3000";
 	var superuser;
@@ -411,7 +418,25 @@
 	var refreshCounter = 30;
 	
 	// Initialize Socket.IO connection
+	console.log('🔌 CLIENT: Initializing Socket.IO connection...');
 	var socket = io();
+	
+	// Socket.IO event logging
+	socket.on('connect', function() {
+		console.log('✅ CLIENT: Connected to server, socket ID:', socket.id);
+	});
+	
+	socket.on('disconnect', function(reason) {
+		console.error('❌ CLIENT: Disconnected from server, reason:', reason);
+	});
+	
+	socket.on('connect_error', function(error) {
+		console.error('❌ CLIENT: Connection error:', error);
+	});
+	
+	socket.on('error', function(error) {
+		console.error('❌ CLIENT: Socket error:', error);
+	});
 	var autorefreshInterval;
 
 	var stagePressed;
@@ -432,8 +457,10 @@
 	var allScores = [];
 
     window.onload = function() {
+		console.log('🚀 CLIENT: Window loaded, initializing application...');
 
 		// Superuser check with cookies
+		console.log('👤 CLIENT: Checking superuser status...');
 		var superuserCookie = localStorage.getItem('superuser');
 		if (superuserCookie == null) {
 			localStorage.setItem('superuser', false);
@@ -455,29 +482,63 @@
 		}
 
 		// Read json files and build content
+		console.log('📊 CLIENT: Generating cache buster for JSON requests...');
 		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		console.log('🔍 CLIENT: Cache buster:', jsonBuster);
+		
+		console.log('📊 CLIENT: Loading database.json...');
 		$.getJSON( "database.json" + jsonBuster, function(data) {
+			console.log("✅ CLIENT: Database loaded successfully!");
+			console.log("📊 CLIENT: Database structure:", data);
 
-			for (var i = 0; i < data[0].stage1.length; i++) {
-				allObjectives.push(data[0].stage1[i]);
-				stageOneObjectives.push(data[0].stage1[i]);
-			}
-			for (var i = 0; i < data[0].stage2.length; i++) {
-				allObjectives.push(data[0].stage2[i]);
-				stageTwoObjectives.push(data[0].stage2[i]);
-			}
-			for (var i = 0; i < data[0].secret.length; i++) {
-				allObjectives.push(data[0].secret[i]);
-				secretObjectives.push(data[0].secret[i]);
+			try {
+				console.log("🔍 CLIENT: Processing stage 1 objectives...");
+				for (var i = 0; i < data[0].stage1.length; i++) {
+					allObjectives.push(data[0].stage1[i]);
+					stageOneObjectives.push(data[0].stage1[i]);
+				}
+				console.log("✅ CLIENT: Stage 1 objectives loaded:", data[0].stage1.length, "cards");
+				
+				console.log("🔍 CLIENT: Processing stage 2 objectives...");
+				for (var i = 0; i < data[0].stage2.length; i++) {
+					allObjectives.push(data[0].stage2[i]);
+					stageTwoObjectives.push(data[0].stage2[i]);
+				}
+				console.log("✅ CLIENT: Stage 2 objectives loaded:", data[0].stage2.length, "cards");
+				
+				console.log("🔍 CLIENT: Processing secret objectives...");
+				for (var i = 0; i < data[0].secret.length; i++) {
+					allObjectives.push(data[0].secret[i]);
+					secretObjectives.push(data[0].secret[i]);
+				}
+				console.log("✅ CLIENT: Secret objectives loaded:", data[0].secret.length, "cards");
+				console.log("📊 CLIENT: Total objectives loaded:", allObjectives.length);
+			} catch(err) {
+				console.error("❌ CLIENT: Error processing database:", err);
+				console.error("📊 CLIENT: Database data was:", data);
 			}
 			
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error("❌ CLIENT: Failed to load database.json!");
+			console.error("📊 CLIENT: Status:", textStatus);
+			console.error("🐛 CLIENT: Error:", errorThrown);
+			console.error("🌐 CLIENT: URL attempted:", "database.json" + jsonBuster);
+			console.error("📄 CLIENT: Response:", jqXHR.responseText);
 		});
 	
-		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-		$.getJSON( "data.json" + jsonBuster, function(data) {
+			console.log('📊 CLIENT: Generating second cache buster for data.json...');
+	var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+	console.log('🔍 CLIENT: Data cache buster:', jsonBuster);
+	
+	console.log('📊 CLIENT: Loading data.json...');
+	$.getJSON( "data.json" + jsonBuster, function(data) {
+		console.log("✅ CLIENT: Data.json loaded successfully!");
+		console.log("📊 CLIENT: Game data structure:", data);
 
-			// Check if community objectives are in play
-			if (data[3].communitycards) {
+		// Check if community objectives are in play
+		console.log('🎮 CLIENT: Checking for community cards setting...');
+		if (data[3].communitycards) {
+			console.log('✅ CLIENT: Community cards enabled, loading community database...');
 				var oReq = new XMLHttpRequest();
 				oReq.addEventListener("load", function(){
 					communityObjectives = JSON.parse(this.responseText);
@@ -868,6 +929,12 @@
 				document.getElementById("sideMenuRefresh").innerHTML = "";
 			}
 		
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error("❌ CLIENT: Failed to load data.json!");
+			console.error("📊 CLIENT: Status:", textStatus);
+			console.error("🐛 CLIENT: Error:", errorThrown);
+			console.error("🌐 CLIENT: URL attempted:", "data.json" + jsonBuster);
+			console.error("📄 CLIENT: Response:", jqXHR.responseText);
 		});
 			
     }
