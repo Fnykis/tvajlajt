@@ -605,26 +605,43 @@
 		console.log('🎮 CLIENT: Checking for community cards setting...');
 		if (data[3].communitycards) {
 			console.log('✅ CLIENT: Community cards enabled, loading community database...');
-				var oReq = new XMLHttpRequest();
-				oReq.addEventListener("load", function(){
-					communityObjectives = JSON.parse(this.responseText);
-					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
-						allObjectives.push(communityObjectives[0].stage1[i]);
-						stageOneObjectives.push(communityObjectives[0].stage1[i]);
-					}
-					for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
-						allObjectives.push(communityObjectives[0].stage2[i]);
-						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
-					}
-					for (var i = 0; i < communityObjectives[0].secret.length; i++) {
-						allObjectives.push(communityObjectives[0].secret[i]);
-						secretObjectives.push(communityObjectives[0].secret[i]);
-					}
-				});
-				oReq.open("GET", "database_community.json" + jsonBuster);
-				oReq.send();
-			}
-
+			// Load community cards synchronously to ensure they're available before creating objectives
+			$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
+				console.log('✅ CLIENT: Community database loaded successfully!');
+				for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
+					allObjectives.push(communityObjectives[0].stage1[i]);
+					stageOneObjectives.push(communityObjectives[0].stage1[i]);
+				}
+				for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
+					allObjectives.push(communityObjectives[0].stage2[i]);
+					stageTwoObjectives.push(communityObjectives[0].stage2[i]);
+				}
+				for (var i = 0; i < communityObjectives[0].secret.length; i++) {
+					allObjectives.push(communityObjectives[0].secret[i]);
+					secretObjectives.push(communityObjectives[0].secret[i]);
+				}
+				console.log('📊 CLIENT: Total objectives loaded:', allObjectives.length);
+				console.log('📊 CLIENT: Stage 1 objectives:', stageOneObjectives.length);
+				console.log('📊 CLIENT: Stage 2 objectives:', stageTwoObjectives.length);
+				
+				// Now create the objectives after all cards are loaded
+				createGameInterface(data, players, playerScores);
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				console.error('❌ CLIENT: Failed to load community database:', errorThrown);
+				// Continue without community cards
+				createGameInterface(data, players, playerScores);
+			});
+		} else {
+			console.log('ℹ️ CLIENT: Community cards disabled');
+			// Create objectives immediately if no community cards
+			createGameInterface(data, players, playerScores);
+		}
+		
+		// Function to create the game interface after all cards are loaded
+		function createGameInterface(data, players, playerScores) {
+			console.log('🎮 CLIENT: Creating game interface...');
+			
+			// Process players data
 			var players = [];
 			var playerScores = [];
 			for (var i = 0; i < data[2].players.length; i++) {
@@ -638,35 +655,35 @@
 				}
 			};
 			
-			// Create elemtns for Stage 1
+			// Create elements for Stage 1
 			var objectives1HTML = createObjectives(1);
-			// Create elemtns for Stage 2
+			// Create elements for Stage 2
 			var objectives2HTML = createObjectives(2);
 	
-					// Check if the objectives data is valid (but don't reload immediately)
-		console.log('🔍 CLIENT: Checking objectives data validity...');
-		console.log('📊 CLIENT: data defined:', data !== undefined);
-		console.log('📊 CLIENT: data[0].cards.length:', data ? data[0].cards.length : 'N/A');
-		console.log('📊 CLIENT: objectives1 element exists:', document.getElementById("objectives1") !== null);
-		console.log('📊 CLIENT: objectives1 childElementCount:', document.getElementById("objectives1") ? document.getElementById("objectives1").childElementCount : 'N/A');
-		
-		if (data == undefined) {
-			console.error('❌ CLIENT: Game data is undefined! This is a serious error.');
-			return; // Exit function instead of reloading
-		}
-		
-		// Only reload if there's a major data inconsistency that can't be fixed
-		var objectives1Element = document.getElementById("objectives1");
-		if (!objectives1Element) {
-			console.error('❌ CLIENT: objectives1 element not found in DOM!');
-			// This might be a timing issue, try again after a delay
-			setTimeout(function() {
-				refreshGameData();
-			}, 1000);
-			return;
-		}
-		
-		console.log('✅ CLIENT: Objectives data looks valid, continuing with interface creation...');
+			// Check if the objectives data is valid (but don't reload immediately)
+			console.log('🔍 CLIENT: Checking objectives data validity...');
+			console.log('📊 CLIENT: data defined:', data !== undefined);
+			console.log('📊 CLIENT: data[0].cards.length:', data ? data[0].cards.length : 'N/A');
+			console.log('📊 CLIENT: objectives1 element exists:', document.getElementById("objectives1") !== null);
+			console.log('📊 CLIENT: objectives1 childElementCount:', document.getElementById("objectives1") ? document.getElementById("objectives1").childElementCount : 'N/A');
+			
+			if (data == undefined) {
+				console.error('❌ CLIENT: Game data is undefined! This is a serious error.');
+				return; // Exit function instead of reloading
+			}
+			
+			// Only reload if there's a major data inconsistency that can't be fixed
+			var objectives1Element = document.getElementById("objectives1");
+			if (!objectives1Element) {
+				console.error('❌ CLIENT: objectives1 element not found in DOM!');
+				// This might be a timing issue, try again after a delay
+				setTimeout(function() {
+					refreshGameData();
+				}, 1000);
+				return;
+			}
+			
+			console.log('✅ CLIENT: Objectives data looks valid, continuing with interface creation...');
 
 			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
 			if (players.length != 0) {
@@ -698,6 +715,7 @@
 					el_AddWrapperDiv.appendChild(el_AddDiv);
 				createAdditionalPoints();
 			}
+		}
 
 			function createObjectives(stage) {
 				var divHTML = "";
@@ -1086,6 +1104,63 @@
 		allPlayers = [];
 		allScores = [];
 		
+		// Check if community cards are enabled and load them if needed
+		if (data[3] && data[3].communitycards) {
+			console.log('🎮 CLIENT: Community cards enabled, loading for refresh...');
+			var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+			
+			$.getJSON("database_community.json" + jsonBuster, function(communityObjectives) {
+				console.log('✅ CLIENT: Community database loaded for refresh!');
+				
+				// Clear existing objectives arrays and reload
+				allObjectives = [];
+				stageOneObjectives = [];
+				stageTwoObjectives = [];
+				
+				// Load main database first
+				$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+					console.log('✅ CLIENT: Main database loaded for refresh!');
+					
+					// Load main objectives
+					for (var i = 0; i < mainObjectives[0].stage1.length; i++) {
+						allObjectives.push(mainObjectives[0].stage1[i]);
+						stageOneObjectives.push(mainObjectives[0].stage1[i]);
+					}
+					for (var i = 0; i < mainObjectives[0].stage2.length; i++) {
+						allObjectives.push(mainObjectives[0].stage2[i]);
+						stageTwoObjectives.push(mainObjectives[0].stage2[i]);
+					}
+					
+					// Load community objectives
+					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
+						allObjectives.push(communityObjectives[0].stage1[i]);
+						stageOneObjectives.push(communityObjectives[0].stage1[i]);
+					}
+					for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
+						allObjectives.push(communityObjectives[0].stage2[i]);
+						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
+					}
+					
+					console.log('📊 CLIENT: Total objectives loaded for refresh:', allObjectives.length);
+					
+					// Now update the interface with all cards loaded
+					updateGameInterfaceWithCards(data);
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					console.error('❌ CLIENT: Failed to load main database for refresh:', errorThrown);
+					updateGameInterfaceWithCards(data);
+				});
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				console.error('❌ CLIENT: Failed to load community database for refresh:', errorThrown);
+				updateGameInterfaceWithCards(data);
+			});
+		} else {
+			console.log('ℹ️ CLIENT: Community cards disabled, updating interface directly');
+			updateGameInterfaceWithCards(data);
+		}
+	}
+	
+	// Function to update the game interface with cards already loaded
+	function updateGameInterfaceWithCards(data) {
 		try {
 			// Rebuild players array
 			var players = [];
