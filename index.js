@@ -7,6 +7,23 @@ var io = require('socket.io')(http);
 // Serve static files (CSS, JS, images, etc.)
 app.use('/assets', express.static(__dirname + '/assets'));
 
+// Serve JSON data files
+app.get('/database.json', function(req, res){
+	res.sendFile(__dirname + '/database.json');
+});
+
+app.get('/database_community.json', function(req, res){
+	res.sendFile(__dirname + '/database_community.json');
+});
+
+app.get('/data.json', function(req, res){
+	res.sendFile(__dirname + '/data.json');
+});
+
+app.get('/data_default.json', function(req, res){
+	res.sendFile(__dirname + '/data_default.json');
+});
+
 // Main application route
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
@@ -15,6 +32,16 @@ app.get('/', function(req, res){
 // Send utility page route
 app.get('/send.html', function(req, res){
 	res.sendFile(__dirname + '/send.html');
+});
+
+// Handle favicon requests to prevent 404 errors
+app.get('/favicon.ico', function(req, res) {
+	res.status(204).end();
+});
+
+// Handle other favicon requests
+app.get('/assets/media/favicon/*', function(req, res) {
+	res.status(204).end();
 });
 
 io.on('connection', function(socket){
