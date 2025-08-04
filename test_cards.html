@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card Display Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .card { display: inline-block; margin: 10px; padding: 10px; border: 1px solid #333; }
+        .card-filled { background-color: #e8f5e8; }
+        .card-empty { background-color: #f5f5f5; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .status.success { background-color: #d4edda; color: #155724; }
+        .status.error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Card Display Logic Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Verify data.json is accessible</h2>
+        <div id="data-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Simulate card display logic</h2>
+        <div id="card-display-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Verify refresh logic</h2>
+        <button onclick="testRefresh()">Test Refresh</button>
+        <div id="refresh-test"></div>
+    </div>
+
+    <script>
+        // Test 1: Check if data.json is accessible
+        fetch('/data.json')
+            .then(response => response.json())
+            .then(data => {
+                const testDiv = document.getElementById('data-test');
+                const stage1Cards = data[0].cards;
+                const filledCards = stage1Cards.filter(card => card.id !== null).length;
+                const emptyCards = stage1Cards.filter(card => card.id === null).length;
+                
+                testDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ Data.json loaded successfully<br>
+                        Stage 1: ${filledCards} filled cards, ${emptyCards} empty cards<br>
+                        Total cards: ${stage1Cards.length}
+                    </div>
+                `;
+                
+                // Test 2: Simulate card display logic
+                testCardDisplay(data);
+            })
+            .catch(error => {
+                document.getElementById('data-test').innerHTML = `
+                    <div class="status error">
+                        ❌ Failed to load data.json: ${error.message}
+                    </div>
+                `;
+            });
+        
+        function testCardDisplay(data) {
+            const testDiv = document.getElementById('card-display-test');
+            const stage1Cards = data[0].cards;
+            let displayHtml = '<h3>Simulated Card Display:</h3>';
+            
+            stage1Cards.forEach((card, index) => {
+                if (card.id !== null) {
+                    displayHtml += `
+                        <div class="card card-filled">
+                            <strong>Card ${index + 1}</strong><br>
+                            ID: ${card.id}<br>
+                            Status: Filled
+                        </div>
+                    `;
+                } else {
+                    displayHtml += `
+                        <div class="card card-empty">
+                            <strong>Card ${index + 1}</strong><br>
+                            ID: null<br>
+                            Status: Empty slot
+                        </div>
+                    `;
+                }
+            });
+            
+            testDiv.innerHTML = displayHtml;
+        }
+        
+        function testRefresh() {
+            const testDiv = document.getElementById('refresh-test');
+            testDiv.innerHTML = '<div class="status">🔄 Testing refresh...</div>';
+            
+            // Simulate refresh by reloading data
+            fetch('/data.json?v=' + Date.now())
+                .then(response => response.json())
+                .then(data => {
+                    testDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Refresh successful<br>
+                            Data timestamp: ${new Date().toLocaleTimeString()}
+                        </div>
+                    `;
+                    testCardDisplay(data);
+                })
+                .catch(error => {
+                    testDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ Refresh failed: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
