@@ -74,7 +74,6 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="assets/media/TouchIcons/apple-touch-icon-180x180-precomposed.png">
 
 	<!-- concatenate and minify fr production -->
-	<link rel="stylesheet" href="assets/css/reset.css" />
 	<link rel="stylesheet" href="assets/css/style.css" />
 	<link rel="stylesheet" href="assets/css/fonts.css" />
 
@@ -391,6 +390,7 @@
 </div>
 
 <script src="assets/js/functions.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
 
@@ -409,6 +409,9 @@
 	var superuser;
 	var autorefresh;
 	var refreshCounter = 30;
+	
+	// Initialize Socket.IO connection
+	var socket = io();
 	var autorefreshInterval;
 
 	var stagePressed;

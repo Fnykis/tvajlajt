@@ -1,9 +1,19 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var fs = require('fs');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
+// Serve static files (CSS, JS, images, etc.)
+app.use('/assets', express.static(__dirname + '/assets'));
+
+// Main application route
 app.get('/', function(req, res){
+	res.sendFile(__dirname + '/index.html');
+});
+
+// Send utility page route
+app.get('/send.html', function(req, res){
 	res.sendFile(__dirname + '/send.html');
 });
 
