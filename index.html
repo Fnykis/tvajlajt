@@ -656,9 +656,9 @@
 			};
 			
 			// Create elements for Stage 1
-			var objectives1HTML = createObjectives(1);
+			var objectives1HTML = createObjectives(1, data, players);
 			// Create elements for Stage 2
-			var objectives2HTML = createObjectives(2);
+			var objectives2HTML = createObjectives(2, data, players);
 	
 			// Check if the objectives data is valid (but don't reload immediately)
 			console.log('🔍 CLIENT: Checking objectives data validity...');
@@ -713,11 +713,11 @@
 					var el_AddDiv = document.createElement("div");
 						el_AddDiv.id = "additionalElements";
 					el_AddWrapperDiv.appendChild(el_AddDiv);
-				createAdditionalPoints();
+				createAdditionalPoints(players);
 			}
 		}
 
-			function createObjectives(stage) {
+			function createObjectives(stage, data, players) {
 				var divHTML = "";
 				var stageIndex = stage-1;
 				stagePressed = stage;
@@ -923,7 +923,7 @@
 				
 			}
 
-			function createAdditionalPoints() {
+			function createAdditionalPoints(players) {
 
 				var addEldiv = document.getElementById("additionalElements");
 
