@@ -26,7 +26,7 @@ io.on('connection', function(socket){
             if (err) throw err;
             jsonData = JSON.parse(data);
 
-            if (dataToProcess[2] == "new") for (var i = 0; jsonData[cardStageIndex].cards.length; i++) if (jsonData[cardStageIndex].cards[i].id == null) { cardIndex = i; break; }
+            if (dataToProcess[2] == "new") for (var i = 0; i < jsonData[cardStageIndex].cards.length; i++) if (jsonData[cardStageIndex].cards[i].id == null) { cardIndex = i; break; }
             jsonData[cardStageIndex].cards[cardIndex].id = cardId;
 
             fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
@@ -155,7 +155,7 @@ io.on('connection', function(socket){
                             if (jsonData[0].cards[j].scores[i].scored) playerScores[i] = playerScores[i] + getCardPoint(jsonData[0].cards[j].id);
                         }
                     }
-                    for (var j = 0; j < jsonData[0].cards.length; j++) {
+                    for (var j = 0; j < jsonData[1].cards.length; j++) {
                         if (jsonData[1].cards[j].id != null) {
                             if (jsonData[1].cards[j].scores[i].scored) playerScores[i] = playerScores[i] + getCardPoint(jsonData[1].cards[j].id);
                         }
