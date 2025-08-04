@@ -496,6 +496,11 @@
 	// Listen for reset events
 	socket.on('reset', function(data) {
 		console.log('📡 CLIENT: Received reset event from server');
+		// Clear scoreboard immediately
+		var scoreboardDiv = document.getElementById("scoreboard");
+		if (scoreboardDiv) {
+			scoreboardDiv.innerHTML = "";
+		}
 		setTimeout(refreshGameData, 1000); // Longer delay for reset
 	});
 	var autorefreshInterval;
@@ -516,6 +521,25 @@
 
 	var allPlayers = [];
 	var allScores = [];
+
+	// Function to create the scoreboard
+	function createScoreboard(players, playerScores) {
+		console.log('📊 CLIENT: Creating scoreboard...');
+		var scoreboardDiv = document.getElementById("scoreboard");
+		if (scoreboardDiv) {
+			scoreboardDiv.innerHTML = "";
+			for (var i = 0; i < players.length; i++) { // Iterate players
+				var el_ScoreToken = document.createElement("div");
+				el_ScoreToken.className = 'scoretile';
+				el_ScoreToken.title = decodeURIComponent(players[i].player);
+				el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
+				scoreboardDiv.appendChild(el_ScoreToken);
+			}
+			console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
+		} else {
+			console.error('❌ CLIENT: Scoreboard div not found!');
+		}
+	}
 
     window.onload = function() {
 		console.log('🚀 CLIENT: Window loaded, initializing application...');
@@ -1025,25 +1049,6 @@
 							}
 							el_VPWrapper.appendChild(el_TokensWrapper);
 					addEldiv.appendChild(el_VPWrapper);
-				}
-			}
-			
-			// Function to create the scoreboard
-			function createScoreboard(players, playerScores) {
-				console.log('📊 CLIENT: Creating scoreboard...');
-				var scoreboardDiv = document.getElementById("scoreboard");
-				if (scoreboardDiv) {
-					scoreboardDiv.innerHTML = "";
-					for (var i = 0; i < players.length; i++) { // Iterate players
-						var el_ScoreToken = document.createElement("div");
-						el_ScoreToken.className = 'scoretile';
-						el_ScoreToken.title = decodeURIComponent(players[i].player);
-						el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
-						scoreboardDiv.appendChild(el_ScoreToken);
-					}
-					console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
-				} else {
-					console.error('❌ CLIENT: Scoreboard div not found!');
 				}
 			}
 			
