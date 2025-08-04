@@ -814,12 +814,14 @@
 									stagePressed = this.parentNode.parentNode.id;
 									stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
 									var cardPressedIndex = parseInt(this.parentNode.id);
-									if (clickMode == "remove") {
-										if (confirm("Are you sure you want to remove this card?")) {
-											var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
-											window.location = serverUrl + urlVars;
-										}
-									} else {
+																	if (clickMode == "remove") {
+									if (confirm("Are you sure you want to remove this card?")) {
+										// Direct Socket.IO emission for card removal
+										var adjustData = [clickMode, stagePressed, cardPressed, cardPressedIndex];
+										console.log('📡 CLIENT: Emitting card removal:', adjustData);
+										socket.emit('adjustRemove', adjustData);
+									}
+								} else {
 										document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
 										event.stopPropagation();
 									}
@@ -882,13 +884,15 @@
 										el_Token.title = decodeURIComponent(players[i].player);
 										el_Token.id = "custodian_" + i;
 										el_Token.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
-										el_Token.onclick = function(event) {
-											var playerID = this.id.substring(this.id.length - 1, this.id.length);
-											vpPressed = { "player": playerID, "category": "custodian" };
-											var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=custodian";
-											window.location = serverUrl + urlVars;
-											noBubbling(event);
-										}
+																			el_Token.onclick = function(event) {
+										var playerID = this.id.substring(this.id.length - 1, this.id.length);
+										vpPressed = { "player": playerID, "category": "custodian" };
+										// Direct Socket.IO emission for custodian VP change
+										var vpData = [playerID, "custodian"];
+										console.log('📡 CLIENT: Emitting custodian VP change:', vpData);
+										socket.emit('changeVP', vpData);
+										noBubbling(event);
+									}
 									wrapper.appendChild(el_Token);
 								}
 								document.getElementById('changeCustodianWrapper').style.visibility = 'visible';
@@ -1169,10 +1173,12 @@
 				randomCard = Math.floor((Math.random() * objArray.length - 1) + 1);
 			}
 
-			var mode = "new";
-			if (clickMode != null) mode = "change";
-			var urlVars = "?request=card&card=" + cardPressed + "&id=" + objArray[randomCard].id + "&mode=" + mode;
-				window.location = serverUrl + urlVars;
+					var mode = "new";
+		if (clickMode != null) mode = "change";
+		// Direct Socket.IO emission for random card assignment
+		var cardData = [cardPressed, objArray[randomCard].id, mode];
+		console.log('📡 CLIENT: Emitting random card assignment:', cardData);
+		socket.emit('update', cardData);
 
 		} else {
 			$('#objectiveList').html("");
