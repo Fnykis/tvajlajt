@@ -12,12 +12,13 @@ io.on('connection', function(socket){
 	socket.on('update', function(dataToProcess){
         io.emit('update', dataToProcess);
 
+        var cardStageIndex, cardIndex, cardId;
         try {
-            var cardStageIndex = parseInt(dataToProcess[0].substring(5, dataToProcess[0].indexOf("_"))) - 1;
-            var cardIndex = parseInt(dataToProcess[0].substring(dataToProcess[0].indexOf("_") + 1, dataToProcess[0].length));
-            var cardId = dataToProcess[1];
+            cardStageIndex = parseInt(dataToProcess[0].substring(5, dataToProcess[0].indexOf("_"))) - 1;
+            cardIndex = parseInt(dataToProcess[0].substring(dataToProcess[0].indexOf("_") + 1, dataToProcess[0].length));
+            cardId = dataToProcess[1];
         } catch(e) {
-            console.log("Failed to fetch data.\ncardStageIndex: " + cardStageIndex + "\ncardId: " + cardId);
+            console.log("Failed to fetch data.\ncardStageIndex: " + (cardStageIndex || 'undefined') + "\ncardId: " + (cardId || 'undefined') + "\nError: " + e.message);
             return;
         }
 

@@ -4,14 +4,14 @@
   "description": "A web app to help you with your public objectives needs and scoring",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "node start.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
-    "http": "0.0.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^4.8.1"
   }
 }

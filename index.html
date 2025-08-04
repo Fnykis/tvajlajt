@@ -394,6 +394,17 @@
 
 <script>
 
+	// Security: HTML escaping function to prevent XSS
+	function escapeHtml(unsafe) {
+		if (typeof unsafe !== 'string') return unsafe;
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	}
+
 	var serverUrl = "http://localhost:3000";
 	var superuser;
 	var autorefresh;
@@ -581,7 +592,7 @@
 								var el_ObjectiveText = document.createElement("div");
 									el_ObjectiveText.className = 'objCard';
 									el_ObjectiveText.id = cardID;
-									el_ObjectiveText.innerHTML = "<h2>" + cardName + "</h2><p>" + cardText + "</p><h3>" + cardPoints + "</h3><p style='margin-top:-1.5vw' class='" + phaseColor + "'>" + cardPhase + "</p></div>";
+									el_ObjectiveText.innerHTML = "<h2>" + escapeHtml(cardName) + "</h2><p>" + escapeHtml(cardText) + "</p><h3>" + escapeHtml(cardPoints) + "</h3><p style='margin-top:-1.5vw' class='" + escapeHtml(phaseColor) + "'>" + escapeHtml(cardPhase) + "</p></div>";
 									el_ObjectiveText.onclick = function() {
 										cardPressed = this.id;
 										var cardPressedIndex = parseInt(this.parentNode.id);
