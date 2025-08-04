@@ -450,6 +450,54 @@
 		// Refresh the interface when server sends updates
 		setTimeout(refreshGameData, 500); // Small delay to ensure server has updated data.json
 	});
+	
+	// Listen for new game events
+	socket.on('newgame', function(data) {
+		console.log('📡 CLIENT: Received newgame event from server');
+		// Refresh the interface after new game is created
+		setTimeout(refreshGameData, 1000); // Longer delay for new game setup
+	});
+	
+	// Listen for token scoring events
+	socket.on('token', function(data) {
+		console.log('📡 CLIENT: Received token event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for card addition events
+	socket.on('addCard', function(data) {
+		console.log('📡 CLIENT: Received addCard event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for card adjustment events
+	socket.on('adjustRemove', function(data) {
+		console.log('📡 CLIENT: Received adjustRemove event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	socket.on('adjustHide', function(data) {
+		console.log('📡 CLIENT: Received adjustHide event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for score editing events
+	socket.on('editscore', function(data) {
+		console.log('📡 CLIENT: Received editscore event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for VP change events
+	socket.on('changeVP', function(data) {
+		console.log('📡 CLIENT: Received changeVP event from server');
+		setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for reset events
+	socket.on('reset', function(data) {
+		console.log('📡 CLIENT: Received reset event from server');
+		setTimeout(refreshGameData, 1000); // Longer delay for reset
+	});
 	var autorefreshInterval;
 
 	var stagePressed;
@@ -1021,22 +1069,209 @@
 	function updateGameInterface(data) {
 		console.log('🎮 CLIENT: Updating game interface with fresh data');
 		
-		// Clear existing objectives
+		// Clear existing objectives and additional elements
 		var objectives1 = document.getElementById("objectives1");
 		var objectives2 = document.getElementById("objectives2");
+		var additionalElements = document.getElementById("additionalElementsWrapper");
 		
 		if (objectives1) objectives1.innerHTML = '';
 		if (objectives2) objectives2.innerHTML = '';
+		if (additionalElements) additionalElements.remove();
 		
-		// Recreate the interface with new data
-		// This will be filled with the same logic as the initial load
-		console.log('🔄 CLIENT: Interface updated - no page reload needed');
+		// Reset global state arrays
+		objectivesOnBoard = { stage1: [], stage2: [] };
+		allPlayers = [];
+		allScores = [];
+		
+		try {
+			// Rebuild players array
+			var players = [];
+			var playerScores = [];
+			for (var i = 0; i < data[2].players.length; i++) {
+				if (data[2].players[i].faction != null) {
+					var playah = data[2].players[i];
+					allPlayers.push(playah);
+					allScores.push(0);
+					allScores[i] = playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other;
+					players.push(playah);
+					playerScores.push(playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other);
+				}
+			}
+			
+			// Recreate objectives for both stages if they exist
+			if (data[0] && data[0].cards && data[0].cards.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding Stage 1 objectives...');
+				createObjectivesForUpdate(1, data, players);
+			}
+			
+			if (data[1] && data[1].cards && data[1].cards.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding Stage 2 objectives...');
+				createObjectivesForUpdate(2, data, players);
+			}
+			
+			// Recreate additional elements if there are players
+			if (players.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding additional elements...');
+				createAdditionalPointsForUpdate(players, data);
+			}
+			
+			console.log('✅ CLIENT: Interface rebuilt successfully with fresh data');
+		} catch(err) {
+			console.error('❌ CLIENT: Error rebuilding interface:', err);
+		}
 		
 		// Emit update event to other clients via Socket.IO
 		if (socket && socket.connected) {
 			socket.emit('interface_refresh', { timestamp: Date.now() });
 			console.log('📡 CLIENT: Notified other clients of interface update');
 		}
+	}
+	
+	// Helper function to create objectives during update (same logic as createObjectives)
+	function createObjectivesForUpdate(stage, data, players) {
+		var stageIndex = stage - 1;
+		var objectivesCount = data[stageIndex].cards.length;
+		var activeCardIndex = 0;
+		
+		for (var i = 0; i < objectivesCount; i++) {
+			var cardID = data[stageIndex].cards[i].id;
+			if (stage == 1) {
+				objectivesOnBoard.stage1.push(data[stageIndex].cards[i]);
+			} else {
+				objectivesOnBoard.stage2.push(data[stageIndex].cards[i]);
+			}
+			
+			if (cardID != null) {
+				// Find card info in allObjectives
+				for (var k = 0; k < allObjectives.length; k++) {
+					if (cardID == allObjectives[k].id) {
+						var cardName = allObjectives[k].name;
+						var cardText = allObjectives[k].text;
+						var cardPoints = allObjectives[k].points;
+						var cardStage = allObjectives[k].stage;
+						var cardPhase = allObjectives[k].phase;
+						var phaseColor = "";
+						if (cardPhase == "Action Phase") phaseColor = "red";
+
+						// Create elements
+						var objectiveDiv = document.getElementById("objectives" + stage);
+						
+						var el_TokensAndCard = document.createElement("div");
+						el_TokensAndCard.className = "tokensAndCard";
+						objectiveDiv.appendChild(el_TokensAndCard);
+
+						var el_Objective = document.createElement("div");
+						el_Objective.className = 'objContainer';
+						el_Objective.id = i;
+						el_Objective.innerHTML = "<img src='assets/media/objectivecard_bg_" + cardStage + ".png'>";
+						el_TokensAndCard.appendChild(el_Objective);
+
+						var el_ObjectiveText = document.createElement("div");
+						el_ObjectiveText.className = 'objCard';
+						el_ObjectiveText.id = cardID;
+						el_ObjectiveText.innerHTML = "<h2>" + escapeHtml(cardName) + "</h2><p>" + escapeHtml(cardText) + "</p><h3>" + escapeHtml(cardPoints) + "</h3><p style='margin-top:-1.5vw' class='" + escapeHtml(phaseColor) + "'>" + escapeHtml(cardPhase) + "</p></div>";
+						
+						// Add click handler (simplified version for updates)
+						el_ObjectiveText.onclick = function() {
+							cardPressed = this.id;
+							var cardPressedIndex = parseInt(this.parentNode.id);
+							stagePressed = this.parentNode.parentNode.parentNode.id;
+							stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+							
+							if (clickMode != null) {
+								if (clickMode == "hide" || clickMode == "remove") {
+									if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
+										var adjustData = [clickMode, stagePressed, cardPressed, cardPressedIndex];
+										console.log('📡 CLIENT: Emitting card adjustment:', adjustData);
+										socket.emit('adjust' + clickMode.charAt(0).toUpperCase() + clickMode.slice(1), adjustData);
+									}
+								} else {
+									cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
+									document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+									event.stopPropagation();
+								}
+							} else {
+								// Show card details logic would go here
+								console.log('📊 CLIENT: Card selected for details:', cardPressed);
+							}
+						};
+						el_Objective.appendChild(el_ObjectiveText);
+
+						// Create token wrapper and tokens
+						var el_TokensWrapper = document.createElement("div");
+						el_TokensWrapper.className = "objTokensWrapper";
+						el_TokensWrapper.id = activeCardIndex;
+
+						for (var j = 0; j < players.length; j++) {
+							var el_Token = document.createElement("div");
+							el_Token.className = "objToken";
+							el_Token.id = "stage" + stage + "_card" + activeCardIndex + "_player" + j;
+							
+							if (data[stageIndex].cards[i].scores[j].scored) {
+								el_Token.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
+							} else {
+								el_Token.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '_bw.png">';
+							}
+							
+							// Add click handler for token scoring
+							el_Token.onclick = function(event) {
+								var tokenData = this.id.split("_");
+								var tokenStage = tokenData[0].replace("stage", "");
+								var tokenCard = tokenData[1].replace("card", "");
+								var tokenPlayer = tokenData[2].replace("player", "");
+								
+								console.log('📡 CLIENT: Emitting token score:', [tokenStage, tokenCard, tokenPlayer]);
+								socket.emit('token', [tokenStage, tokenCard, tokenPlayer]);
+								noBubbling(event);
+							};
+							
+							el_TokensWrapper.appendChild(el_Token);
+						}
+						el_TokensAndCard.appendChild(el_TokensWrapper);
+						activeCardIndex++;
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	// Helper function to create additional points section during update
+	function createAdditionalPointsForUpdate(players, data) {
+		var el_AddWrapperDiv = document.createElement("div");
+		el_AddWrapperDiv.id = "additionalElementsWrapper";
+		el_AddWrapperDiv.onclick = function() {
+			$("#additionalElementsWrapper").toggleClass("open");
+			$("#additionalElementsArrowLeft").toggleClass("open");
+			$("#additionalElementsArrowRight").toggleClass("open");
+		}
+		document.getElementById("wrapper").appendChild(el_AddWrapperDiv);
+		
+		var el_AddTextArrowWrapperDiv = document.createElement("div");
+		el_AddTextArrowWrapperDiv.className = "additionalElementsTextArrowWrapper";
+		el_AddWrapperDiv.appendChild(el_AddTextArrowWrapperDiv);
+		
+		var el_AddArrowDiv = document.createElement("div");
+		el_AddArrowDiv.id = "additionalElementsArrowLeft";
+		el_AddArrowDiv.innerHTML = "<img src='assets/media/arrow_white.png'>";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv);
+		
+		var el_AddButtonDiv = document.createElement("div");
+		el_AddButtonDiv.className = "additionalElementsText";
+		el_AddButtonDiv.innerHTML = "Additional Scores";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddButtonDiv);
+		
+		var el_AddArrowDiv2 = document.createElement("div");
+		el_AddArrowDiv2.id = "additionalElementsArrowRight";
+		el_AddArrowDiv2.innerHTML = "<img src='assets/media/arrow_white.png'>";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv2);
+		
+		var el_AddDiv = document.createElement("div");
+		el_AddDiv.id = "additionalElements";
+		el_AddWrapperDiv.appendChild(el_AddDiv);
+		
+		// Create additional points elements (simplified version)
+		createAdditionalPoints();
 	}
 
 	function bigletterHide() {
