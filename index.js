@@ -5,6 +5,10 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var os = require('os');
 
+// Game state variables
+var pauseCounter = false;
+var pauseStartTime = 0;
+
 console.log('🚀 SERVER: Starting Tvajlajt server...');
 console.log('📂 SERVER: Setting up routes and middleware...');
 
@@ -421,19 +425,123 @@ io.on('connection', function(socket){
             var communityCards = dataToProcess[2] || false;
             jsonData[3].communitycards = communityCards;
             console.log('⚙️ GAME: Community cards setting:', communityCards);
-
-            console.log('💾 FILE: Writing new game data to data.json...');
-            fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
-                if (err) {
-                    console.error('❌ FILE: Error writing new game data to data.json:', err);
-                    throw err;
+            
+            // Set game start time
+            jsonData[3].timeStart = Date.now();
+            jsonData[3].timePause = 0;
+            console.log('⏰ GAME: Game start time set to:', new Date(jsonData[3].timeStart).toLocaleString());
+            
+            // Handle flipped objectives
+            var flippedObjectives = parseInt(dataToProcess[3]) || 3;
+            console.log('🎯 GAME: Flipped objectives setting:', flippedObjectives);
+            
+            // Auto-flip the specified number of objectives
+            if (flippedObjectives > 0) {
+                console.log('🔄 GAME: Auto-flipping', flippedObjectives, 'objectives...');
+                
+                // Load objectives to get random cards
+                fs.readFile(`${__dirname}/database.json`, 'utf8', function (err, database) {
+                    if (err) {
+                        console.error('❌ FILE: Error reading database.json for auto-flip:', err);
+                        return;
+                    }
+                    
+                    var jsonDatabase = JSON.parse(database);
+                    var stage1Objectives = jsonDatabase[0].stage1;
+                    var stage2Objectives = jsonDatabase[0].stage2;
+                    
+                    // Load community objectives if enabled
+                    if (communityCards) {
+                        fs.readFile(`${__dirname}/database_community.json`, 'utf8', function (err, communityDatabase) {
+                            if (!err) {
+                                var jsonCommunityDatabase = JSON.parse(communityDatabase);
+                                stage1Objectives = stage1Objectives.concat(jsonCommunityDatabase[0].stage1);
+                                stage2Objectives = stage2Objectives.concat(jsonCommunityDatabase[0].stage2);
+                            }
+                            autoFlipObjectives(jsonData, flippedObjectives, stage1Objectives, stage2Objectives);
+                        });
+                    } else {
+                        autoFlipObjectives(jsonData, flippedObjectives, stage1Objectives, stage2Objectives);
+                    }
+                });
+            } else {
+                // No auto-flip, just save the data
+                saveNewGameData(jsonData);
+            }
+            
+            function autoFlipObjectives(jsonData, count, stage1Objectives, stage2Objectives) {
+                var flipped = 0;
+                
+                // Flip stage 1 objectives first
+                for (var i = 0; i < jsonData[0].cards.length && flipped < count; i++) {
+                    var randomIndex = Math.floor(Math.random() * stage1Objectives.length);
+                    jsonData[0].cards[i].id = stage1Objectives[randomIndex].id;
+                    console.log('🎯 GAME: Auto-flipped stage 1 card', i + 1, 'to:', stage1Objectives[randomIndex].name);
+                    flipped++;
                 }
-                console.log('✅ GAME: New game started successfully! Data saved to data.json');
-                console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
-            });
+                
+                // If we need more, flip stage 2 objectives
+                for (var i = 0; i < jsonData[1].cards.length && flipped < count; i++) {
+                    var randomIndex = Math.floor(Math.random() * stage2Objectives.length);
+                    jsonData[1].cards[i].id = stage2Objectives[randomIndex].id;
+                    console.log('🎯 GAME: Auto-flipped stage 2 card', i + 1, 'to:', stage2Objectives[randomIndex].name);
+                    flipped++;
+                }
+                
+                saveNewGameData(jsonData);
+            }
+            
+            function saveNewGameData(jsonData) {
+                console.log('💾 FILE: Writing new game data to data.json...');
+                fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
+                    if (err) {
+                        console.error('❌ FILE: Error writing new game data to data.json:', err);
+                        throw err;
+                    }
+                    console.log('✅ GAME: New game started successfully! Data saved to data.json');
+                    console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
+                });
+            }
         });
     });
 
+	socket.on('pauseCounter', function(dataToProcess){
+        console.log('⏸️ SOCKET: Received pauseCounter event:', dataToProcess);
+        
+        if (dataToProcess === true) {
+            // Start pause counter
+            pauseCounter = true;
+            pauseStartTime = Date.now();
+            console.log('⏸️ SOCKET: Pause counter started at:', new Date(pauseStartTime).toLocaleString());
+        } else {
+            // Stop pause counter and update timePause
+            if (pauseCounter) {
+                var pauseDuration = Math.floor((Date.now() - pauseStartTime) / 1000);
+                console.log('⏸️ SOCKET: Pause counter stopped, duration:', pauseDuration, 'seconds');
+                
+                // Update data.json with accumulated pause time
+                fs.readFile(`${__dirname}/data.json`, 'utf8', function (err, data) {
+                    if (err) {
+                        console.error('❌ FILE: Error reading data.json for pause update:', err);
+                        return;
+                    }
+                    
+                    var jsonData = JSON.parse(data);
+                    jsonData[3].timePause += pauseDuration;
+                    
+                    fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
+                        if (err) {
+                            console.error('❌ FILE: Error writing pause time to data.json:', err);
+                            throw err;
+                        }
+                        console.log('⏸️ SOCKET: Updated timePause to:', jsonData[3].timePause, 'seconds');
+                    });
+                });
+            }
+            pauseCounter = false;
+        }
+    });
+    
 	socket.on('reset', function(dataToProcess){
         console.log('🔄 SOCKET: Received reset event');
         io.emit('reset', dataToProcess);

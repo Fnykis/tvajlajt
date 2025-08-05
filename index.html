@@ -100,6 +100,18 @@
 		<div class="newGameForm" onclick="noBubbling(event)">
 					<form id="newGameForm" onsubmit="return submitNewGame(event);">
 			<!-- No longer submitting via HTTP, using Socket.IO instead -->
+				Flipped objectives:
+				<br>
+				<select name="flippedobjectives">
+					<option value="0">0 flipped objectives</option>
+					<option value="1">1 flipped objective</option>
+					<option value="2">2 flipped objectives</option>
+					<option value="3" selected>3 flipped objectives</option>
+					<option value="4">4 flipped objectives</option>
+					<option value="5">5 flipped objectives</option>
+				</select>
+				<br>
+				<br>
 				Settings:
 				<br>
 				<select name="startingcards">
@@ -113,7 +125,8 @@
 				<br>
 				Use community objectives:
 				<br>
-				<input type="checkbox" class="checkbox" checked name="communitycards" value="true">
+				<input type="checkbox" class="checkbox" checked name="communitycards" value="true" onchange="updateCommunityCardsHidden(this)">
+				<input type="hidden" name="communitycards_hidden" value="true">
 				<br>
 				<br>
 				Players:
@@ -360,8 +373,7 @@
 	<div id="sideMenuBg" onclick="closeMenu()"><div id="sideMenu">
 		<div id="btnNew" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/new.png"><div class="sideMenuItemText">New game</div></div>
 		<div id="btnAddcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/addcard.png"><div class="sideMenuItemText">Add card</div></div>
-		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/changecard.png"><div class="sideMenuItemText">Adjust card</div></div>
-		            <div id="btnEdit" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Tamper score</div></div>
+		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Adjust card</div></div>
             <div id="btnReset" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">Reset</div></div>
 		<div id="btnSuperuser" class="sideMenuItem" onclick="buttonClick(event, this.id)"></div>
 	</div></div>
@@ -369,6 +381,9 @@
 	<div id="header">
 		<div id="sideMenuButton" onclick="showMenu(event)">
 			<img src="assets/media/buttons/menu.png">
+		</div>
+		<div id="gameTimer" onclick="togglePause()" title="Click to pause/resume game">
+			<span id="timerDisplay">00:00:00</span>
 		</div>
 		<div id="logo">
 			<img src="assets/media/tvajlajt.png">
@@ -529,6 +544,13 @@
 
 	var allPlayers = [];
 	var allScores = [];
+	
+	// Track menu states
+	var additionalScoresMenuOpen = false;
+	
+	// Timer variables
+	var gameTimer = null;
+	var isPaused = false;
 
 	// Function to create the scoreboard
 	function createScoreboard(players, playerScores) {
@@ -571,6 +593,63 @@
 		document.getElementById('bigletter').style.visibility = 'visible';
 	}
 	
+	// Function to format time as HH:MM:SS
+	function formatTime(seconds) {
+		var hours = Math.floor(seconds / 3600);
+		var minutes = Math.floor((seconds % 3600) / 60);
+		var secs = seconds % 60;
+		return (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (secs < 10 ? '0' : '') + secs;
+	}
+	
+	// Function to update timer display
+	function updateTimer() {
+		if (!gameTimer) return;
+		
+		$.getJSON("data.json?v=" + Date.now(), function(data) {
+			if (data && data[3] && data[3].timeStart) {
+				var currentTime = Date.now();
+				var startTime = data[3].timeStart;
+				var pauseTime = data[3].timePause || 0;
+				
+				var elapsedSeconds = Math.floor((currentTime - startTime) / 1000) - pauseTime;
+				if (elapsedSeconds < 0) elapsedSeconds = 0;
+				
+				document.getElementById('timerDisplay').textContent = formatTime(elapsedSeconds);
+			}
+		});
+	}
+	
+	// Function to toggle pause
+	function togglePause() {
+		if (isPaused) {
+			// Resume game
+			isPaused = false;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', false);
+				console.log('▶️ CLIENT: Game resumed');
+			}
+		} else {
+			// Pause game
+			isPaused = true;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', true);
+				console.log('⏸️ CLIENT: Game paused');
+			}
+			
+			// Show pause message in bigletter
+			var html = '<div class="blTitle">Game Paused</div>';
+			$('#bigletter').html(html);
+			document.getElementById('bigletter').style.visibility = 'visible';
+		}
+	}
+	
+	// Function to update community cards hidden input
+	function updateCommunityCardsHidden(checkbox) {
+		var hiddenInput = document.querySelector('input[name="communitycards_hidden"]');
+		hiddenInput.value = checkbox.checked ? 'true' : 'false';
+		console.log('🔍 CLIENT: Community cards checkbox changed to:', checkbox.checked);
+	}
+	
 	// Function to show a card in the bigletter
 	function showCardInBigletter(cardID) {
 		console.log('🎯 CLIENT: Showing card in bigletter:', cardID);
@@ -594,6 +673,12 @@
 			$('#bigletter').html(html);
 			document.getElementById('bigletter').style.visibility = 'visible';
 			console.log('🎯 CLIENT: Bigletter should now be visible');
+			
+			// Set pauseCounter to false when bigletter is shown
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', false);
+				console.log('⏸️ CLIENT: Pause counter set to false');
+			}
 		} else {
 			console.error('❌ CLIENT: Card info not found for bigletter:', cardID);
 		}
@@ -825,6 +910,10 @@
 						$("#additionalElementsWrapper").toggleClass("open");
 						$("#additionalElementsArrowLeft").toggleClass("open");
 						$("#additionalElementsArrowRight").toggleClass("open");
+						
+						// Track menu state
+						additionalScoresMenuOpen = $("#additionalElementsWrapper").hasClass("open");
+						console.log('📊 CLIENT: Additional Scores menu state:', additionalScoresMenuOpen ? 'open' : 'closed');
 					}
 				document.getElementById("wrapper").appendChild(el_AddWrapperDiv);
 					var el_AddTextArrowWrapperDiv = document.createElement("div");
@@ -1355,9 +1444,25 @@
 			if (players.length > 0) {
 				console.log('🎮 CLIENT: Rebuilding additional elements...');
 				createAdditionalPointsForUpdate(players, data);
+				
+				// Restore Additional Scores menu state if it was open
+				if (additionalScoresMenuOpen) {
+					setTimeout(function() {
+						$("#additionalElementsWrapper").addClass("open");
+						$("#additionalElementsArrowLeft").addClass("open");
+						$("#additionalElementsArrowRight").addClass("open");
+						console.log('📊 CLIENT: Restored Additional Scores menu to open state');
+					}, 50); // Small delay to ensure elements are created
+				}
 			}
 			
 			console.log('✅ CLIENT: Interface rebuilt successfully with fresh data');
+			
+			// Start timer if not already running
+			if (!gameTimer) {
+				gameTimer = setInterval(updateTimer, 1000);
+				console.log('⏰ CLIENT: Game timer started');
+			}
 			
 			// Show bigletter for the last flipped card if available
 			if (window.lastFlippedCardID) {
@@ -1903,12 +2008,15 @@
 		var form = document.getElementById('newGameForm');
 		var formData = new FormData(form);
 		
+		// Extract flipped objectives setting
+		var flippedObjectives = formData.get('flippedobjectives') || '3';
+		
 		// Extract starting cards setting
 		var startingCards = formData.get('startingcards') || '5';
 		
 		// Extract community cards setting
-		var communityCards = formData.get('communitycards') === 'true';
-		console.log('🔍 CLIENT: Raw community cards value:', formData.get('communitycards'));
+		var communityCards = formData.get('communitycards_hidden') === 'true';
+		console.log('🔍 CLIENT: Raw community cards value:', formData.get('communitycards_hidden'));
 		console.log('🔍 CLIENT: Processed community cards value:', communityCards);
 		
 		// Extract players data
@@ -1929,7 +2037,7 @@
 		}
 		
 		// Prepare data for server (matching expected format)
-		var newGameData = [startingCards, players, communityCards];
+		var newGameData = [startingCards, players, communityCards, flippedObjectives];
 		
 		console.log('🎮 CLIENT: Starting new game with data:', newGameData);
 		console.log('📊 CLIENT: Settings - Cards:', startingCards, 'Community:', communityCards, 'Players:', players.length);
@@ -1963,26 +2071,23 @@
 				console.log('📡 CLIENT: Emitting game reset');
 				socket.emit('reset', {});
 			}
-		} else if (id == "btnEdit" && superuser) {
-			closeMenu();
-			document.getElementById('editScoreWrapper').innerHTML = "";
-			var playersHtml = "";
-			
-			for (var i = 0; i < allPlayers.length; i++) {
-				playersHtml = playersHtml + decodeURIComponent(allPlayers[i].player) + ': <input type="text" name="player' + (i + 1) + '_score" value="' + allScores[i] + '" size="6"><br>'
-			}
-			var fullHtml = '<form action="' + serverUrl + '"><input type="hidden" name="request" value="editscore">' + playersHtml + '<input type="submit" value="Set scores"></form>';
 
-			var el_FormScore = document.createElement("div");
-				el_FormScore.className = "newGameForm right";
-				el_FormScore.innerHTML = fullHtml;
-				el_FormScore.onclick = function(event) { noBubbling(event); }
-			document.getElementById('editScoreWrapper').appendChild(el_FormScore);
-
-			document.getElementById('editScoreWrapper').style.visibility = 'visible';
 		} else if (id == "btnNew" && superuser) {
 			closeMenu();
-			document.getElementById('newGameWrapper').style.visibility = 'visible';
+			
+			// Check if there's already a game in progress
+			var hasActiveGame = false;
+			if (allPlayers && allPlayers.length > 0) {
+				hasActiveGame = true;
+			}
+			
+			if (hasActiveGame) {
+				if (confirm("A game is already in progress. Starting a new game will clear the current game and all progress. Are you sure you want to continue?")) {
+					document.getElementById('newGameWrapper').style.visibility = 'visible';
+				}
+			} else {
+				document.getElementById('newGameWrapper').style.visibility = 'visible';
+			}
 		} else if (id == "btnAddcard" && superuser) {
 			closeMenu();
 			document.getElementById('addCardWrapper').style.visibility = 'visible';
