@@ -783,6 +783,12 @@
     window.onload = function() {
 		console.log('🚀 CLIENT: Window loaded, initializing application...');
 
+		// Initialize timer immediately on page load
+		console.log('⏰ CLIENT: Initializing timer on page load...');
+		initializeTimer();
+		gameTimer = setInterval(updateTimer, 1000);
+		console.log('⏰ CLIENT: Timer started on page load');
+
 		// Superuser check with cookies
 		console.log('👤 CLIENT: Checking superuser status...');
 		var superuserCookie = localStorage.getItem('superuser');
@@ -1493,13 +1499,7 @@
 			
 			console.log('✅ CLIENT: Interface rebuilt successfully with fresh data');
 			
-			// Start timer if not already running
-			if (!gameTimer) {
-				// Initialize timer with current state from data.json
-				initializeTimer();
-				gameTimer = setInterval(updateTimer, 1000);
-				console.log('⏰ CLIENT: Game timer started');
-			}
+			// Timer is already started on page load, no need to restart
 			
 			// Show bigletter for the last flipped card if available
 			if (window.lastFlippedCardID) {
