@@ -340,7 +340,7 @@
 		<div class="objectiveStyleItem" onclick="adjustCard(event, 'change')">Change</div>
 		<div class="objectiveStyleItem" onclick="adjustCard(event, 'remove')">Remove</div>
 	</div>
-	<div id="changeVPWrapper" onclick="closeMenu()">
+	<div id="changeVPWrapper">
 		<div class="objectiveStyleItem" onclick="changeVP(event, '-')">-</div>
 		<div class="objectiveStyleItem" onclick="changeVP(event, '+')">+</div>
 	</div>
@@ -447,6 +447,14 @@
 	// Listen for any update events from the server
 	socket.on('update', function(data) {
 		console.log('📡 CLIENT: Received update event from server:', data);
+		
+		// Store the card ID to show in bigletter after refresh
+		if (data && data.length >= 2) {
+			var cardID = data[1]; // The card ID that was just assigned
+			console.log('🎯 CLIENT: Card flipped, will show bigletter for card:', cardID);
+			window.lastFlippedCardID = cardID; // Store for later use
+		}
+		
 		// Refresh the interface when server sends updates
 		setTimeout(refreshGameData, 500); // Small delay to ensure server has updated data.json
 	});
@@ -561,6 +569,34 @@
 		
 		$('#bigletter').html(html);
 		document.getElementById('bigletter').style.visibility = 'visible';
+	}
+	
+	// Function to show a card in the bigletter
+	function showCardInBigletter(cardID) {
+		console.log('🎯 CLIENT: Showing card in bigletter:', cardID);
+		var cardInfo = getCardInfo(cardID);
+		
+		if (cardInfo) {
+			var cardPhase = cardInfo.phase;
+			var phaseColor = "";
+			if (cardPhase == "Action Phase") phaseColor = "red";
+			
+			var html = '<div class="blPlayers"></div>' +
+						'<div class="blTitle">' + cardInfo.name + '</div>' +
+						'<div class="blText">' + cardInfo.text + '</div>' +
+						'<div class="blPhaseAndPoints">' +
+							'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>' +
+							'<div class="blPoint">' + cardInfo.points + '</div>' +
+							'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>' +
+						'</div>';
+			
+			console.log('🎯 CLIENT: Bigletter HTML:', html);
+			$('#bigletter').html(html);
+			document.getElementById('bigletter').style.visibility = 'visible';
+			console.log('🎯 CLIENT: Bigletter should now be visible');
+		} else {
+			console.error('❌ CLIENT: Card info not found for bigletter:', cardID);
+		}
 	}
 	
 	// Function to calculate scores from objectives
@@ -1322,6 +1358,15 @@
 			}
 			
 			console.log('✅ CLIENT: Interface rebuilt successfully with fresh data');
+			
+			// Show bigletter for the last flipped card if available
+			if (window.lastFlippedCardID) {
+				console.log('🎯 CLIENT: Showing bigletter for last flipped card:', window.lastFlippedCardID);
+				setTimeout(function() {
+					showCardInBigletter(window.lastFlippedCardID);
+					window.lastFlippedCardID = null; // Clear after showing
+				}, 100); // Small delay to ensure interface is fully rendered
+			}
 		} catch(err) {
 			console.error('❌ CLIENT: Error rebuilding interface:', err);
 		}
