@@ -449,7 +449,14 @@ h3 {
         font-size: 1.2vw;
         font-weight: bold;
         transition: background-color 0.3s ease;
-        margin-right: 2vw;
+        position: fixed;
+        top: 0;
+        left: 3.2vw;
+        z-index: 100;
+        width: auto;
+        height: 3.2vw;
+        display: flex;
+        align-items: center;
     }
 
     #gameTimer:hover {

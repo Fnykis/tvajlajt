@@ -343,7 +343,7 @@
 	</div>
 	<div id="editScoreWrapper" onclick="closeMenu()"></div>
 	<div id="warnTop"></div><div id="warnBottom"></div><div id="warnLeft"></div><div id="warnRight"></div>
-	<div id="bigletter" onclick="bigletterHide()"></div>
+	<div id="bigletter" onclick="closeBigletter()"></div>
 	<div id="addCardWrapper" onclick="closeMenu()">
 		<div class="objectiveStyleItem" onclick="addCard(event, 1)">Stage 1</div>
 		<div class="objectiveStyleItem" onclick="addCard(event, 2)">Stage 2</div>
@@ -551,6 +551,7 @@
 	// Timer variables
 	var gameTimer = null;
 	var isPaused = false;
+	var lastUpdateTime = 0;
 
 	// Function to create the scoreboard
 	function createScoreboard(players, playerScores) {
@@ -593,6 +594,24 @@
 		document.getElementById('bigletter').style.visibility = 'visible';
 	}
 	
+	// Function to initialize timer with current state from data.json
+	function initializeTimer() {
+		$.getJSON("data.json?v=" + Date.now(), function(data) {
+			if (data && data[3] && data[3].timeStart) {
+				var currentTime = Date.now();
+				var startTime = data[3].timeStart;
+				var pauseTime = data[3].timePause || 0;
+				
+				var elapsedSeconds = Math.floor((currentTime - startTime) / 1000) - pauseTime;
+				if (elapsedSeconds < 0) elapsedSeconds = 0;
+				
+				document.getElementById('timerDisplay').textContent = formatTime(elapsedSeconds);
+				lastUpdateTime = elapsedSeconds;
+				console.log('⏰ CLIENT: Timer initialized with', formatTime(elapsedSeconds), 'elapsed time');
+			}
+		});
+	}
+	
 	// Function to format time as HH:MM:SS
 	function formatTime(seconds) {
 		var hours = Math.floor(seconds / 3600);
@@ -605,6 +624,9 @@
 	function updateTimer() {
 		if (!gameTimer) return;
 		
+		// Only update if not paused
+		if (isPaused) return;
+		
 		$.getJSON("data.json?v=" + Date.now(), function(data) {
 			if (data && data[3] && data[3].timeStart) {
 				var currentTime = Date.now();
@@ -615,8 +637,23 @@
 				if (elapsedSeconds < 0) elapsedSeconds = 0;
 				
 				document.getElementById('timerDisplay').textContent = formatTime(elapsedSeconds);
+				lastUpdateTime = elapsedSeconds;
 			}
 		});
+	}
+	
+	// Function to close bigletter and resume timer
+	function closeBigletter() {
+		document.getElementById('bigletter').style.visibility = 'hidden';
+		
+		// Resume timer if it was paused
+		if (isPaused) {
+			isPaused = false;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', false);
+				console.log('▶️ CLIENT: Game resumed from bigletter close');
+			}
+		}
 	}
 	
 	// Function to toggle pause
@@ -628,6 +665,8 @@
 				socket.emit('pauseCounter', false);
 				console.log('▶️ CLIENT: Game resumed');
 			}
+			// Hide pause message
+			document.getElementById('bigletter').style.visibility = 'hidden';
 		} else {
 			// Pause game
 			isPaused = true;
@@ -674,11 +713,7 @@
 			document.getElementById('bigletter').style.visibility = 'visible';
 			console.log('🎯 CLIENT: Bigletter should now be visible');
 			
-			// Set pauseCounter to false when bigletter is shown
-			if (socket && socket.connected) {
-				socket.emit('pauseCounter', false);
-				console.log('⏸️ CLIENT: Pause counter set to false');
-			}
+
 		} else {
 			console.error('❌ CLIENT: Card info not found for bigletter:', cardID);
 		}
@@ -1460,6 +1495,8 @@
 			
 			// Start timer if not already running
 			if (!gameTimer) {
+				// Initialize timer with current state from data.json
+				initializeTimer();
 				gameTimer = setInterval(updateTimer, 1000);
 				console.log('⏰ CLIENT: Game timer started');
 			}
