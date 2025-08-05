@@ -382,7 +382,7 @@
 		<div id="sideMenuButton" onclick="showMenu(event)">
 			<img src="assets/media/buttons/menu.png">
 		</div>
-		<div id="gameTimer" onclick="togglePause()" title="Click to pause/resume game">
+		<div id="gameTimer" onclick="togglePause()" title="Click to pause/resume game (superuser only)">
 			<span id="timerDisplay">00:00:00</span>
 		</div>
 		<div id="logo">
@@ -532,12 +532,10 @@
 		console.log('⏸️ CLIENT: Received gamePaused event from server');
 		if (!isPaused) {
 			isPaused = true;
-			// Show pause message if not already visible
-			if (document.getElementById('bigletter').style.visibility !== 'visible') {
-				var html = '<div class="blTitle">Game Paused</div>';
-				$('#bigletter').html(html);
-				document.getElementById('bigletter').style.visibility = 'visible';
-			}
+			// Show pause message to all clients
+			var html = '<div class="blTitle">Game Paused</div>';
+			$('#bigletter').html(html);
+			document.getElementById('bigletter').style.visibility = 'visible';
 		}
 	});
 	
@@ -546,7 +544,7 @@
 		console.log('▶️ CLIENT: Received gameResumed event from server');
 		if (isPaused) {
 			isPaused = false;
-			// Hide pause message
+			// Hide pause message for all clients
 			document.getElementById('bigletter').style.visibility = 'hidden';
 		}
 	});
@@ -697,26 +695,38 @@
 	
 	// Function to close bigletter and resume timer
 	function closeBigletter() {
+		// Only superusers can close the pause bigletter
+		if (isPaused && !superuser) {
+			notSuperuser();
+			return;
+		}
+		
 		document.getElementById('bigletter').style.visibility = 'hidden';
 		
-		// Resume timer if it was paused
-		if (isPaused) {
+		// Resume timer if it was paused (only superusers can do this)
+		if (isPaused && superuser) {
 			isPaused = false;
 			if (socket && socket.connected) {
 				socket.emit('pauseCounter', false);
-				console.log('▶️ CLIENT: Game resumed from bigletter close');
+				console.log('▶️ CLIENT: Game resumed from bigletter close by superuser');
 			}
 		}
 	}
 	
 	// Function to toggle pause
 	function togglePause() {
+		// Only superusers can pause/resume the game
+		if (!superuser) {
+			notSuperuser();
+			return;
+		}
+		
 		if (isPaused) {
 			// Resume game
 			isPaused = false;
 			if (socket && socket.connected) {
 				socket.emit('pauseCounter', false);
-				console.log('▶️ CLIENT: Game resumed');
+				console.log('▶️ CLIENT: Game resumed by superuser');
 			}
 			// Hide pause message
 			document.getElementById('bigletter').style.visibility = 'hidden';
@@ -725,7 +735,7 @@
 			isPaused = true;
 			if (socket && socket.connected) {
 				socket.emit('pauseCounter', true);
-				console.log('⏸️ CLIENT: Game paused');
+				console.log('⏸️ CLIENT: Game paused by superuser');
 			}
 			
 			// Show pause message in bigletter
@@ -853,6 +863,18 @@
 		}
 		var superuserHtml = (superuser) ? "y" : (!superuser) ? "n" : "";
 		document.getElementById("btnSuperuser").innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/superuser_' + superuserHtml + '.png"><div class="sideMenuItemText">Superuser</div>';
+		
+		// Update timer visual indicator based on superuser status
+		var gameTimer = document.getElementById("gameTimer");
+		if (gameTimer) {
+			if (superuser) {
+				gameTimer.classList.add('superuser-only');
+				gameTimer.title = "Click to pause/resume game (superuser)";
+			} else {
+				gameTimer.classList.remove('superuser-only');
+				gameTimer.title = "Game timer (superuser only)";
+			}
+		}
 
 		// Check if refresher
 		console.log('🔄 CLIENT: Checking auto-refresh settings...');
