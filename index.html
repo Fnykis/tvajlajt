@@ -526,6 +526,30 @@
 		}
 		setTimeout(refreshGameData, 1000); // Longer delay for reset
 	});
+	
+	// Listen for game pause events from other clients
+	socket.on('gamePaused', function(data) {
+		console.log('⏸️ CLIENT: Received gamePaused event from server');
+		if (!isPaused) {
+			isPaused = true;
+			// Show pause message if not already visible
+			if (document.getElementById('bigletter').style.visibility !== 'visible') {
+				var html = '<div class="blTitle">Game Paused</div>';
+				$('#bigletter').html(html);
+				document.getElementById('bigletter').style.visibility = 'visible';
+			}
+		}
+	});
+	
+	// Listen for game resume events from other clients
+	socket.on('gameResumed', function(data) {
+		console.log('▶️ CLIENT: Received gameResumed event from server');
+		if (isPaused) {
+			isPaused = false;
+			// Hide pause message
+			document.getElementById('bigletter').style.visibility = 'hidden';
+		}
+	});
 	var autorefreshInterval;
 
 	var stagePressed;
@@ -608,6 +632,35 @@
 				document.getElementById('timerDisplay').textContent = formatTime(elapsedSeconds);
 				lastUpdateTime = elapsedSeconds;
 				console.log('⏰ CLIENT: Timer initialized with', formatTime(elapsedSeconds), 'elapsed time');
+				
+				// Check if game is currently paused by comparing elapsed time
+				// If elapsed time hasn't changed in the last few seconds, game might be paused
+				setTimeout(function() {
+					checkPauseState();
+				}, 2000);
+			}
+		});
+	}
+	
+	// Function to check if game is currently paused
+	function checkPauseState() {
+		$.getJSON("data.json?v=" + Date.now(), function(data) {
+			if (data && data[3] && data[3].timeStart) {
+				var currentTime = Date.now();
+				var startTime = data[3].timeStart;
+				var pauseTime = data[3].timePause || 0;
+				
+				var elapsedSeconds = Math.floor((currentTime - startTime) / 1000) - pauseTime;
+				if (elapsedSeconds < 0) elapsedSeconds = 0;
+				
+				// If elapsed time is the same as last update, game might be paused
+				if (Math.abs(elapsedSeconds - lastUpdateTime) < 2) {
+					// Check if we should show pause message
+					if (!isPaused && document.getElementById('bigletter').style.visibility !== 'visible') {
+						isPaused = true;
+						console.log('⏸️ CLIENT: Detected game is paused, syncing pause state');
+					}
+				}
 			}
 		});
 	}

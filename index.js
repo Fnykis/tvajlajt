@@ -9,6 +9,34 @@ var os = require('os');
 var pauseCounter = false;
 var pauseStartTime = 0;
 
+// Function to update pause time in data.json
+function updatePauseTime() {
+    if (pauseCounter) {
+        var currentPauseDuration = Math.floor((Date.now() - pauseStartTime) / 1000);
+        
+        fs.readFile(`${__dirname}/data.json`, 'utf8', function (err, data) {
+            if (err) {
+                console.error('❌ FILE: Error reading data.json for pause update:', err);
+                return;
+            }
+            
+            var jsonData = JSON.parse(data);
+            
+            // Calculate total pause time: existing + current pause duration
+            var totalPauseTime = (jsonData[3].timePause || 0) + currentPauseDuration;
+            jsonData[3].timePause = totalPauseTime;
+            
+            fs.writeFile(`${__dirname}/data.json`, JSON.stringify(jsonData), (err) => {  
+                if (err) {
+                    console.error('❌ FILE: Error writing pause time to data.json:', err);
+                    return;
+                }
+                console.log('⏸️ SERVER: Updated timePause to:', totalPauseTime, 'seconds (current pause:', currentPauseDuration, 'seconds)');
+            });
+        });
+    }
+}
+
 console.log('🚀 SERVER: Starting Tvajlajt server...');
 console.log('📂 SERVER: Setting up routes and middleware...');
 
@@ -498,9 +526,13 @@ io.on('connection', function(socket){
                         console.error('❌ FILE: Error writing new game data to data.json:', err);
                         throw err;
                     }
-                    console.log('✅ GAME: New game started successfully! Data saved to data.json');
-                    console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
-                });
+                    	console.log('✅ GAME: New game started successfully! Data saved to data.json');
+	console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
+});
+
+// Start continuous pause time updates every 5 seconds
+setInterval(updatePauseTime, 5000);
+console.log('⏸️ SERVER: Started continuous pause time updates every 5 seconds');
             }
         });
     });
@@ -513,6 +545,9 @@ io.on('connection', function(socket){
             pauseCounter = true;
             pauseStartTime = Date.now();
             console.log('⏸️ SOCKET: Pause counter started at:', new Date(pauseStartTime).toLocaleString());
+            
+            // Notify all clients that game is paused
+            io.emit('gamePaused', { timestamp: Date.now() });
         } else {
             // Stop pause counter and update timePause
             if (pauseCounter) {
@@ -535,6 +570,9 @@ io.on('connection', function(socket){
                             throw err;
                         }
                         console.log('⏸️ SOCKET: Updated timePause to:', jsonData[3].timePause, 'seconds');
+                        
+                        // Notify all clients that game is resumed
+                        io.emit('gameResumed', { timestamp: Date.now() });
                     });
                 });
             }
