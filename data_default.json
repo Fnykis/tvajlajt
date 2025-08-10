@@ -146,7 +146,11 @@
     },
     {
         "communitycards":true,
-        "timeStart":1580304901197,
-        "timePause":1580304936400
+        "prophecyOfKings": false,
+        "thundersEdge": false,
+        "timeStart":0,
+        "timePause":0,
+        "elapsedSeconds":0,
+        "gameEnded":false
     }
 ]

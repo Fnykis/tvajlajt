@@ -1,11 +1,25 @@
 
-body {
-	background: url("../media/background5.jpg");
+html {
+    height: 100%;
+    overflow-x: hidden;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    background-repeat: no-repeat;
     background-attachment: fixed;
-	background-position: center;
     background-size: cover;
+    background-position: center center;
+    width: 100%;
+    min-height: 100vh;
+}
+
+body {
     position: relative;
     font-size: 2vw;
+    background: none;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    margin: 0;
+    width: 100%;
+    /* Remove safe area padding from body - we'll handle it differently */
 }
 
 img {
@@ -15,7 +29,7 @@ img {
 
 p {
 	font-family: 'Cantarell', sans-serif;
-    font-size: 1vw;
+    font-size: clamp(0.8vw, 0.9vw, 1.2vw);
     line-height: 1em;
     letter-spacing: -0.1vw;
 }
@@ -23,17 +37,17 @@ p {
 h1 {
 	display: block;
 	font-family: 'Cuprum', sans-serif;
-	font-size: 2vw;
+	font-size: 5vw;
     font-variant-caps: normal;
 }
 
 h2 {
 	display: block;
 	font-family: 'Cuprum', sans-serif;
-    font-size: 1.5vw;
+    font-size: clamp(1.2vw, 1.5vw, 2.5vw);
     font-variant-caps: normal;
     margin-bottom: -2%;
-    line-height: 1.1em;
+    line-height: 0.9em;
     /* position: absolute; */
     /* margin-top: 20px;
     margin-bottom: 20px; */
@@ -46,7 +60,7 @@ h3 {
     width: 1.5vw;
     display: block;
     font-family: 'Cuprum', sans-serif;
-    font-size: 2.2vw;
+    font-size: clamp(1.5vw, 2.2vw, 3vw);
     line-height: 1.8vw;
     color: #000;
     background-color: #FFF;
@@ -60,6 +74,9 @@ h3 {
 #wrapper {
     width: 100%;
     height: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
 }
 
 @-webkit-keyframes pulse {
@@ -133,6 +150,29 @@ h3 {
     cursor: pointer;
     visibility: hidden;
 }
+
+.bigletter-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Make bigletter scrollable on horizontal phone screens */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #bigletter {
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+        padding-bottom: calc(7vh + 20px);
+        height: calc(100vh - 20px);
+    }
+    
+    #bigletter::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+}
     .blPlayers {
         width: 100%;
         height: 5vw;
@@ -185,6 +225,72 @@ h3 {
         line-height: 1em;
         letter-spacing: -0.2vw;
     }
+    .blScore {
+        font-family: 'Cuprum', sans-serif;
+        font-size: 6vw;
+        font-weight: bold;
+        color: #ffd700;
+        text-align: center;
+        margin: 20px 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+    .blGameTime {
+        font-family: 'Cantarell', sans-serif;
+        font-size: 3vw;
+        color: #ccc;
+        text-align: center;
+        margin: 15px 0;
+        font-style: italic;
+    }
+    .blAllPlayers {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #444;
+    }
+    .blPlayerScore {
+        font-family: 'Cantarell', sans-serif;
+        font-size: 2.5vw;
+        color: #aaa;
+        text-align: center;
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1vw;
+    }
+    .blPlayerScore.winner {
+        color: #ffd700;
+        font-weight: bold;
+    }
+    .blPlayerIcon {
+        max-height: 5vw;
+        max-width: 5vw;
+        width: auto;
+        height: auto;
+    }
+    
+    /* Mobile responsiveness for bigletter scoreboard */
+    @media screen and (max-width: 768px) {
+        .blPlayerScore {
+            font-size: 4vw;
+            margin: 12px 0;
+        }
+        .blPlayerIcon {
+            max-height: 4vw;
+            max-width: 4vw;
+        }
+    }
+    
+    @media screen and (max-height: 500px) and (orientation: landscape) {
+        .blPlayerScore {
+            font-size: 3vw;
+            margin: 6px 0;
+        }
+        .blPlayerIcon {
+            max-height: 3vw;
+            max-width: 3vw;
+        }
+    }
 
 #editScoreWrapper {
     width: 100vw;
@@ -219,6 +325,7 @@ h3 {
         font-family: 'Cuprum', sans-serif;
         font-size: 2vw;
         color: #FFF;
+        line-height: 3.5vw;
         text-align: left;
         display: inline-block;
         margin-top: 3.2vw;
@@ -228,13 +335,57 @@ h3 {
         cursor: default;
     }
 
-        .newGameForm.right {
-            text-align: right;
-            overflow-y: hidden;
-        }
+    /* Dynamic players */
+    #playersDynamic {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6vw;
+        margin-top: 0.6vw;
+    }
+    .player-row {
+        display: flex;
+        gap: 0.6vw;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .player-row input[type="text"],
+    .player-row select,
+    .player-row button {
+        font-size: 1.2vw;
+        height: 3vw;
+    }
+    .player-row .pick-faction {
+        background: #ffffff;
+        color: #000;
+        padding: 0 1vw;
+        cursor: pointer;
+    }
+    #addPlayerButton {
+        cursor: pointer;
+    }
+
+    /* Faction picker modal reuses loadGameForm styling */
+    #factionTabBar button {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 8px 12px;
+        margin-right: 8px;
+        border-radius: 6px;
+    }
+    #factionTabBar button:hover { background: rgba(255,255,255,0.2); }
+    #factionList .objectiveListItem { cursor: pointer; }
+
+    .newGameForm.right {
+        text-align: right;
+        overflow-y: hidden;
+    }
+
+    button {
+        cursor: pointer;
+    }
 
     button, input, select, textarea {
-        height: 3vw;
         font-family: 'Cantarell', sans-serif;
         background-color: #fff;
         font-size: 1.2vw;
@@ -255,8 +406,27 @@ h3 {
         background-position: right;
         background-repeat: no-repeat;
         padding-right: 3vw;
-        margin-bottom: 1.2vw;
+        cursor: pointer;
     }
+
+    /* Submit button styling */
+    .submit-button {
+        margin-top: 2vw;
+        text-align: center;
+    }
+    .submit-button input[type="submit"] {
+        background: linear-gradient(135deg, #4aaaa7, #336983);
+        color: white;
+        border: none;
+        padding: 0 3vw;
+        font-family: 'Cuprum', sans-serif;
+        font-size: 2vw;
+        line-height: 4.5vw;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.8s ease;
+    }
+
     .checkbox {
         height: 2vw;
         width: 2vw;
@@ -264,14 +434,122 @@ h3 {
         background-image: url("");
         background-size: contain;
         background-repeat: no-repeat;
+        cursor: pointer;
     }
         .checkbox:checked {
             background-image: url("../media/check.png");
         }
-    .babySpacer {
-        width: 3vw;
-        height: 3vw;
-    }
+
+.bigButton {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-height: 10vh;
+    max-width: 90vh;
+    padding: 1em 6vw 1em 6vw;
+    text-align: center;
+    color: #FFF;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    margin: 20px auto;
+    position: relative;
+    top: 50%;
+    /* transform: translateY(-50%); */
+    z-index: 100;
+}
+
+.bigButton:hover {
+    background: linear-gradient(135deg, rgba(255, 229, 61, 0.2), rgba(249, 133, 44, 0.132));
+}
+
+#loadGameWrapper {
+    width: 100vw;
+    height: 100vh;
+    background-color: #0000009c;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    text-align: center;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+#factionPickerWrapper {
+    width: 100vw;
+    height: 100vh;
+    background-color: #0000009c;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    text-align: center;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+.loadGameForm {
+    max-height: 74vh;
+    background-image: url("../media/background3.jpg");
+    background-size: cover;
+    padding: 3vw;
+    font-family: 'Cuprum', sans-serif;
+    font-size: 2vw;
+    color: #FFF;
+    text-align: left;
+    display: inline-block;
+    margin-top: 3.2vw;
+    overflow-y: scroll;
+    border-radius: 0.5vw;
+    box-shadow: 0 0 30vw #000000;
+    cursor: default;
+}
+
+.loadGameItem {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loadGameItemContent {
+    flex: 1;
+    cursor: pointer;
+}
+
+.loadGameItem:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.02);
+}
+
+.loadGameItem:active {
+    transform: scale(0.98);
+}
+
+.loadGameItemDelete {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    opacity: 0.7;
+}
+
+.loadGameItemDelete:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+    transform: scale(1.1);
+    opacity: 1;
+}
 
 #addCardWrapper {
     width: 100vw;
@@ -327,6 +605,9 @@ h3 {
     text-align: center;
     padding-top: 6vw;
     visibility: hidden;
+}
+#objectivesWrapper {
+    padding-top: calc(1em + 2vh + 1vw + 0.5vh);
 }
 #objectiveStyleWrapper {
     width: 100vw;
@@ -414,7 +695,7 @@ h3 {
 
 #header {
     width: 100%;
-    height: 2.2vw;
+    height: calc(1em + 2vh);
     background-color: #000000a4;
     padding: 0.5vw;
     padding-left: 3.7vw;
@@ -439,10 +720,34 @@ h3 {
             max-width: 1.8vw;
             max-height: 1.8vw;
         }
+    #gameTimer {
+        color: white;
+        padding: 0.5vw 1vw;
+        border-radius: 0.3vw;
+        font-family: 'Cuprum', sans-serif;
+        font-size: 1.2vw;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 100;
+        width: auto;
+        height: inherit;
+        display: flex;
+        align-items: center;
+    }
+
+    #timerDisplay {
+        font-family: 'Cantarell', sans-serif;
+        letter-spacing: 0.1vw;
+    }
+
     #logo {
         display:inline-block;
-        height: 2.2vw;
-        margin-right: 7.5vw
+        height: 100%;
+        margin-right: 7.5vw;
+        cursor: pointer;
     }
     #sideMenuTime {
         width: 15vw;
@@ -477,7 +782,7 @@ h3 {
 
     #sideMenuBg {
         width: 100vw;
-        height: 100vw;
+        height: 100vh;
         /* background-color: #00000086; */
         position: fixed;
         top: 0;
@@ -511,30 +816,36 @@ h3 {
                     transition: all 0.4s ease-out;
         }
         .sideMenuItem {
-            width: 13vw;
-            height: 15.5vw;
             display: inline-block;
-            margin-top: 1vw;
-            margin-bottom: 1vw;
-            margin-left: 1vw;
-            margin-right: 1vw;
+            margin: 1vw 0.5vw;
+            padding: 1vw;
+            border-radius: 1vw;
             cursor: pointer;
         }
+            .sideMenuItem:hover {
+                background-color: #ffffff1c;
+            }
             .sideMenuItemIcon {
-                width: 100%;
+                width: 5vw;
                 height: auto;
                 /* float: left; */
-                border-radius: 1vw;
                 background-color: #ffffff00;
             }
-                .sideMenuItemIcon:hover {
-                    background-color: #ffffff1c;
-                }
             .sideMenuItemText {
                 color: #FFF;
                 font-family: 'Cuprum', sans-serif;
                 font-size: 1.4vw;
                 line-height: 1em;
+            }
+            
+            .sideMenuIP {
+                text-align: center;
+                color: #CCC;
+                font-family: 'Cantarell', sans-serif;
+                font-size: 1.4vw;
+                letter-spacing: -0.05vw;
+                padding: 1vw;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
             }
 
 .sides {
@@ -549,14 +860,20 @@ h3 {
     }
 
 #scoreboard {
-    width: 96%;
+    width: 100vw;
     /* background-color: #00000098; */
     text-align: center;
-    vertical-align: bottom;
-    float: left;
-    padding-top: calc(3.2vw + 1%);
-    padding-bottom: 1%;
-    margin-bottom: 0.5vw;
+    vertical-align: middle;
+    /* float: left; */
+    padding-bottom: 3.5vw;
+    margin-top: 1.5vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.9vw;
+    flex-wrap: wrap;
+    justify-self: end;
+    align-self: end;
 }
     .scoreSpacer {
         float: left;
@@ -568,76 +885,200 @@ h3 {
             width: 0;
         }
     .scoretile {
-        height: 5vw;
+        background-color: #00000075;
+        border: 2px solid #A52A2A;
+        border-radius: 0.4vw;
+        padding: 0 1.1vw;
         color: #FFF;
-        font-family: 'Onyx', sans-serif;
-        font-size: 5vw;
-        line-height: 1em;
-        letter-spacing: -0.1vw;
-        margin-right: 1.6vw;
-        vertical-align: bottom;
-        display: inline-block;
+        font-family: 'Cuprum', sans-serif;
+        font-size: 1.8vw;
+        font-weight: 500;
         cursor: default;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8vw;
+        min-height: 4vw;
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
         .scoretile img {
-            max-height: 3.8vw;
-            margin-right: 0.6vw;
+            height: 2.5vw;
+            width: auto;
         }
+        .scoretile .score-value {
+            font-weight: bold;
+            font-size: 2.2vw;
+        }
+
+/* Scoretile color classes based on player colors */
+.scoretile.color-red {
+    border-color: #b92626;
+}
+
+.scoretile.color-yellow {
+    border-color: #e0ca4b;
+}
+
+.scoretile.color-blue {
+    border-color: #2a4ba5;
+}
+
+.scoretile.color-black {
+    border-color: #000000;
+}
+
+.scoretile.color-purple {
+    border-color: #722f9e;
+}
+
+.scoretile.color-green {
+    border-color: #21863a;
+}
+
+.scoretile.color-orange {
+    border-color: #ff8c00;
+}
+
+.scoretile.color-pink {
+    border-color: #ff69b4;
+}
+
+/* Responsive design for scoretiles */
+@media screen and (max-width: 768px) {
+    #scoreboard {
+        padding: 2vw 1vw;
+        gap: 1vw;
+    }
+    
+    .scoretile {
+        padding: 2vw 3vw;
+        font-size: 3.5vw;
+        min-height: 8vw;
+        border-radius: 1.5vw;
+        gap: 1.5vw;
+    }
+    
+    .scoretile img {
+        height: 5vw;
+    }
+    
+    .scoretile .score-value {
+        font-size: 4.5vw;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #scoreboard {
+        padding: 3vw 1vw;
+        gap: 1.5vw;
+    }
+    
+    .scoretile {
+        padding: 3vw 4vw;
+        font-size: 4.5vw;
+        min-height: 12vw;
+        border-radius: 2vw;
+        gap: 2vw;
+    }
+    
+    .scoretile img {
+        height: 7vw;
+    }
+    
+    .scoretile .score-value {
+        font-size: 6vw;
+    }
+}
+
+/* Landscape mode - scoreboard follows objectives wrapper */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #scoreboard {
+        justify-self: center;
+        align-self: center;
+        position: relative;
+    }
+}
 
 .obj {
     width: 100%;
     text-align: center;
-    float: left;
     padding-top: 1vw;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, calc(11vw + 3.5vw));
+    gap: 1.2vw;
+    justify-content: center;
+    place-items: center;
+    max-width: 95vw;
+    margin: 0 auto;
 }
 
 .objContainer {
     max-width: 11vw;
-    margin-left: 2px;
-    margin-right: 2px;
+    min-width: 11vw;
+    width: 11vw;
+    height: auto;
     position: relative;
     cursor: pointer;
-    float: left;
+    display: block;
+    overflow: hidden;
 }
-    .objCard {
-        height: 87%;
-        padding-left: 8%;
-        padding-right: 8%;
-        padding-top: 3%;
-        padding-bottom: 3%;
-        position: absolute;
-        top: 0;
-        color: #FFF;
-        cursor: pointer;
-        overflow: hidden;
-        border-radius: 0.5vw;
-        z-index: 10;
-    }
+
+.objContainer img {
+    width: 100%;
+    height: auto;
+    max-width: 11vw;
+    display: block;
+}
+
+.objCard {
+    height: 87%;
+    padding-left: 8%;
+    padding-right: 8%;
+    padding-top: 0;
+    padding-bottom: 3%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: #FFF;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 0.5vw;
+    z-index: 10;
+}
 
 .spacer {
     opacity: 0;
-    float: left;
-    display: block;
+    display: none;
 }
-    .spacer.five {
-        width: calc(100%/6/6);
-    }
-    .spacer.six {
-        width: 0;
-    }
 
 .tokensAndCard {
-    display: inline-block;
-    margin-left: 0.4vw;
-    margin-right: 0.4vw;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.4vw;
+    width: auto;
+    justify-content: flex-start;
 }
 
+.objTokensWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    font-size: 0;
+    margin-top: 0;
+    margin-right: 0.4vw;
+    flex-shrink: 0;
+}
+
+/* Ensure gap exists on wide screens */
+@media screen and (min-width: 769px) {
     .objTokensWrapper {
-        /* width: 4%; */
-        float: left;
-        vertical-align: top;
-        font-size: 0;
+        margin-right: 0.4vw;
     }
+}
     
         .objTokens {
             -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
@@ -648,6 +1089,7 @@ h3 {
         }
             .objTokens img {
                 max-width: 3.5vw;
+                min-width: 2vw;
             }
             .objTokens.scored {
                 -webkit-filter: grayscale(0%); /* Safari 6.0 - 9.0 */
@@ -662,25 +1104,25 @@ h3 {
 
         .objTokensScore {
             width: 1.5vw;
+            min-width: 1.2vw;
             color: #FFF;
             font-family: 'Cuprum', sans-serif;
-            font-size: 1.5vw;
+            font-size: clamp(1.2vw, 1.5vw, 2vw);
             line-height: 2.1vw;
-            vertical-align: middle;
             text-align: left;
             padding-left: 0.5vw;
-            float: left;
             overflow: hidden;
             cursor: default;
         }
 
 #additionalElementsWrapper {
     width: 100%;
-    height: 23vw;
-    background-color: #000000a4;
+    height: 24vw;
+    background-color: #000000d4;
     text-align: center;
     position: fixed;
-    bottom: -20vw;
+    /* padding-bottom: 1vw; */
+    bottom: -21vw;
     left: 0;
     z-index: 30;
     -webkit-transition: all 0.4s ease-out;
@@ -836,4 +1278,455 @@ h3 {
     text-decoration-line: underline;
     text-decoration-color: #21863a;
     background-color: #49af3544
+}
+
+/* New CSS classes to replace inline styles */
+
+/* Flexbox layouts */
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-column-center {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Text styling */
+.text-white {
+    color: #fff;
+}
+
+.text-ccc {
+    color: #ccc;
+}
+
+.text-888 {
+    color: #888;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+/* Font sizes using vw units */
+.font-size-1-2vw {
+    font-size: 1.2vw;
+}
+
+.font-size-1-5vw {
+    font-size: 1.5vw;
+}
+
+.font-size-1-8vw {
+    font-size: 1.8vw;
+}
+
+.font-size-2vw {
+    font-size: 2vw;
+}
+
+.font-size-2-5vw {
+    font-size: 2.5vw;
+}
+
+/* Margins and padding */
+.margin-bottom-10px {
+    margin-bottom: 10px;
+}
+
+.margin-bottom-20px {
+    margin-bottom: 20px;
+}
+
+.margin-2vw-0 {
+    margin: 2vw 0;
+}
+
+.padding-5px-10px {
+    padding: 5px 10px;
+}
+
+.padding-20px {
+    padding: 20px;
+}
+
+/* Cursor styles */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Positioning */
+.position-absolute {
+    position: absolute;
+}
+
+/* Sizing */
+.width-100-percent {
+    width: 100%;
+}
+
+.height-100-percent {
+    height: 100%;
+}
+
+.width-20px {
+    width: 20px;
+}
+
+.height-20px {
+    height: 20px;
+}
+
+.width-4vw {
+    width: 4vw;
+}
+
+.height-4vw {
+    height: 4vw;
+}
+
+.width-30px {
+    width: 30px;
+}
+
+.height-30px {
+    height: 30px;
+}
+
+/* Z-index */
+.z-index-10 {
+    z-index: 10;
+}
+
+/* Opacity */
+.opacity-0-8 {
+    opacity: 0.8;
+}
+
+/* Card icon positioning */
+.card-icon-large {
+    position: absolute;
+    top: 5vw;
+    right: 5vw;
+    width: 3vw;
+    aspect-ratio: 1/1;
+    z-index: 10;
+}
+
+.card-icon-small {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 7%;
+    aspect-ratio: 1/1;
+    z-index: 10;
+}
+
+.card-icon img {
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+/* Card phase margin */
+.card-phase-margin {
+    margin-top: -1.5vw;
+}
+
+/* Image sizing */
+.max-width-20vw {
+    max-width: 20vw;
+}
+
+/* Display properties */
+.inline-block {
+    display: inline-block;
+}
+
+.inline-block-vertical-top {
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* Float properties */
+.float-left {
+    float: left;
+}
+
+/* Margin utilities */
+.margin-right-2vw {
+    margin-right: 2vw;
+}
+
+/* QR code styling */
+.qr-code-image {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Mobile safe area handling - extend background into safe areas */
+@supports (padding: max(0px)) {
+    html {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    body {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* Ensure background covers entire viewport on mobile */
+@media screen and (max-width: 768px) {
+    html {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center center;
+        height: 100%;
+        overflow-x: hidden;
+    }
+    
+    body {
+        background: none;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        overflow-x: hidden;
+    }
+    
+    #wrapper {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        overflow-x: hidden;
+    }
+}
+
+/* Responsive design for objectives grid */
+@media screen and (max-width: 768px) {
+    .obj {
+        grid-template-columns: repeat(auto-fit, calc(20vw + 7vw));
+        gap: 1.5vw;
+        padding: 3vw 2vw;
+        place-items: center;
+        max-width: 95vw;
+        margin: 0 auto;
+        overflow-x: hidden;
+    }
+    
+    .objContainer {
+        max-width: 20vw;
+        min-width: 20vw;
+        width: 20vw;
+        overflow-x: hidden;
+    }
+    
+    .objContainer img {
+        max-width: 20vw;
+    }
+    
+    .objCard {
+        padding-left: 8%;
+        padding-right: 8%;
+        overflow-x: hidden;
+    }
+    
+    .objCard h2 {
+        font-size: 2.2vw;
+        line-height: 1.1em;
+        margin-bottom: -1%;
+    }
+    
+    .objCard p {
+        font-size: 1.4vw;
+        line-height: 1.2em;
+    }
+    
+    .objCard h3 {
+        font-size: 3.2vw;
+        line-height: 2.8vw;
+        width: 2.2vw;
+        height: 2.2vw;
+        padding: 0.5vw;
+        margin-top: 3%;
+        margin-left: calc(50% - 1.1vw);
+    }
+    
+    .objTokens img {
+        max-width: 6vw;
+    }
+    
+    .objTokensScore {
+        font-size: 2.2vw;
+        line-height: 3vw;
+        width: 2.2vw;
+        padding-left: 0.3vw;
+    }
+    
+    .tokensAndCard {
+        gap: 0.5vw;
+        overflow-x: hidden;
+    }
+    
+    .objTokensWrapper {
+        margin-right: 0.5vw;
+        overflow-x: hidden;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .obj {
+        grid-template-columns: repeat(auto-fit, calc(35vw + 12vw));
+        gap: 2vw;
+        padding: 4vw 2vw;
+        place-items: center;
+        max-width: 98vw;
+        margin: 0 auto;
+        overflow-x: hidden;
+    }
+    
+    .objContainer {
+        max-width: 35vw;
+        min-width: 35vw;
+        width: 35vw;
+        overflow-x: hidden;
+    }
+    
+    .objContainer img {
+        max-width: 35vw;
+    }
+    
+    .objCard {
+        padding-left: 7%;
+        padding-right: 7%;
+        overflow-x: hidden;
+    }
+    
+    .objCard h2 {
+        font-size: 4vw;
+        line-height: 1.1em;
+        margin-bottom: -1%;
+    }
+    
+    .objCard p {
+        font-size: 2.5vw;
+        line-height: 1.2em;
+    }
+    
+    .objCard h3 {
+        font-size: 5.5vw;
+        line-height: 4.8vw;
+        width: 3.8vw;
+        height: 3.8vw;
+        padding: 0.8vw;
+        margin-top: 2%;
+        margin-left: calc(50% - 1.9vw);
+    }
+    
+    .objTokens img {
+        max-width: 10vw;
+    }
+    
+    .objTokensScore {
+        font-size: 3.8vw;
+        line-height: 5.2vw;
+        width: 3.8vw;
+        padding-left: 0.5vw;
+    }
+    
+    .tokensAndCard {
+        gap: 0.6vw;
+        overflow-x: hidden;
+    }
+    
+    .objTokensWrapper {
+        margin-right: 0.6vw;
+        overflow-x: hidden;
+    }
+}
+
+/* Landscape mode adjustments for objectives */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .obj {
+        grid-template-columns: repeat(auto-fit, calc(15vw + 6vw));
+        gap: 1vw;
+        padding: 2vw 1vw;
+        place-items: center;
+        max-width: 95vw;
+        margin: 0 auto;
+    }
+    
+    .objContainer {
+        max-width: 15vw;
+        min-width: 15vw;
+        width: 15vw;
+    }
+    
+    .objContainer img {
+        max-width: 15vw;
+    }
+    
+    .objCard {
+        padding-left: 8%;
+        padding-right: 8%;
+    }
+    
+    .objCard h2 {
+        font-size: 1.8vw;
+        line-height: 1.1em;
+        margin-bottom: -1%;
+    }
+    
+    .objCard p {
+        font-size: 1.2vw;
+        line-height: 1.2em;
+    }
+    
+    .objCard h3 {
+        font-size: 2.8vw;
+        line-height: 2.4vw;
+        width: 1.8vw;
+        height: 1.8vw;
+        padding: 0.4vw;
+        margin-top: 4%;
+        margin-left: calc(50% - 0.9vw);
+    }
+    
+    .objTokens img {
+        max-width: 5vw;
+    }
+    
+    .objTokensScore {
+        font-size: 1.8vw;
+        line-height: 2.4vw;
+        width: 1.8vw;
+        padding-left: 0.2vw;
+    }
+    
+    .tokensAndCard {
+        gap: 0.4vw;
+    }
+    
+    .objTokensWrapper {
+        margin-right: 0.4vw;
+    }
 }

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <!--[if lt IE 7 ]> <html class="ie ie6 ie-lt10 ie-lt9 ie-lt8 ie-lt7 no-js" lang="en"> <![endif]-->
@@ -37,7 +36,7 @@
 	initial-scale = 1.0 retains dimensions instead of zooming out if page height > device height
 	maximum-scale = 1.0 retains dimensions instead of zooming in if page width < device width (wrong for most sites)
 	-->
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 	<link rel="shortcut icon" href="assets/media/favicon/favicon.ico" />
 	<!-- <link rel="icon" type="image/svg+xml" href="assets/media/favicon/favicon.svg"> SVG file not in use, for practises unclear -->
@@ -74,21 +73,29 @@
 	<link rel="apple-touch-icon" sizes="180x180" href="assets/media/TouchIcons/apple-touch-icon-180x180-precomposed.png">
 
 	<!-- concatenate and minify fr production -->
-	<link rel="stylesheet" href="assets/css/reset.css" />
 	<link rel="stylesheet" href="assets/css/style.css" />
 	<link rel="stylesheet" href="assets/css/fonts.css" />
 
-	<!-- Lea Verou's prefixfree (http://leaverou.github.io/prefixfree/), lets you use un-prefixed properties in your CSS files -->
-	<script src="assets/js/libs/prefixfree.min.js"></script>
 
-	<!-- This is a minimized, base version of Modernizr. (http://modernizr.com)
-		  You will need to create new builds to get the detects you need. -->
-	<script src="assets/js/libs/modernizr-3.2.0.base.js"></script>
 
 	<script src="assets/js/libs/jquery-3.3.1.min.js"></script>
 
 	<script language="JavaScript">
 	    
+	// Mobile detection function
+	function isMobileDevice() {
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+			   window.innerWidth <= 768 || 
+			   ('ontouchstart' in window);
+	}
+	
+	// Store the device that flipped the card (local only)
+	var localCardFlipDevice = null;
+	
+	// Generate unique device identifier
+	var deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+	console.log('🆔 CLIENT: Generated device ID:', deviceId, 'Mobile:', isMobileDevice());
+	
 	</script>
 
 </head>
@@ -99,249 +106,66 @@
 
 	<div id="newGameWrapper" onclick="closeMenu()">
 		<div class="newGameForm" onclick="noBubbling(event)">
-			<form action="http://localhost:3000">
-				<input type="hidden" name="request" value="newgame">
+					<form id="newGameForm" onsubmit="return submitNewGame(event);">
+			<!-- No longer submitting via HTTP, using Socket.IO instead -->
 				Settings:
 				<br>
 				<select name="startingcards">
-					<option value="1">1 starting card</option>
-					<option value="2">2 starting cards</option>
-					<option value="3">3 starting cards</option>
-					<option value="4">4 starting cards</option>
-					<option value="5" selected>5 starting cards</option>
-					<option value="6">6 starting cards</option>
+					<option value="1">1 starting objective</option>
+					<option value="2">2 starting objectives</option>
+					<option value="3">3 starting objectives</option>
+					<option value="4">4 starting objectives</option>
+					<option value="5" selected>5 starting objectives</option>
+				</select>
+				<select name="flippedobjectives">
+					<option value="0">0 flipped objectives</option>
+					<option value="1">1 flipped objective</option>
+					<option value="2">2 flipped objectives</option>
+					<option value="3" selected>3 flipped objectives</option>
+					<option value="4">4 flipped objectives</option>
+					<option value="5">5 flipped objectives</option>
 				</select>
 				<br>
-				Use community objectives:
 				<br>
-				<input type="checkbox" class="checkbox" checked name="communitycards" value="true">
+				Objectives:
 				<br>
+				<!-- Dynamic objective category checkboxes will be generated here -->
+				<div id="objectiveCategoryCheckboxes"></div>
 				<br>
 				Players:
 				<br>
-				<input type="text" name="player1_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player1_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec" selected>The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar">The Clan of Saar</option>
-					<option value="muaat">The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss">The Ghosts of Creuss</option>
-					<option value="lizix">The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin">The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player1_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black">Black</option>
-					<option value="blue">Blue</option>
-					<option value="green" selected>Green</option>
-					<option value="purple">Purple</option>
-					<option value="red">Red</option>
-					<option value="yellow">Yellow</option>
-				</select>
-				<br>
-				<input type="text" name="player2_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player2_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec">The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar">The Clan of Saar</option>
-					<option value="muaat">The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss" selected>The Ghosts of Creuss</option>
-					<option value="lizix">The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin">The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player2_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black">Black</option>
-					<option value="blue" selected>Blue</option>
-					<option value="green">Green</option>
-					<option value="purple">Purple</option>
-					<option value="red">Red</option>
-					<option value="yellow">Yellow</option>
-				</select>
-				<br>
-				<input type="text" name="player3_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player3_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec">The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar">The Clan of Saar</option>
-					<option value="muaat">The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss">The Ghosts of Creuss</option>
-					<option value="lizix" selected>The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin">The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player3_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black" selected>Black</option>
-					<option value="blue">Blue</option>
-					<option value="green">Green</option>
-					<option value="purple">Purple</option>
-					<option value="red">Red</option>
-					<option value="yellow">Yellow</option>
-				</select>
-				<br>
-				<input type="text" name="player4_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player4_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec">The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar" selected>The Clan of Saar</option>
-					<option value="muaat">The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss">The Ghosts of Creuss</option>
-					<option value="lizix">The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin">The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player4_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black">Black</option>
-					<option value="blue">Blue</option>
-					<option value="green">Green</option>
-					<option value="purple">Purple</option>
-					<option value="red">Red</option>
-					<option value="yellow" selected>Yellow</option>
-				</select>
-				<br>
-				<input type="text" name="player5_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player5_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec">The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar">The Clan of Saar</option>
-					<option value="muaat">The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss">The Ghosts of Creuss</option>
-					<option value="lizix">The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin" selected>The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player5_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black">Black</option>
-					<option value="blue">Blue</option>
-					<option value="green">Green</option>
-					<option value="purple" selected>Purple</option>
-					<option value="red">Red</option>
-					<option value="yellow">Yellow</option>
-				</select>
-				<br>
-				<input type="text" name="player6_name" placeholder="Player name (leave empty if not in play)" size="49">
-				<br>
-				<select name="player6_faction">
-					<option value="none" disabled>Faction</option>
-					<option disabled>──────────</option>
-					<option value="arborec">The Arborec</option>
-					<option value="letnev">The Barony of Letnev</option>
-					<option value="saar">The Clan of Saar</option>
-					<option value="muaat" selected>The Embers of Muaat</option>
-					<option value="hacan">The Emirates of Hacan</option>
-					<option value="sol">The Federation of Sol</option>
-					<option value="creuss">The Ghosts of Creuss</option>
-					<option value="lizix">The L1Z1X Mindnet</option>
-					<option value="mentak">The Mentak Coalition</option>
-					<option value="naalu">The Naalu Collective</option>
-					<option value="nekro">The Nekro Virus</option>
-					<option value="sardakk">The Sardakk N’orr</option>
-					<option value="jolnar">The Universities of Jol-Nar</option>
-					<option value="winnu">The Winnu</option>
-					<option value="xxcha">The Xxcha Kingdom</option>
-					<option value="yin">The Yin Brotherhood</option>
-					<option value="yssaril">The Yssaril Tribes</option>
-				</select>
-				<select name="player6_color">
-					<option value="none" disabled>Color</option>
-					<option disabled>───</option>
-					<option value="black">Black</option>
-					<option value="blue">Blue</option>
-					<option value="green">Green</option>
-					<option value="purple">Purple</option>
-					<option value="red" selected>Red</option>
-					<option value="yellow">Yellow</option>
-				</select>
-				<br>
-				<br>
-				<input type="submit" value="Start new game">
-				<div class="babySpacer"></div>
+				<!-- Dynamic players UI -->
+				<div id="playersDynamic"></div>
+				<button type="button" id="addPlayerButton" onclick="addPlayerRow()">Add player</button>
+				<div class="submit-button">
+					<input type="submit" value="Start new game">
+				</div>
 			</form action="/action_page.php">
 		</div>
 	</div>
 	<div id="editScoreWrapper" onclick="closeMenu()"></div>
 	<div id="warnTop"></div><div id="warnBottom"></div><div id="warnLeft"></div><div id="warnRight"></div>
-	<div id="bigletter" onclick="bigletterHide()"></div>
+	<div id="bigletter" onclick="closeBigletter()"></div>
 	<div id="addCardWrapper" onclick="closeMenu()">
 		<div class="objectiveStyleItem" onclick="addCard(event, 1)">Stage 1</div>
 		<div class="objectiveStyleItem" onclick="addCard(event, 2)">Stage 2</div>
+	</div>
+	<div id="factionPickerWrapper" onclick="closeMenu()">
+		<div class="loadGameForm" onclick="noBubbling(event)">
+			<div class="flex-between margin-bottom-20px">
+				<div class="font-size-2vw font-bold text-white">Choose Faction</div>
+				<div class="cursor-pointer text-white font-size-1-5vw padding-5px-10px" onclick="closeFactionPicker(event)">✕</div>
+			</div>
+			<div id="factionTabBar" class="flex-between margin-bottom-20px"></div>
+			<div id="factionList"></div>
+		</div>
 	</div>
 	<div id="adjustCardWrapper" onclick="closeMenu()">
 		<div class="objectiveStyleItem" onclick="adjustCard(event, 'hide')">Hide</div>
 		<div class="objectiveStyleItem" onclick="adjustCard(event, 'change')">Change</div>
 		<div class="objectiveStyleItem" onclick="adjustCard(event, 'remove')">Remove</div>
 	</div>
-	<div id="changeVPWrapper" onclick="closeMenu()">
+	<div id="changeVPWrapper">
 		<div class="objectiveStyleItem" onclick="changeVP(event, '-')">-</div>
 		<div class="objectiveStyleItem" onclick="changeVP(event, '+')">+</div>
 	</div>
@@ -352,52 +176,301 @@
 	</div>
 	<div id="objectiveMenuWrapper" onclick="closeMenu()">
 		<div id="objectiveMenu">
-			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'stage1')">Stage 1</div>
-			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'stage2')">Stage 2</div>
-			<div class="objectiveMenuTab" onclick="objectiveCategory(event, 'secret')">Secret</div>
+			<!-- Dynamic objective category tabs will be generated here -->
+			<div id="objectiveMenuTabs"></div>
 			<div id="objectiveList"></div>
+		</div>
+	</div>
+	<div id="loadGameWrapper" onclick="closeMenu()">
+		<div class="loadGameForm" onclick="noBubbling(event)">
+			<div class="flex-between margin-bottom-20px">
+				<div class="font-size-2vw font-bold text-white">Load Game</div>
+				<div class="cursor-pointer text-white font-size-1-5vw padding-5px-10px" onclick="closeLoadGameForm(event)">✕</div>
+			</div>
+			<div id="loadGameList">
+				<!-- Saved games will be loaded here -->
+			</div>
 		</div>
 	</div>
 	<div id="sideMenuBg" onclick="closeMenu()"><div id="sideMenu">
 		<div id="btnNew" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/new.png"><div class="sideMenuItemText">New game</div></div>
+		<div id="btnLoadGame" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/load.png"><div class="sideMenuItemText">Load game</div></div>
+		<div id="btnPauseGame" class="sideMenuItem" onclick="togglePause()"><img class="sideMenuItemIcon" src="assets/media/buttons/pause.png"><div class="sideMenuItemText">Pause game</div></div>
 		<div id="btnAddcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/addcard.png"><div class="sideMenuItemText">Add card</div></div>
-		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/changecard.png"><div class="sideMenuItemText">Adjust card</div></div>
-		<!-- <div id="btnEdit" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Tamper score</div></div> -->
+		<div id="btnAdjustcard" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/edit.png"><div class="sideMenuItemText">Adjust card</div></div>
 		<!-- <div id="btnReset" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">Reset</div></div> -->
 		<div id="btnSuperuser" class="sideMenuItem" onclick="buttonClick(event, this.id)"></div>
+		<div id="btnEndGame" class="sideMenuItem" onclick="buttonClick(event, this.id)"><img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">End game</div></div>
+		<div id="sideMenuIP" class="sideMenuIP"></div>
 	</div></div>
 	
 	<div id="header">
-		<div id="sideMenuButton" onclick="showMenu(event)">
+		<!-- <div id="sideMenuButton" onclick="showMenu(event)">
 			<img src="assets/media/buttons/menu.png">
-		</div>
-		<div id="logo">
+		</div> -->
+		<div id="logo" onclick="showMenu(event)">
 			<img src="assets/media/tvajlajt.png">
 		</div>
-		<div id="sideMenuRefresh" title="Auto-refresh" onclick="buttonClick(event, this.id)"></div>
+		<div id="gameTimer">
+			<span id="timerDisplay">00:00:00</span>
+		</div>
+		<!-- <div id="sideMenuRefresh" title="Auto-refresh" onclick="buttonClick(event, this.id)"></div> -->
 	</div>
-
+	<div id="objectivesWrapper">
+		<div class="obj" id="objectives1">
+			<!-- Objectives Stage 1 -->
+		</div>
+		<div class="obj" id="objectives2">
+			<!-- Objectives Stage 2 -->
+		</div>
+	</div>
 	<div id="scoreboard">
-		<!-- Top scoreboard -->
-	</div>
-    <div class="obj" id="objectives1">
-        <!-- Objectives Stage 1 -->
-    </div>
-    <!-- <div class="sides right">.</div> -->
-	<div class="obj" id="objectives2">
-		<!-- Objectives Stage 2 -->
+		<!-- Players scoreboard -->
 	</div>
 
 </div>
 
 <script src="assets/js/functions.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
+
+	// Debug logging for application startup
+	console.log('🚀 APP: Tvajlajt application starting...');
+	console.log('🌐 APP: User agent:', navigator.userAgent);
+	console.log('📍 APP: Current URL:', window.location.href);
+	console.log('🔧 APP: jQuery version:', $.fn.jquery);
+	
+	// Global variable to store server IP
+	var serverIPAddress = null;
+	
+	// Function to display IP address in side menu
+	function updateSideMenuIP() {
+		var ipElement = document.getElementById('sideMenuIP');
+		if (ipElement) {
+			if (serverIPAddress) {
+				ipElement.innerHTML = 'Mobile devices connect to: <b>http://' + serverIPAddress + '</b>';
+				console.log('🌐 CLIENT: Displaying server IP in side menu:', serverIPAddress);
+			} else {
+				ipElement.innerHTML = 'Host: Connecting...';
+				console.log('🌐 CLIENT: Waiting for server IP...');
+			}
+		}
+	}
+	
+	// Security: HTML escaping function to prevent XSS
+	function escapeHtml(unsafe) {
+		if (typeof unsafe !== 'string') return unsafe;
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	}
+	console.log('🛡️ APP: HTML escaping function initialized');
 
 	var serverUrl = "http://localhost:3000";
 	var superuser;
 	var autorefresh;
 	var refreshCounter = 30;
+	
+	// Initialize Socket.IO connection
+	console.log('🔌 CLIENT: Initializing Socket.IO connection...');
+	var socket = io();
+	
+	// Socket.IO event logging
+	socket.on('connect', function() {
+		console.log('✅ CLIENT: Connected to server, socket ID:', socket.id);
+	});
+	
+	socket.on('disconnect', function(reason) {
+		console.error('❌ CLIENT: Disconnected from server, reason:', reason);
+	});
+	
+	socket.on('connect_error', function(error) {
+		console.error('❌ CLIENT: Connection error:', error);
+	});
+	
+	socket.on('error', function(error) {
+		console.error('❌ CLIENT: Socket error:', error);
+	});
+	
+	// Listen for interface refresh events from other clients
+	socket.on('interface_refresh', function(data) {
+		console.log('📡 CLIENT: Received interface refresh event from another client');
+		// Use debounced refresh for interface refresh events too
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 1000);
+	});
+	
+	// Listen for server IP address
+	socket.on('serverIP', function(data) {
+		console.log('🌐 CLIENT: Received server IP from server:', data.ip);
+		serverIPAddress = data.ip;
+		updateSideMenuIP(); // Update the display with the actual server IP
+	});
+	
+	// Listen for any update events from the server
+	socket.on('update', function(data) {
+		console.log('📡 CLIENT: Received update event from server:', data);
+		
+		// Show bigletter for card flips based on device type
+		if (data && data.length >= 2) {
+			var cardID = data[1]; // The card ID that was just assigned
+			var flippedDeviceId = data.length >= 4 ? data[3] : null;
+			
+			console.log('🎯 CLIENT: Card flip analysis - CardID:', cardID, 'FlippedDeviceId:', flippedDeviceId, 'ThisDeviceId:', deviceId, 'IsMobile:', isMobileDevice());
+			
+			// Simplified logic: Show bigletter on host computer for any card flip
+			if (!isMobileDevice()) {
+				console.log('🎯 CLIENT: Host computer - showing bigletter for card:', cardID);
+				window.lastFlippedCardID = cardID; // Store for later use
+			} else {
+				console.log('📱 CLIENT: Mobile device - not showing bigletter for card flip');
+			}
+		}
+		
+		// Refresh the interface when server sends updates (debounced)
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 1000); // Longer delay to ensure server has updated current game data
+	});
+	
+	// Listen for new game events
+	socket.on('newgame', function(data) {
+		console.log('📡 CLIENT: Received newgame event from server');
+		// Refresh the interface after new game is created
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 1000); // Longer delay for new game setup
+	});
+	
+	// Listen for game loaded events
+	socket.on('gameLoaded', function(data) {
+		console.log('📡 CLIENT: Received gameLoaded event from server:', data);
+		console.log('🔄 CLIENT: Refreshing page after game load');
+		// Refresh the entire page after game is loaded
+		setTimeout(function() {
+			window.location.reload();
+		}, 500);
+	});
+	
+	// Listen for game ended events
+	socket.on('gameEnded', function(data) {
+		console.log('🏁 CLIENT: Received gameEnded event from server:', data);
+		console.log('🏁 CLIENT: Winners:', data.winners);
+		console.log('🏁 CLIENT: Final time:', data.finalTime);
+		showWinners(data.winners, data.finalTime);
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for new game started events
+	socket.on('newGameStarted', function(data) {
+		console.log('🎮 CLIENT: Received newGameStarted event from server, reloading page');
+		window.location.reload();
+	});
+	
+	// Listen for game deleted events
+	socket.on('gameDeleted', function(data) {
+		console.log('🗑️ CLIENT: Received gameDeleted event from server:', data);
+		// Refresh the load game list to show updated games
+		loadSavedGames();
+	});
+	
+	// Listen for token scoring events
+	socket.on('token', function(data) {
+		console.log('📡 CLIENT: Received token event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for card addition events
+	socket.on('addCard', function(data) {
+		console.log('📡 CLIENT: Received addCard event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for card adjustment events
+	socket.on('adjustRemove', function(data) {
+		console.log('📡 CLIENT: Received adjustRemove event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	socket.on('adjustHide', function(data) {
+		console.log('📡 CLIENT: Received adjustHide event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for score editing events
+	socket.on('editscore', function(data) {
+		console.log('📡 CLIENT: Received editscore event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for VP change events
+	socket.on('changeVP', function(data) {
+		console.log('📡 CLIENT: Received changeVP event from server');
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 500);
+	});
+	
+	// Listen for reset events
+	socket.on('reset', function(data) {
+		console.log('📡 CLIENT: Received reset event from server');
+		// Clear scoreboard immediately
+		var scoreboardDiv = document.getElementById("scoreboard");
+		if (scoreboardDiv) {
+			scoreboardDiv.innerHTML = "";
+		}
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+		}
+		refreshTimeout = setTimeout(refreshGameData, 1000); // Longer delay for reset
+	});
+	
+	// Listen for game pause events from other clients
+	socket.on('gamePaused', function(data) {
+		console.log('⏸️ CLIENT: Received gamePaused event from server');
+		if (!isPaused) {
+			isPaused = true;
+			// Show pause message with current scores to all clients
+			showPauseMessageWithScores();
+		}
+	});
+	
+	// Listen for game resume events from other clients
+	socket.on('gameResumed', function(data) {
+		console.log('▶️ CLIENT: Received gameResumed event from server');
+		if (isPaused) {
+			isPaused = false;
+			// Hide pause message for all clients
+			document.getElementById('bigletter').style.visibility = 'hidden';
+		}
+	});
 	var autorefreshInterval;
 
 	var stagePressed;
@@ -416,10 +489,398 @@
 
 	var allPlayers = [];
 	var allScores = [];
+	
+	// Track menu states
+	var additionalScoresMenuOpen = false;
+	
+	// Timer variables
+	var gameTimer = null;
+	var isPaused = false;
+	var lastUpdateTime = 0;
+
+	// Function to create the scoreboard
+	function createScoreboard(players, playerScores) {
+		console.log('📊 CLIENT: Creating scoreboard...');
+		var scoreboardDiv = document.getElementById("scoreboard");
+		if (scoreboardDiv) {
+			scoreboardDiv.innerHTML = "";
+			
+			// Add click handler to the scoreboard div
+			scoreboardDiv.onclick = function() {
+				showScoreboardDetails(players, playerScores);
+			};
+			
+			for (var i = 0; i < players.length; i++) { // Iterate players
+				var el_ScoreToken = document.createElement("div");
+				el_ScoreToken.className = 'scoretile';
+				
+				// Add color class based on player's color
+				if (players[i].color) {
+					el_ScoreToken.className += ' color-' + players[i].color;
+				}
+				
+				el_ScoreToken.title = decodeURIComponent(players[i].player) + ' - ' + playerScores[i];
+				el_ScoreToken.innerHTML = getFactionIcon(players[i].faction) + '<span>' + decodeURIComponent(players[i].player) + '</span><span class="score-value">' + playerScores[i] + '</span>';
+				scoreboardDiv.appendChild(el_ScoreToken);
+			}
+			console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
+		} else {
+			console.error('❌ CLIENT: Scoreboard div not found!');
+		}
+	}
+	
+	// Function to show scoreboard details in bigletter
+	function showScoreboardDetails(players, playerScores) {
+		console.log('📊 CLIENT: Showing scoreboard details...');
+		var html = '<div class="blTitle">Player Scores</div>';
+		
+		// Create array of player-score pairs for sorting
+		var playerScorePairs = [];
+		for (var i = 0; i < players.length; i++) {
+			playerScorePairs.push({
+				player: players[i],
+				score: playerScores[i]
+			});
+		}
+		
+		// Sort players by score (highest first)
+		playerScorePairs.sort(function(a, b) {
+			return b.score - a.score; // Sort in descending order (highest first)
+		});
+		
+		// Build HTML for sorted players
+		for (var i = 0; i < playerScorePairs.length; i++) {
+			var player = playerScorePairs[i].player;
+			var score = playerScorePairs[i].score;
+			html += '<div class="blPlayerScore">';
+			html += getFactionIcon(player.faction).replace('<img', '<img class="blPlayerIcon"');
+			html += ' ' + decodeURIComponent(player.player) + ': ' + score;
+			html += '</div>';
+		}
+		
+		$('#bigletter').html(html);
+		document.getElementById('bigletter').style.visibility = 'visible';
+	}
+	
+	// Function to show pause message with current scores
+	function showPauseMessageWithScores() {
+		console.log('⏸️ CLIENT: Showing pause message with scores...');
+		
+		// Get current game data
+		var gameData = window.currentGameData || null;
+		if (!gameData || !isGameInProgress(gameData)) {
+			// No game in progress, show simple pause message
+			var html = '<div class="blTitle">Game Paused</div>';
+			$('#bigletter').html(html);
+			document.getElementById('bigletter').style.visibility = 'visible';
+			return;
+		}
+		
+		// Get current players and scores
+		var players = [];
+		var playerScores = [];
+		for (var i = 0; i < gameData[2].players.length; i++) {
+			if (gameData[2].players[i].faction != null) {
+				players.push(gameData[2].players[i]);
+				playerScores.push(0); // Initialize to 0, will be calculated
+			}
+		}
+		
+		// Calculate current scores
+		calculateScoresFromObjectives(gameData, playerScores);
+		
+		// Sort players by score (highest first)
+		var playerScorePairs = [];
+		for (var i = 0; i < players.length; i++) {
+			playerScorePairs.push({
+				player: players[i],
+				score: playerScores[i]
+			});
+		}
+		playerScorePairs.sort(function(a, b) {
+			return b.score - a.score; // Sort in descending order (highest first)
+		});
+		
+		// Build HTML for pause message with scores (same structure as showScoreboardDetails)
+		var html = '<div class="blTitle">Game Paused</div>';
+		
+		for (var i = 0; i < playerScorePairs.length; i++) {
+			var player = playerScorePairs[i].player;
+			var score = playerScorePairs[i].score;
+			html += '<div class="blPlayerScore">';
+			html += getFactionIcon(player.faction).replace('<img', '<img class="blPlayerIcon"');
+			html += ' ' + decodeURIComponent(player.player) + ': ' + score;
+			html += '</div>';
+		}
+		
+		$('#bigletter').html(html);
+		document.getElementById('bigletter').style.visibility = 'visible';
+		console.log('⏸️ CLIENT: Pause message with scores displayed');
+	}
+	
+			// Function to initialize timer with current state from timer endpoint
+		function initializeTimer() {
+			$.getJSON("timer?v=" + Date.now(), function(timerData) {
+			if (timerData && timerData.elapsedSeconds !== undefined) {
+				document.getElementById('timerDisplay').textContent = formatTime(timerData.elapsedSeconds);
+				lastUpdateTime = timerData.elapsedSeconds;
+				console.log('⏰ CLIENT: Timer initialized with', formatTime(timerData.elapsedSeconds), 'elapsed time');
+				
+				// Start the timer update interval
+				gameTimer = setInterval(updateTimer, 1000);
+				
+				// Check if game is currently paused
+				if (timerData.isPaused) {
+					isPaused = true;
+					console.log('⏸️ CLIENT: Detected game is paused from timer data');
+				}
+			}
+		});
+	}
+	
+	// Function to check if game is currently paused
+	function checkPauseState() {
+		$.getJSON("timer?v=" + Date.now(), function(timerData) {
+			if (timerData && timerData.isPaused !== undefined) {
+				// Update pause state based on server data
+				if (timerData.isPaused && !isPaused) {
+					isPaused = true;
+					console.log('⏸️ CLIENT: Detected game is paused from timer data');
+				} else if (!timerData.isPaused && isPaused) {
+					isPaused = false;
+					console.log('▶️ CLIENT: Detected game is resumed from timer data');
+				}
+			}
+		});
+	}
+	
+	// Function to format time as HH:MM:SS
+	function formatTime(seconds) {
+		var hours = Math.floor(seconds / 3600);
+		var minutes = Math.floor((seconds % 3600) / 60);
+		var secs = seconds % 60;
+		return (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (secs < 10 ? '0' : '') + secs;
+	}
+	
+	// Function to update timer display
+	function updateTimer() {
+		if (!gameTimer) return;
+		
+		// Only update if not paused
+		if (isPaused) return;
+		
+		$.getJSON("timer?v=" + Date.now(), function(timerData) {
+			if (timerData && timerData.elapsedSeconds !== undefined) {
+				document.getElementById('timerDisplay').textContent = formatTime(timerData.elapsedSeconds);
+				lastUpdateTime = timerData.elapsedSeconds;
+			}
+		});
+	}
+	
+	// Function to close bigletter and resume timer
+	function closeBigletter() {
+		// Only superusers can close the pause bigletter
+		if (isPaused && !superuser) {
+			notSuperuser();
+			return;
+		}
+		
+		document.getElementById('bigletter').style.visibility = 'hidden';
+		
+		// Resume timer if it was paused (only superusers can do this)
+		if (isPaused && superuser) {
+			isPaused = false;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', false);
+				console.log('▶️ CLIENT: Game resumed from bigletter close by superuser');
+			}
+		}
+	}
+	
+	// Function to toggle pause
+	function togglePause() {
+		// Close the side menu
+		closeMenu();
+		
+		// Check if there's a game in progress
+		var gameData = window.currentGameData || null;
+		if (!gameData || !isGameInProgress(gameData)) {
+			console.log('⏸️ CLIENT: Cannot pause/resume - no game in progress');
+			return;
+		}
+		
+		// Check if game is ended - use the global game data from the interface
+		if (gameData && gameData[3] && gameData[3].gameEnded) {
+			console.log('⏸️ CLIENT: Cannot pause/resume - game is ended');
+			return;
+		}
+		
+		// Only superusers can pause/resume the game
+		if (!superuser) {
+			notSuperuser();
+			return;
+		}
+		
+		if (isPaused) {
+			// Resume game
+			isPaused = false;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', false);
+				console.log('▶️ CLIENT: Game resumed by superuser');
+			}
+			// Hide pause message
+			document.getElementById('bigletter').style.visibility = 'hidden';
+		} else {
+			// Pause game
+			isPaused = true;
+			if (socket && socket.connected) {
+				socket.emit('pauseCounter', true);
+				console.log('⏸️ CLIENT: Game paused by superuser');
+			}
+			
+			// Show pause message with current scores in bigletter
+			showPauseMessageWithScores();
+		}
+	}
+	
+	// Function to update community cards hidden input
+	function updateCommunityCardsHidden(checkbox) {
+		var hiddenInput = document.querySelector('input[name="communitycards_hidden"]');
+		hiddenInput.value = checkbox.checked ? 'true' : 'false';
+		console.log('🔍 CLIENT: Community cards checkbox changed to:', checkbox.checked);
+	}
+
+	// Function to update Prophecy of Kings hidden input
+	function updateProphecyOfKingsHidden(checkbox) {
+		var hiddenInput = document.querySelector('input[name="prophecyOfKings_hidden"]');
+		if (hiddenInput) {
+			hiddenInput.value = checkbox.checked ? 'true' : 'false';
+		}
+		console.log('🔍 CLIENT: Prophecy of Kings checkbox changed to:', checkbox.checked);
+	}
+
+	// Function to update Thunder's Edge hidden input
+	function updateThundersEdgeHidden(checkbox) {
+		var hiddenInput = document.querySelector('input[name="thundersEdge_hidden"]');
+		if (hiddenInput) {
+			hiddenInput.value = checkbox.checked ? 'true' : 'false';
+		}
+		console.log("🔍 CLIENT: Thunder's Edge checkbox changed to:", checkbox.checked);
+	}
+	
+	// Function to show a card in the bigletter
+	function showCardInBigletter(cardID) {
+		console.log('🎯 CLIENT: Showing card in bigletter:', cardID);
+		console.log('🎯 CLIENT: allObjectives length:', allObjectives.length);
+		var cardInfo = getCardInfo(cardID);
+		
+		if (cardInfo) {
+			var cardPhase = cardInfo.phase;
+			var phaseColor = "";
+			if (cardPhase == "Action Phase") phaseColor = "red";
+			
+			// Check if this is a community card and add icon if needed
+			var cardIcon = "";
+			if (cardInfo.category && cardInfo.category !== 'base') {
+				cardIcon = getCardIcon(cardInfo.category, 'small');
+			}
+			
+			var html =
+						'<div class="bigletter-content">' +
+						'<div class="blPlayers"></div>' +
+						'<div class="blTitle">' + cardInfo.name + '</div>' +
+						'<div class="blText">' + cardInfo.text + '</div>' +
+						'<div class="blPhaseAndPoints">' +
+							'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>' +
+							'<div class="blPoint">' + cardInfo.points + '</div>' +
+							'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>' +
+						'</div>' +
+						cardIcon +
+						'</div>';
+			
+			console.log('🎯 CLIENT: Bigletter HTML:', html);
+			$('#bigletter').html(html);
+			document.getElementById('bigletter').style.visibility = 'visible';
+			console.log('🎯 CLIENT: Bigletter should now be visible');
+			
+
+		} else {
+			console.error('❌ CLIENT: Card info not found for bigletter:', cardID);
+		}
+	}
+	
+	// Function to calculate scores from objectives
+	function calculateScoresFromObjectives(data, playerScores) {
+		console.log('📊 CLIENT: Calculating scores from objectives...');
+		
+		// Reset scores
+		for (var i = 0; i < playerScores.length; i++) {
+			playerScores[i] = 0;
+		}
+		
+		// Calculate from Stage 1 objectives
+		if (data[0] && data[0].cards) {
+			for (var i = 0; i < data[0].cards.length; i++) {
+				var cardID = data[0].cards[i].id;
+				if (cardID != null) {
+					var cardInfo = getCardInfo(cardID);
+					if (cardInfo) {
+						var cardPoints = parseInt(cardInfo.points);
+						for (var j = 0; j < data[0].cards[i].scores.length; j++) {
+							if (data[0].cards[i].scores[j].scored && j < playerScores.length) {
+								playerScores[j] += cardPoints;
+								console.log('📊 CLIENT: Player', j, 'scored', cardPoints, 'VP from Stage 1 card', cardID);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Calculate from Stage 2 objectives
+		if (data[1] && data[1].cards) {
+			for (var i = 0; i < data[1].cards.length; i++) {
+				var cardID = data[1].cards[i].id;
+				if (cardID != null) {
+					var cardInfo = getCardInfo(cardID);
+					if (cardInfo) {
+						var cardPoints = parseInt(cardInfo.points);
+						for (var j = 0; j < data[1].cards[i].scores.length; j++) {
+							if (data[1].cards[i].scores[j].scored && j < playerScores.length) {
+								playerScores[j] += cardPoints;
+								console.log('📊 CLIENT: Player', j, 'scored', cardPoints, 'VP from Stage 2 card', cardID);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Add additional VPs
+		for (var i = 0; i < data[2].players.length; i++) {
+			if (data[2].players[i].faction != null && i < playerScores.length) {
+				var additionalVP = data[2].players[i].vp_custodian + data[2].players[i].vp_imperial + data[2].players[i].vp_secrets + data[2].players[i].vp_riders + data[2].players[i].vp_other;
+				playerScores[i] += additionalVP;
+				if (additionalVP > 0) {
+					console.log('📊 CLIENT: Player', i, 'has', additionalVP, 'additional VP');
+				}
+			}
+		}
+		
+		console.log('📊 CLIENT: Final player scores:', playerScores);
+	}
 
     window.onload = function() {
+		console.log('🚀 CLIENT: Window loaded, initializing application...');
+
+		// Initialize timer immediately on page load
+		console.log('⏰ CLIENT: Initializing timer on page load...');
+		initializeTimer();
+		gameTimer = setInterval(updateTimer, 1000);
+		console.log('⏰ CLIENT: Timer started on page load');
 
 		// Superuser check with cookies
+		console.log('👤 CLIENT: Checking superuser status...');
 		var superuserCookie = localStorage.getItem('superuser');
 		if (superuserCookie == null) {
 			localStorage.setItem('superuser', false);
@@ -429,61 +890,187 @@
 		}
 		var superuserHtml = (superuser) ? "y" : (!superuser) ? "n" : "";
 		document.getElementById("btnSuperuser").innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/superuser_' + superuserHtml + '.png"><div class="sideMenuItemText">Superuser</div>';
+		
+		// Update IP address display in side menu
+		updateSideMenuIP();
+		
+		// Update timer visual indicator based on superuser status
+		var gameTimer = document.getElementById("gameTimer");
+		if (gameTimer) {
+			if (superuser) {
+				gameTimer.classList.add('superuser-only');
+				gameTimer.title = "Click to pause/resume game (superuser)";
+			} else {
+				gameTimer.classList.remove('superuser-only');
+				gameTimer.title = "Game timer (superuser only)";
+			}
+		}
 
 		// Check if refresher
+		console.log('🔄 CLIENT: Checking auto-refresh settings...');
 		var refresherCookies = localStorage.getItem('autorefresh');
+		console.log('🔄 CLIENT: Auto-refresh cookie value:', refresherCookies);
+		
 		if (refresherCookies == null) {
 			localStorage.setItem('autorefresh', false);
 			autorefresh = false;
+			console.log('🔄 CLIENT: No auto-refresh cookie found, setting to false');
 		} else {
 			autorefresh = (refresherCookies == "true"); // Set string of boolean to actual boolean
-			if (autorefresh) $("sideMenuRefresh").addClass("active");
+			console.log('🔄 CLIENT: Auto-refresh enabled:', autorefresh);
+			if (autorefresh) {
+				var refreshElement = document.getElementById("sideMenuRefresh");
+				if (refreshElement) {
+					refreshElement.classList.add("active");
+				}
+			}
 		}
 
-		// Read json files and build content
+		// Load game data and initialize interface
+		console.log('📊 CLIENT: Generating cache buster for current game data...');
 		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-		$.getJSON( "database.json" + jsonBuster, function(data) {
+		console.log('🔍 CLIENT: Data cache buster:', jsonBuster);
+		
+		console.log('📊 CLIENT: Loading current game data...');
+		$.getJSON( "current-game" + jsonBuster, function(data) {
+		console.log("✅ CLIENT: Current game data loaded successfully!");
+		console.log("📊 CLIENT: Game data structure:", data);
 
-			for (var i = 0; i < data[0].stage1.length; i++) {
-				allObjectives.push(data[0].stage1[i]);
-				stageOneObjectives.push(data[0].stage1[i]);
-			}
-			for (var i = 0; i < data[0].stage2.length; i++) {
-				allObjectives.push(data[0].stage2[i]);
-				stageTwoObjectives.push(data[0].stage2[i]);
-			}
-			for (var i = 0; i < data[0].secret.length; i++) {
-				allObjectives.push(data[0].secret[i]);
-				secretObjectives.push(data[0].secret[i]);
+		// Check if community objectives are in play
+		console.log('🎮 CLIENT: Checking for community cards setting...');
+		
+		// Clear existing objectives arrays first
+		allObjectives = [];
+		stageOneObjectives = [];
+		stageTwoObjectives = [];
+		secretObjectives = [];
+		
+		// Load main database first
+		$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+			console.log('✅ CLIENT: Main database loaded successfully!');
+			
+			// Generate dynamic checkboxes for objective categories
+			generateObjectiveCategoryCheckboxes(mainObjectives);
+			
+			// Generate dynamic objective menu tabs
+			generateObjectiveMenuTabs();
+			
+			// Clear existing objectives arrays
+			allObjectives = [];
+			stageOneObjectives = [];
+			stageTwoObjectives = [];
+			secretObjectives = [];
+			
+			// Load objectives from all categories dynamically
+			if (mainObjectives[0] && mainObjectives[0].category === 'objectives') {
+				// Get the objective categories that are enabled for this game
+				var enabledCategories = {};
+				if (data[3] && data[3].objectiveCategories) {
+					enabledCategories = data[3].objectiveCategories;
+				} else {
+					// Legacy support - check for old format
+					if (data[3] && data[3].communitycards) {
+						enabledCategories.community = true;
+					}
+					if (data[3] && data[3].prophecyOfKings) {
+						enabledCategories.prophecyofkings = true;
+					}
+					if (data[3] && data[3].thundersEdge) {
+						enabledCategories.thundersedge = true;
+					}
+				}
+				
+				console.log('📊 CLIENT: Enabled categories for this game:', enabledCategories);
+				
+				// Iterate through all objective categories
+				for (var categoryKey in mainObjectives[0]) {
+					if (categoryKey === 'category') continue; // Skip the category field
+					
+					var category = mainObjectives[0][categoryKey];
+					if (category && typeof category === 'object') {
+						// Check if this category is enabled for this game
+						var categoryEnabled = categoryKey === 'base' || enabledCategories[categoryKey] || false;
+						
+						if (categoryEnabled) {
+							console.log('📊 CLIENT: Loading objectives from category:', categoryKey, 'with name:', category.name);
+							
+							// Add stage1 objectives
+							if (category.stage1 && Array.isArray(category.stage1)) {
+								for (var i = 0; i < category.stage1.length; i++) {
+									var objective = category.stage1[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									stageOneObjectives.push(objective);
+								}
+							}
+							
+							// Add stage2 objectives
+							if (category.stage2 && Array.isArray(category.stage2)) {
+								for (var i = 0; i < category.stage2.length; i++) {
+									var objective = category.stage2[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									stageTwoObjectives.push(objective);
+								}
+							}
+							
+							// Add secret objectives
+							if (category.secret && Array.isArray(category.secret)) {
+								for (var i = 0; i < category.secret.length; i++) {
+									var objective = category.secret[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									secretObjectives.push(objective);
+								}
+							}
+						} else {
+							console.log('📊 CLIENT: Skipping category:', categoryKey, '- not enabled for this game');
+						}
+					}
+				}
 			}
 			
+			console.log('📊 CLIENT: Total objectives loaded:', allObjectives.length);
+			console.log('📊 CLIENT: Stage 1 objectives:', stageOneObjectives.length);
+			console.log('📊 CLIENT: Stage 2 objectives:', stageTwoObjectives.length);
+			console.log('📊 CLIENT: Secret objectives:', secretObjectives.length);
+			
+			// Now create the objectives after all cards are loaded
+			createGameInterface(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to load main database:', errorThrown);
+			createGameInterface(data);
 		});
-	
-		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
-		$.getJSON( "data.json" + jsonBuster, function(data) {
-
-			// Check if community objectives are in play
-			if (data[3].communitycards) {
-				var oReq = new XMLHttpRequest();
-				oReq.addEventListener("load", function(){
-					communityObjectives = JSON.parse(this.responseText);
-					for (var i = 0; i < communityObjectives[0].stage1.length; i++) {
-						allObjectives.push(communityObjectives[0].stage1[i]);
-						stageOneObjectives.push(communityObjectives[0].stage1[i]);
-					}
-					for (var i = 0; i < communityObjectives[0].stage2.length; i++) {
-						allObjectives.push(communityObjectives[0].stage2[i]);
-						stageTwoObjectives.push(communityObjectives[0].stage2[i]);
-					}
-					for (var i = 0; i < communityObjectives[0].secret.length; i++) {
-						allObjectives.push(communityObjectives[0].secret[i]);
-						secretObjectives.push(communityObjectives[0].secret[i]);
-					}
-				});
-				oReq.open("GET", "database_community.json" + jsonBuster);
-				oReq.send();
+		
+		// Function to create the game interface after all cards are loaded
+		function createGameInterface(data) {
+			console.log('🎮 CLIENT: Creating game interface...');
+			
+			// Store game data globally for access by other functions
+			window.currentGameData = data;
+			
+			// Initialize button states based on game ended status
+			if (data && data[3] && data[3].gameEnded !== undefined) {
+				updateEndGameButton(data[3].gameEnded);
+			} else {
+				// If no game ended state, ensure buttons are enabled
+				updateGameActionButtons(false);
 			}
-
+			
+			// Update pause button state based on current game data
+			updatePauseButtonState();
+			
+			// Check if a game is in progress
+			if (!isGameInProgress(data)) {
+				console.log('🎮 CLIENT: No game in progress, showing start new game button');
+				showStartNewGameButton();
+				return;
+			}
+			
+			// Process players data
 			var players = [];
 			var playerScores = [];
 			for (var i = 0; i < data[2].players.length; i++) {
@@ -491,19 +1078,46 @@
 					var playah = data[2].players[i];
 					allPlayers.push(playah);
 					allScores.push(0);
-					allScores[i] = playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other;
 					players.push(playah);
-					playerScores.push(playah.vp_custodian + playah.vp_imperial + playah.vp_secrets + playah.vp_riders + playah.vp_other);
+					playerScores.push(0); // Initialize to 0, will be calculated from objectives
 				}
 			};
 			
-			// Create elemtns for Stage 1
-			var objectives1HTML = createObjectives(1);
-			// Create elemtns for Stage 2
-			var objectives2HTML = createObjectives(2);
+			// Calculate scores from objectives
+			calculateScoresFromObjectives(data, playerScores);
+			
+			// Create elements for Stage 1
+			var objectives1HTML = createObjectives(1, data, players, playerScores);
+			// Create elements for Stage 2
+			var objectives2HTML = createObjectives(2, data, players, playerScores);
+			
+			// Create scoreboard
+			createScoreboard(players, playerScores);
 	
-			// If the objectives don't load do this ugly reload
-			if (data == undefined || data[0].cards.length > document.getElementById("objectives1").childElementCount) window.location.reload();
+			// Check if the objectives data is valid (but don't reload immediately)
+			console.log('🔍 CLIENT: Checking objectives data validity...');
+			console.log('📊 CLIENT: data defined:', data !== undefined);
+			console.log('📊 CLIENT: data[0].cards.length:', data ? data[0].cards.length : 'N/A');
+			console.log('📊 CLIENT: objectives1 element exists:', document.getElementById("objectives1") !== null);
+			console.log('📊 CLIENT: objectives1 childElementCount:', document.getElementById("objectives1") ? document.getElementById("objectives1").childElementCount : 'N/A');
+			
+			if (data == undefined) {
+				console.error('❌ CLIENT: Game data is undefined! This is a serious error.');
+				return; // Exit function instead of reloading
+			}
+			
+			// Only reload if there's a major data inconsistency that can't be fixed
+			var objectives1Element = document.getElementById("objectives1");
+			if (!objectives1Element) {
+				console.error('❌ CLIENT: objectives1 element not found in DOM!');
+				// This might be a timing issue, try again after a delay
+				setTimeout(function() {
+					refreshGameData();
+				}, 1000);
+				return;
+			}
+			
+			console.log('✅ CLIENT: Objectives data looks valid, continuing with interface creation...');
 
 			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
 			if (players.length != 0) {
@@ -513,6 +1127,10 @@
 						$("#additionalElementsWrapper").toggleClass("open");
 						$("#additionalElementsArrowLeft").toggleClass("open");
 						$("#additionalElementsArrowRight").toggleClass("open");
+						
+						// Track menu state
+						additionalScoresMenuOpen = $("#additionalElementsWrapper").hasClass("open");
+						console.log('📊 CLIENT: Additional Scores menu state:', additionalScoresMenuOpen ? 'open' : 'closed');
 					}
 				document.getElementById("wrapper").appendChild(el_AddWrapperDiv);
 					var el_AddTextArrowWrapperDiv = document.createElement("div");
@@ -533,10 +1151,11 @@
 					var el_AddDiv = document.createElement("div");
 						el_AddDiv.id = "additionalElements";
 					el_AddWrapperDiv.appendChild(el_AddDiv);
-				createAdditionalPoints();
+				createAdditionalPoints(players);
 			}
+		}
 
-			function createObjectives(stage) {
+			function createObjectives(stage, data, players, playerScores) {
 				var divHTML = "";
 				var stageIndex = stage-1;
 				stagePressed = stage;
@@ -581,24 +1200,36 @@
 								var el_ObjectiveText = document.createElement("div");
 									el_ObjectiveText.className = 'objCard';
 									el_ObjectiveText.id = cardID;
-									el_ObjectiveText.innerHTML = "<h2>" + cardName + "</h2><p>" + cardText + "</p><h3>" + cardPoints + "</h3><p style='margin-top:-1.5vw' class='" + phaseColor + "'>" + cardPhase + "</p></div>";
+									
+								// Check if this is a community card and add icon if needed
+								var cardIcon = "";
+								if (allObjectives[k].category && allObjectives[k].category !== 'base') {
+									cardIcon = getCardIcon(allObjectives[k].category, 'small');
+								}
+								
+									el_ObjectiveText.innerHTML = "<h2>" + escapeHtml(cardName) + "</h2><p>" + escapeHtml(cardText) + "</p><h3>" + escapeHtml(cardPoints) + "</h3><p class='card-phase-margin " + escapeHtml(phaseColor) + "'>" + escapeHtml(cardPhase) + "</p>" + cardIcon + "</div>";
 									el_ObjectiveText.onclick = function() {
-										cardPressed = this.id;
 										var cardPressedIndex = parseInt(this.parentNode.id);
 										stagePressed = this.parentNode.parentNode.parentNode.id;
 										stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+										
+										// Always set cardPressed to the card slot identifier for consistency
+										cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
+										
 										if (clickMode != null) {
 											if (clickMode == "hide" || clickMode == "remove") {
 												if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
-													var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
+													// Direct Socket.IO emission for card adjustment
+													var adjustData = [clickMode, stagePressed, this.id, cardPressedIndex];
+													console.log('📡 CLIENT: Emitting card adjustment:', adjustData);
+													socket.emit('adjust' + clickMode.charAt(0).toUpperCase() + clickMode.slice(1), adjustData);
 												}
 											} else {
-												cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
 												document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
 												event.stopPropagation();
 											}
-											window.location = serverUrl + urlVars;
 										} else {
+											console.log('🎯 CLIENT: Card clicked - showing bigletter');
 											var cardPressedStage = this.parentNode.parentNode.parentNode.id;
 												cardPressedStage = parseInt(cardPressedStage.substring(cardPressedStage.length - 1, cardPressedStage.length));
 											var blTokensHtml = "";
@@ -609,53 +1240,78 @@
 												var scoreArr = objectivesOnBoard.stage2[cardPressedIndex].scores;
 											}
 											for (var j = 0; j < scoreArr.length; j++) {
-												if (scoreArr[j].scored) blTokensHtml = blTokensHtml + '<img src="assets/media/factions/' + players[j].faction + '.png">';
+												if (scoreArr[j].scored) blTokensHtml = blTokensHtml + getFactionIcon(players[j].faction);
 											}
-											var cardObjDatabase = getCardInfo(cardPressed);
-											var cardPhase = cardObjDatabase.phase;
-											var phaseColor = "";
-											if (cardPhase == "Action Phase") phaseColor = "red";
-											var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
-														'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
-														'<div class="blText">' + cardObjDatabase.text + '</div>'+
-														'<div class="blPhaseAndPoints">'+
-															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
-															'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
-															'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
-														'</div>';
-											$('#bigletter').html(html);
-											document.getElementById('bigletter').style.visibility = 'visible';
+											var cardObjDatabase = getCardInfo(this.id);
+											console.log('🎯 CLIENT: Card object database:', cardObjDatabase);
+											
+											if (cardObjDatabase) {
+												var cardPhase = cardObjDatabase.phase;
+												var phaseColor = "";
+												if (cardPhase == "Action Phase") phaseColor = "red";
+												
+												// Check if this is a community card and add icon if needed
+												var cardIcon = "";
+												if (cardObjDatabase.category && cardObjDatabase.category !== 'base') {
+													cardIcon = getCardIcon(cardObjDatabase.category, 'large');
+												}
+												
+												var html = 	'<div class="bigletter-content">' +
+															'<div class="blPlayers">' + blTokensHtml + '</div>'+
+															'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
+															'<div class="blText">' + cardObjDatabase.text + '</div>'+
+															'<div class="blPhaseAndPoints">'+
+																'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
+																'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
+																'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+															'</div>' + cardIcon +
+															'</div>';
+												console.log('🎯 CLIENT: Bigletter HTML:', html);
+												$('#bigletter').html(html);
+												document.getElementById('bigletter').style.visibility = 'visible';
+												console.log('🎯 CLIENT: Bigletter should now be visible');
+											} else {
+												console.error('❌ CLIENT: Card object database is null/undefined');
+											}
 										}
 									};
 								el_Objective.appendChild(el_ObjectiveText);
 
 								var el_TokensWrapper = document.createElement("div");
 									el_TokensWrapper.className = "objTokensWrapper";
-									el_TokensWrapper.id = activeCardIndex;
+									el_TokensWrapper.id = i;
 
 								var tokensHTML = "";
 								for (var j = 0; j < players.length; j++) {
 									var scoredClass = "";
 									if (data[stageIndex].cards[i].scores[j].scored) {
 										scoredClass = " scored";
-										playerScores[j] = playerScores[j] + cardPoints;
-										allScores[j] = allScores[j] + cardPoints;
 									}
 
 									var el_Tokens = document.createElement("div");
 										el_Tokens.className = "objTokens" + scoredClass;
 										el_Tokens.title = decodeURIComponent(players[j].player);
 										el_Tokens.id = j;
-										el_Tokens.innerHTML = '<img src="assets/media/factions/' + players[j].faction + '.png">';
-										el_Tokens.onclick = function() {
-											if (superuser) {
-												tokenPressed = this.id;
-												var urlVars = "?request=token&stage=" + stageIndex + "&card=" + this.parentNode.id + "&player=" + tokenPressed;
-												window.location = serverUrl + urlVars;
-											} else {
-												notSuperuser();
+										el_Tokens.innerHTML = getFactionIcon(players[j].faction);
+																			el_Tokens.onclick = function() {
+										if (superuser) {
+											// Check if game is paused
+											if (isPaused) {
+												console.log('❌ CLIENT: Cannot score token - game is paused');
+												// Show a message to the user that the game is paused
+												alert('Game Paused\nCannot score points while the game is paused');
+												return;
 											}
+											
+											tokenPressed = this.id;
+											// Direct Socket.IO emission for token scoring
+											var tokenData = [stageIndex, this.parentNode.id, tokenPressed];
+											console.log('📡 CLIENT: Emitting token scoring:', tokenData);
+											socket.emit('token', tokenData);
+										} else {
+											notSuperuser();
 										}
+									}
 										el_TokensWrapper.appendChild(el_Tokens);
 								}
 								
@@ -674,7 +1330,7 @@
 							} else {
 								var token = players[j].faction;
 							}
-							tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '"><img src="assets/media/factions/' + token + '.png"></div>';
+							tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '">' + getFactionIcon(token) + '</div>';
 						}
 						
 						// Create elements
@@ -695,12 +1351,14 @@
 									stagePressed = this.parentNode.parentNode.id;
 									stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
 									var cardPressedIndex = parseInt(this.parentNode.id);
-									if (clickMode == "remove") {
-										if (confirm("Are you sure you want to remove this card?")) {
-											var urlVars = "?request=adjust&mode=" + clickMode + "&stage=" + stagePressed + "&id=" + cardPressed + "&index=" + cardPressedIndex;
-											window.location = serverUrl + urlVars;
-										}
-									} else {
+																	if (clickMode == "remove") {
+									if (confirm("Are you sure you want to remove this card?")) {
+										// Direct Socket.IO emission for card removal
+										var adjustData = [clickMode, stagePressed, cardPressed, cardPressedIndex];
+										console.log('📡 CLIENT: Emitting card removal:', adjustData);
+										socket.emit('adjustRemove', adjustData);
+									}
+								} else {
 										document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
 										event.stopPropagation();
 									}
@@ -716,31 +1374,18 @@
 						el_TokensAndCard.appendChild(el_TokensWrapper);
 
 					}
+					activeCardIndex++;
 				}
-
-				// Create scoreboard
-				var scoreboardHtml = "";
-				var scoreboardDiv = document.getElementById("scoreboard");
-					scoreboardDiv.innerHTML = "";
-				for (var i = 0; i < players.length; i++) { // Iterate players
-					var el_ScoreToken = document.createElement("div");
-						el_ScoreToken.className = 'scoretile';
-						el_ScoreToken.title = decodeURIComponent(players[i].player);
-						el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">' + playerScores[i];
-					scoreboardDiv.appendChild(el_ScoreToken);
-					
-				}
-				
 			}
 
-			function createAdditionalPoints() {
+			function createAdditionalPoints(players) {
 
 				var addEldiv = document.getElementById("additionalElements");
 
 				// Mecatol VP
 				var custodianHtml = "";
 				for (var i = 0; i < players.length; i++) { // Iterate players
-					if (players[i].vp_custodian) custodianHtml = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+					if (players[i].vp_custodian) custodianHtml = getFactionIcon(players[i].faction);
 				}
 				var el_MecatolWrapper = document.createElement("div");
 					el_MecatolWrapper.id = "mecatolScoreWrapper";
@@ -762,14 +1407,28 @@
 										el_Token.className = 'custodianPick';
 										el_Token.title = decodeURIComponent(players[i].player);
 										el_Token.id = "custodian_" + i;
-										el_Token.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
-										el_Token.onclick = function(event) {
-											var playerID = this.id.substring(this.id.length - 1, this.id.length);
-											vpPressed = { "player": playerID, "category": "custodian" };
-											var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=custodian";
-											window.location = serverUrl + urlVars;
-											noBubbling(event);
+										el_Token.innerHTML = getFactionIcon(players[i].faction);
+																			el_Token.onclick = function(event) {
+										// Check if game is paused
+										if (isPaused) {
+											console.log('❌ CLIENT: Cannot change custodian VP - game is paused');
+											// Show a message to the user that the game is paused
+											alert('Game Paused\nCannot change scores while the game is paused');
+											// Close the custodian menu
+											document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
+											return;
 										}
+										
+										var playerID = this.id.substring(this.id.length - 1, this.id.length);
+										vpPressed = { "player": playerID, "category": "custodian" };
+										// Direct Socket.IO emission for custodian VP change
+										var vpData = [playerID, "custodian"];
+										console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
+										socket.emit('changeVP', vpData);
+										// Close the custodian menu after selection
+										document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
+										noBubbling(event);
+									}
 									wrapper.appendChild(el_Token);
 								}
 								document.getElementById('changeCustodianWrapper').style.visibility = 'visible';
@@ -820,9 +1479,17 @@
 									el_ScoreToken.style = 'float: left;';
 									el_ScoreToken.title = decodeURIComponent(players[i].player);
 									el_ScoreToken.id = idPrefix + "_" + i;
-									el_ScoreToken.innerHTML = '<img src="assets/media/factions/' + players[i].faction + '.png">';
+									el_ScoreToken.innerHTML = getFactionIcon(players[i].faction);
 									el_ScoreToken.onclick = function(event) {
 										if (superuser) {
+											// Check if game is paused
+											if (isPaused) {
+												console.log('❌ CLIENT: Cannot change VP - game is paused');
+												// Show a message to the user that the game is paused
+												alert('Game Paused\nCannot change scores while the game is paused');
+												return;
+											}
+											
 											var playerID = this.id.substring(this.id.length - 1, this.id.length);
 											var category = this.id.substring(0, this.id.length - 2);
 											vpPressed = { "player": playerID, "category": category };
@@ -847,13 +1514,27 @@
 			
 			newCard(allObjectives);
 
-			if (autorefresh) {
-				document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
-				autorefreshInterval = setInterval(refreshPage, 1000);
-			} else {
-				document.getElementById("sideMenuRefresh").innerHTML = "";
+					if (autorefresh) {
+			console.log('🔄 CLIENT: STARTING AUTO-REFRESH with', refreshCounter, 'second countdown');
+			var refreshElement = document.getElementById("sideMenuRefresh");
+			if (refreshElement) {
+				refreshElement.innerHTML = refreshCounter;
 			}
+			autorefreshInterval = setInterval(refreshPage, 1000);
+		} else {
+			console.log('✅ CLIENT: Auto-refresh disabled, no timer set');
+			var refreshElement = document.getElementById("sideMenuRefresh");
+			if (refreshElement) {
+				refreshElement.innerHTML = "";
+			}
+		}
 		
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error("❌ CLIENT: Failed to load current game data!");
+			console.error("📊 CLIENT: Status:", textStatus);
+			console.error("🐛 CLIENT: Error:", errorThrown);
+			console.error("🌐 CLIENT: URL attempted:", "current-game" + jsonBuster);
+			console.error("📄 CLIENT: Response:", jqXHR.responseText);
 		});
 			
     }
@@ -861,10 +1542,662 @@
 	function refreshPage() {
 		refreshCounter--;
 		if (refreshCounter < 0) {
-			window.location.reload();
+			console.log('🔄 CLIENT: AUTO-REFRESH TRIGGERED - Updating data via Socket.IO');
+			// Instead of reloading, request fresh data and update the view
+			refreshGameData();
+			refreshCounter = 30; // Reset counter
 		} else {
-			document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+			var refreshElement = document.getElementById("sideMenuRefresh");
+			if (refreshElement) {
+				refreshElement.innerHTML = refreshCounter;
+			}
 		}
+	}
+	
+	// Debounce mechanism to prevent multiple simultaneous refreshes
+	var refreshTimeout = null;
+	var isRefreshing = false;
+	var lastRefreshTime = 0;
+	
+	// Function to refresh game data without page reload
+	function refreshGameData() {
+		console.log('📊 CLIENT: Refreshing game data...');
+		
+		// Clear any pending refresh
+		if (refreshTimeout) {
+			clearTimeout(refreshTimeout);
+			refreshTimeout = null;
+		}
+		
+		// If already refreshing, don't start another refresh
+		if (isRefreshing) {
+			console.log('📊 CLIENT: Refresh already in progress, skipping...');
+			return;
+		}
+		
+		// Prevent too frequent refreshes (minimum 1 second between refreshes)
+		var now = Date.now();
+		if (now - lastRefreshTime < 1000) {
+			console.log('📊 CLIENT: Refresh too frequent, skipping...');
+			return;
+		}
+		
+		lastRefreshTime = now;
+		isRefreshing = true;
+		
+		// Generate new cache buster
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		
+		// Reload current game data and update the interface
+		$.getJSON("current-game" + jsonBuster, function(data) {
+			console.log('✅ CLIENT: Game data refreshed successfully');
+			updateGameInterface(data);
+			isRefreshing = false;
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to refresh game data:', errorThrown);
+			isRefreshing = false;
+		});
+	}
+	
+	// Function to update the game interface with new data
+	function updateGameInterface(data) {
+		console.log('🎮 CLIENT: Updating game interface with fresh data');
+		
+		// Store game data globally for access by other functions
+		window.currentGameData = data;
+		
+		// Update end game button state
+		if (data && data[3] && data[3].gameEnded !== undefined) {
+			updateEndGameButton(data[3].gameEnded);
+		} else {
+			// If no game ended state, ensure buttons are enabled
+			updateGameActionButtons(false);
+		}
+		
+		// Check if a game is in progress
+		if (!isGameInProgress(data)) {
+			console.log('🎮 CLIENT: No game in progress, showing start new game button');
+			showStartNewGameButton();
+			return;
+		}
+		
+		// Clear existing objectives and additional elements
+		var objectives1 = document.getElementById("objectives1");
+		var objectives2 = document.getElementById("objectives2");
+		var additionalElements = document.getElementById("additionalElementsWrapper");
+		
+		if (objectives1) objectives1.innerHTML = '';
+		if (objectives2) objectives2.innerHTML = '';
+		if (additionalElements) additionalElements.remove();
+		
+		// Reset global state arrays
+		objectivesOnBoard = { stage1: [], stage2: [] };
+		allPlayers = [];
+		allScores = [];
+		
+		// Load objectives first, then update interface
+		loadObjectivesAndUpdateInterface(data);
+	}
+	
+	// Function to load objectives and then update interface
+	function loadObjectivesAndUpdateInterface(data) {
+		console.log('📊 CLIENT: Loading objectives for interface update...');
+		
+		// Clear existing objectives arrays first
+		allObjectives = [];
+		stageOneObjectives = [];
+		stageTwoObjectives = [];
+		secretObjectives = [];
+		
+		var jsonBuster = "?v=" + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1) + "." + Math.floor((Math.random() * 9) + 1) + Math.floor((Math.random() * 9) + 1);
+		
+		$.getJSON("database.json" + jsonBuster, function(mainObjectives) {
+			console.log('✅ CLIENT: Main database loaded for refresh!');
+			
+			// Get the objective categories that are enabled for this game
+			var enabledCategories = {};
+			if (data[3] && data[3].objectiveCategories) {
+				enabledCategories = data[3].objectiveCategories;
+			} else {
+				// Legacy support - check for old format
+				if (data[3] && data[3].communitycards) {
+					enabledCategories.community = true;
+				}
+				if (data[3] && data[3].prophecyOfKings) {
+					enabledCategories.prophecyofkings = true;
+				}
+				if (data[3] && data[3].thundersEdge) {
+					enabledCategories.thundersedge = true;
+				}
+			}
+			
+			console.log('📊 CLIENT: Enabled categories for refresh:', enabledCategories);
+			
+			// Load objectives from all categories dynamically
+			if (mainObjectives[0] && mainObjectives[0].category === 'objectives') {
+				// Iterate through all objective categories
+				for (var categoryKey in mainObjectives[0]) {
+					if (categoryKey === 'category') continue; // Skip the category field
+					
+					var category = mainObjectives[0][categoryKey];
+					if (category && typeof category === 'object') {
+						// Check if this category is enabled for this game
+						var categoryEnabled = categoryKey === 'base' || enabledCategories[categoryKey] || false;
+						
+						if (categoryEnabled) {
+							console.log('📊 CLIENT: Loading objectives from category:', categoryKey, 'with name:', category.name);
+							
+							// Add stage1 objectives
+							if (category.stage1 && Array.isArray(category.stage1)) {
+								for (var i = 0; i < category.stage1.length; i++) {
+									var objective = category.stage1[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									stageOneObjectives.push(objective);
+								}
+							}
+							
+							// Add stage2 objectives
+							if (category.stage2 && Array.isArray(category.stage2)) {
+								for (var i = 0; i < category.stage2.length; i++) {
+									var objective = category.stage2[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									stageTwoObjectives.push(objective);
+								}
+							}
+							
+							// Add secret objectives
+							if (category.secret && Array.isArray(category.secret)) {
+								for (var i = 0; i < category.secret.length; i++) {
+									var objective = category.secret[i];
+									objective.category = categoryKey; // Add category info for later use
+									objective.categoryName = category.name; // Add category name for display
+									allObjectives.push(objective);
+									secretObjectives.push(objective);
+								}
+							}
+						} else {
+							console.log('📊 CLIENT: Skipping category:', categoryKey, '- not enabled for this game');
+						}
+					}
+				}
+			}
+			
+			console.log('📊 CLIENT: Total objectives loaded for refresh:', allObjectives.length);
+			
+			// Now update the interface with all cards loaded
+			updateGameInterfaceWithCards(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to load main database for refresh:', errorThrown);
+			updateGameInterfaceWithCards(data);
+		});
+	}
+	
+			// Function to update the game interface with cards already loaded
+		function updateGameInterfaceWithCards(data) {
+			try {
+				// Check if a game is in progress
+				if (!isGameInProgress(data)) {
+					console.log('🎮 CLIENT: No game in progress, showing start new game button');
+					showStartNewGameButton();
+					return;
+				}
+				
+				// Rebuild players array
+				var players = [];
+				var playerScores = [];
+				for (var i = 0; i < data[2].players.length; i++) {
+					if (data[2].players[i].faction != null) {
+						var playah = data[2].players[i];
+						allPlayers.push(playah);
+						allScores.push(0);
+						players.push(playah);
+						playerScores.push(0); // Initialize to 0, will be calculated from objectives
+					}
+				}
+				
+				// Calculate scores from objectives
+				calculateScoresFromObjectives(data, playerScores);
+			
+			// Recreate objectives for both stages if they exist
+			if (data[0] && data[0].cards && data[0].cards.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding Stage 1 objectives...');
+				createObjectivesForUpdate(1, data, players);
+			}
+			
+			if (data[1] && data[1].cards && data[1].cards.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding Stage 2 objectives...');
+				createObjectivesForUpdate(2, data, players);
+			}
+			
+			// Recreate scoreboard
+			createScoreboard(players, playerScores);
+			
+			// Recreate additional elements if there are players
+			if (players.length > 0) {
+				console.log('🎮 CLIENT: Rebuilding additional elements...');
+				createAdditionalPointsForUpdate(players, data);
+				
+				// Restore Additional Scores menu state if it was open
+				if (additionalScoresMenuOpen) {
+					setTimeout(function() {
+						$("#additionalElementsWrapper").addClass("open");
+						$("#additionalElementsArrowLeft").addClass("open");
+						$("#additionalElementsArrowRight").addClass("open");
+						console.log('📊 CLIENT: Restored Additional Scores menu to open state');
+					}, 50); // Small delay to ensure elements are created
+				}
+			}
+			
+			console.log('✅ CLIENT: Interface rebuilt successfully with fresh data');
+			
+			// Timer is already started on page load, no need to restart
+			
+			// Show bigletter for the last flipped card if available
+			if (window.lastFlippedCardID) {
+				console.log('🎯 CLIENT: Showing bigletter for last flipped card:', window.lastFlippedCardID);
+				console.log('🎯 CLIENT: allObjectives loaded:', allObjectives.length > 0);
+				setTimeout(function() {
+					showCardInBigletter(window.lastFlippedCardID);
+					window.lastFlippedCardID = null; // Clear after showing
+				}, 100); // Small delay to ensure interface is fully rendered
+			}
+		} catch(err) {
+			console.error('❌ CLIENT: Error rebuilding interface:', err);
+		}
+		
+		// Removed interface_refresh emission to prevent refresh loops
+	}
+	
+	// Helper function to create objectives during update (same logic as createObjectives)
+	function createObjectivesForUpdate(stage, data, players) {
+		var stageIndex = stage - 1;
+		var objectivesCount = data[stageIndex].cards.length;
+		var activeCardIndex = 0;
+		
+		for (var i = 0; i < objectivesCount; i++) {
+			var cardID = data[stageIndex].cards[i].id;
+			if (stage == 1) {
+				objectivesOnBoard.stage1.push(data[stageIndex].cards[i]);
+			} else {
+				objectivesOnBoard.stage2.push(data[stageIndex].cards[i]);
+			}
+			
+			if (cardID != null) {
+				// Find card info in allObjectives
+				for (var k = 0; k < allObjectives.length; k++) {
+					if (cardID == allObjectives[k].id) {
+						var cardName = allObjectives[k].name;
+						var cardText = allObjectives[k].text;
+						var cardPoints = allObjectives[k].points;
+						var cardStage = allObjectives[k].stage;
+						var cardPhase = allObjectives[k].phase;
+						var phaseColor = "";
+						if (cardPhase == "Action Phase") phaseColor = "red";
+
+						// Create elements
+						var objectiveDiv = document.getElementById("objectives" + stage);
+						
+						var el_TokensAndCard = document.createElement("div");
+						el_TokensAndCard.className = "tokensAndCard";
+						objectiveDiv.appendChild(el_TokensAndCard);
+
+						var el_Objective = document.createElement("div");
+						el_Objective.className = 'objContainer';
+						el_Objective.id = i;
+						el_Objective.innerHTML = "<img src='assets/media/objectivecard_bg_" + cardStage + ".png'>";
+						el_TokensAndCard.appendChild(el_Objective);
+
+						var el_ObjectiveText = document.createElement("div");
+						el_ObjectiveText.className = 'objCard';
+						el_ObjectiveText.id = cardID;
+						
+						// Check if this is a community card and add icon if needed
+						var cardIcon = "";
+						if (allObjectives[k].category && allObjectives[k].category !== 'base') {
+							cardIcon = getCardIcon(allObjectives[k].category, 'small');
+						}
+						
+						el_ObjectiveText.innerHTML = "<h2>" + escapeHtml(cardName) + "</h2><p>" + escapeHtml(cardText) + "</p><h3>" + escapeHtml(cardPoints) + "</h3><p class='card-phase-margin " + escapeHtml(phaseColor) + "'>" + escapeHtml(cardPhase) + "</p>" + cardIcon + "</div>";
+						
+						// Add click handler (same as original)
+						el_ObjectiveText.onclick = function() {
+							var cardPressedIndex = parseInt(this.parentNode.id);
+							stagePressed = this.parentNode.parentNode.parentNode.id;
+							stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+							
+							// Always set cardPressed to the card slot identifier for consistency
+							cardPressed = "stage" + stagePressed + "_" + cardPressedIndex;
+							
+							if (clickMode != null) {
+								if (clickMode == "hide" || clickMode == "remove") {
+									if (confirm("Are you sure you want to " + clickMode + " this card?\nThe points will be reset for this card.")) {
+										var adjustData = [clickMode, stagePressed, this.id, cardPressedIndex];
+										console.log('📡 CLIENT: Emitting card adjustment:', adjustData);
+										socket.emit('adjust' + clickMode.charAt(0).toUpperCase() + clickMode.slice(1), adjustData);
+									}
+								} else {
+									document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+									event.stopPropagation();
+								}
+							} else {
+								console.log('🎯 CLIENT: Card clicked - showing bigletter');
+								var cardPressedStage = this.parentNode.parentNode.parentNode.id;
+									cardPressedStage = parseInt(cardPressedStage.substring(cardPressedStage.length - 1, cardPressedStage.length));
+								var blTokensHtml = "";
+								
+								if (cardPressedStage == 1) {
+									var scoreArr = objectivesOnBoard.stage1[cardPressedIndex].scores;
+								} else {
+									var scoreArr = objectivesOnBoard.stage2[cardPressedIndex].scores;
+								}
+								for (var j = 0; j < scoreArr.length; j++) {
+									if (scoreArr[j].scored) blTokensHtml = blTokensHtml + getFactionIcon(players[j].faction);
+								}
+								var cardObjDatabase = getCardInfo(this.id);
+								console.log('🎯 CLIENT: Card object database:', cardObjDatabase);
+								
+								if (cardObjDatabase) {
+									var cardPhase = cardObjDatabase.phase;
+									var phaseColor = "";
+									if (cardPhase == "Action Phase") phaseColor = "red";
+									
+									// Check if this is a community card and add icon if needed
+									var cardIcon = "";
+									if (cardObjDatabase.category && cardObjDatabase.category !== 'base') {
+										cardIcon = getCardIcon(cardObjDatabase.category, 'large');
+									}
+									
+									var html = 	'<div class="bigletter-content">' +
+												'<div class="blPlayers">' + blTokensHtml + '</div>'+
+												'<div class="blTitle">' + cardObjDatabase.name + '</div>'+
+												'<div class="blText">' + cardObjDatabase.text + '</div>'+
+												'<div class="blPhaseAndPoints">'+
+													'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
+													'<div class="blPoint">' + cardObjDatabase.points + '</div>'+
+													'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+												'</div>' + cardIcon +
+												'</div>';
+									console.log('🎯 CLIENT: Bigletter HTML:', html);
+									$('#bigletter').html(html);
+									document.getElementById('bigletter').style.visibility = 'visible';
+									console.log('🎯 CLIENT: Bigletter should now be visible');
+								} else {
+									console.error('❌ CLIENT: Card object database is null/undefined');
+								}
+							}
+						};
+						el_Objective.appendChild(el_ObjectiveText);
+
+						// Create token wrapper and tokens
+						var el_TokensWrapper = document.createElement("div");
+						el_TokensWrapper.className = "objTokensWrapper";
+						el_TokensWrapper.id = i;
+
+						for (var j = 0; j < players.length; j++) {
+							var el_Token = document.createElement("div");
+							
+							// Use correct CSS classes for scored/unscored tokens
+							if (data[stageIndex].cards[i].scores[j].scored) {
+								el_Token.className = "objTokens scored";
+							} else {
+								el_Token.className = "objTokens";
+							}
+							
+							el_Token.title = decodeURIComponent(players[j].player);
+							el_Token.id = j; // Simple player ID like in original
+							el_Token.innerHTML = getFactionIcon(players[j].faction);
+							
+							// Add click handler for token scoring (matching original logic)
+							(function(cardIndex) {
+								el_Token.onclick = function(event) {
+									if (superuser) {
+										// Check if game is paused
+										if (isPaused) {
+											console.log('❌ CLIENT: Cannot score token - game is paused');
+											// Show a message to the user that the game is paused
+											alert('Game Paused\nCannot score points while the game is paused');
+											return;
+										}
+										
+										var tokenPressed = this.id;
+										var stagePressed = stage;
+										var cardPressed = cardIndex;
+										
+										// Direct Socket.IO emission for token scoring
+										var tokenData = [stagePressed - 1, cardPressed, tokenPressed]; // stageIndex, cardIndex, playerIndex
+										console.log('📡 CLIENT: Emitting token scoring:', tokenData);
+										socket.emit('token', tokenData);
+									} else {
+										notSuperuser();
+									}
+									noBubbling(event);
+								};
+							})(i);
+							
+							el_TokensWrapper.appendChild(el_Token);
+						}
+						el_TokensAndCard.appendChild(el_TokensWrapper);
+						break;
+					}
+				}
+			} else {
+				// Handle null card IDs - create empty card slots (same as original createObjectives)
+				var tokensHTML = "";
+				for (var j = 0; j < players.length; j++) {
+					if (players[j].faction == null) {
+						var token = "empty"
+					} else {
+						var token = players[j].faction;
+					}
+					tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '">' + getFactionIcon(token) + '</div>';
+				}
+				
+				// Create elements
+				var objectiveDiv = document.getElementById("objectives" + stage);
+
+				var el_TokensAndCard = document.createElement("div");
+				el_TokensAndCard.className = "tokensAndCard";
+				el_TokensAndCard.id = i;
+				objectiveDiv.appendChild(el_TokensAndCard);
+
+				var el_Objective = document.createElement("div");
+				el_Objective.className = 'objContainer';
+				el_Objective.innerHTML = "<img src='assets/media/backside_stage" + stage + ".png'>";
+				el_Objective.id = "stage" + stage + "_" + i;
+				el_Objective.onclick = function(event) {
+					if (superuser) {
+						cardPressed = this.id;
+						stagePressed = this.parentNode.parentNode.id;
+						stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
+						var cardPressedIndex = parseInt(this.parentNode.id);
+						if (clickMode == "remove") {
+							if (confirm("Are you sure you want to remove this card?")) {
+								// Direct Socket.IO emission for card removal
+								var adjustData = [clickMode, stagePressed, cardPressed, cardPressedIndex];
+								console.log('📡 CLIENT: Emitting card removal:', adjustData);
+								socket.emit('adjustRemove', adjustData);
+							}
+						} else {
+							document.getElementById('objectiveStyleWrapper').style.visibility = 'visible';
+							event.stopPropagation();
+						}
+					} else {
+						notSuperuser();
+					}
+				};
+				el_TokensAndCard.appendChild(el_Objective);
+
+				var el_TokensWrapper = document.createElement("div");
+				el_TokensWrapper.className = "objTokensWrapper";
+				el_TokensWrapper.innerHTML = tokensHTML;
+				el_TokensAndCard.appendChild(el_TokensWrapper);
+			}
+			activeCardIndex++;
+		}
+	}
+	
+	// Helper function to create additional points section during update
+	function createAdditionalPointsForUpdate(players, data) {
+		var el_AddWrapperDiv = document.createElement("div");
+		el_AddWrapperDiv.id = "additionalElementsWrapper";
+		el_AddWrapperDiv.onclick = function() {
+			$("#additionalElementsWrapper").toggleClass("open");
+			$("#additionalElementsArrowLeft").toggleClass("open");
+			$("#additionalElementsArrowRight").toggleClass("open");
+		}
+		document.getElementById("wrapper").appendChild(el_AddWrapperDiv);
+		
+		var el_AddTextArrowWrapperDiv = document.createElement("div");
+		el_AddTextArrowWrapperDiv.className = "additionalElementsTextArrowWrapper";
+		el_AddWrapperDiv.appendChild(el_AddTextArrowWrapperDiv);
+		
+		var el_AddArrowDiv = document.createElement("div");
+		el_AddArrowDiv.id = "additionalElementsArrowLeft";
+		el_AddArrowDiv.innerHTML = "<img src='assets/media/arrow_white.png'>";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv);
+		
+		var el_AddButtonDiv = document.createElement("div");
+		el_AddButtonDiv.className = "additionalElementsText";
+		el_AddButtonDiv.innerHTML = "Additional Scores";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddButtonDiv);
+		
+		var el_AddArrowDiv2 = document.createElement("div");
+		el_AddArrowDiv2.id = "additionalElementsArrowRight";
+		el_AddArrowDiv2.innerHTML = "<img src='assets/media/arrow_white.png'>";
+		el_AddTextArrowWrapperDiv.appendChild(el_AddArrowDiv2);
+		
+		var el_AddDiv = document.createElement("div");
+		el_AddDiv.id = "additionalElements";
+		el_AddWrapperDiv.appendChild(el_AddDiv);
+		
+		// Create additional points elements with proper implementation
+		createAdditionalPointsComplete(players, data);
+	}
+	
+	// Complete implementation of additional points creation
+	function createAdditionalPointsComplete(players, data) {
+		var addEldiv = document.getElementById("additionalElements");
+
+		// Mecatol VP
+		var custodianHtml = "";
+		for (var i = 0; i < players.length; i++) { // Iterate players
+			if (players[i].vp_custodian) custodianHtml = getFactionIcon(players[i].faction);
+		}
+		var el_MecatolWrapper = document.createElement("div");
+		el_MecatolWrapper.id = "mecatolScoreWrapper";
+		el_MecatolWrapper.style = "display: inline-block; vertical-align: top;"
+
+		var el_Mecatol = document.createElement("div");
+		el_Mecatol.title = "Custodian Token VP";
+		el_Mecatol.id = "mecatolScore";
+		el_Mecatol.innerHTML = custodianHtml;
+		el_Mecatol.onclick = function(event) {
+			if (superuser) {
+				var wrapper = document.getElementById('changeCustodianWrapper');
+				wrapper.innerHTML = "Custodian Victory Point<br><br>";
+				for (var i = 0; i < players.length; i++) { // Iterate players
+					var el_Token = document.createElement("div");
+					el_Token.className = 'custodianPick';
+					el_Token.title = decodeURIComponent(players[i].player);
+					el_Token.id = "custodian_" + i;
+					el_Token.innerHTML = getFactionIcon(players[i].faction);
+					el_Token.onclick = function(event) {
+						// Check if game is paused
+						if (isPaused) {
+							console.log('❌ CLIENT: Cannot change custodian VP - game is paused');
+							// Show a message to the user that the game is paused
+							alert('Game Paused\nCannot change scores while the game is paused');
+							// Close the custodian menu
+							document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
+							return;
+						}
+						
+						var playerID = this.id.substring(this.id.length - 1, this.id.length);
+						vpPressed = { "player": playerID, "category": "custodian" };
+						// Direct Socket.IO emission for custodian VP change
+						var vpData = [playerID, "custodian"];
+						console.log('📡 CLIENT: Emitting custodian VP change for player:', playerID);
+						socket.emit('changeVP', vpData);
+						// Close the custodian menu after selection
+						document.getElementById('changeCustodianWrapper').style.visibility = 'hidden';
+						noBubbling(event);
+					}
+					wrapper.appendChild(el_Token);
+				}
+				document.getElementById('changeCustodianWrapper').style.visibility = 'visible';
+				noBubbling(event);
+			} else {
+				notSuperuser();
+			}
+		}
+		el_MecatolWrapper.appendChild(el_Mecatol);
+		addEldiv.appendChild(el_MecatolWrapper);
+
+		// Imperial VP
+		createAddDivForUpdate("Imperial VP", '<img src="assets/media/imperial.png">', "imperial", players, addEldiv);
+		// Secrets VP
+		createAddDivForUpdate("Secrets VP", '<img src="assets/media/backside_secret.png">', "secrets", players, addEldiv);
+		// Rider VP
+		createAddDivForUpdate("Riders VP", '<img src="assets/media/rider.png">', "riders", players, addEldiv);
+		// Other VPs
+		createAddDivForUpdate("Other VPs", '<img src="assets/media/othervp.png">', "other", players, addEldiv);
+	}
+	
+	// Helper function to create additional VP divs
+	function createAddDivForUpdate(title, picture, idPrefix, players, addEldiv) {
+		var el_VPWrapper = document.createElement("div");
+		el_VPWrapper.style = "display: inline-block; vertical-align: top;"
+
+		var el_VPPicture = document.createElement("div");
+		el_VPPicture.title = title;
+		el_VPPicture.className = "addScore";
+		el_VPPicture.innerHTML = picture;
+		el_VPWrapper.appendChild(el_VPPicture);
+
+		var el_TokensWrapper = document.createElement("div");
+		el_TokensWrapper.className = "objTokensWrapper"
+
+		for (var i = 0; i < players.length; i++) { // Iterate players
+			switch (idPrefix) {
+				case "imperial": var vpHtml = players[i].vp_imperial; break;
+				case "secrets": var vpHtml = players[i].vp_secrets; break;
+				case "riders": var vpHtml = players[i].vp_riders; break;
+				case "other": var vpHtml = players[i].vp_other; break;
+			}
+
+			var el_TokensAndPoints = document.createElement("div");
+
+			var el_ScoreToken = document.createElement("div");
+			el_ScoreToken.className = 'objTokens scored';
+			el_ScoreToken.style = 'float: left;';
+			el_ScoreToken.title = decodeURIComponent(players[i].player);
+			el_ScoreToken.id = idPrefix + "_" + i;
+			el_ScoreToken.innerHTML = getFactionIcon(players[i].faction);
+			el_ScoreToken.onclick = function(event) {
+				if (superuser) {
+					var playerID = this.id.substring(this.id.length - 1, this.id.length);
+					var category = this.id.substring(0, this.id.length - 2);
+					vpPressed = { "player": playerID, "category": category };
+					document.getElementById('changeVPWrapper').style.visibility = 'visible';
+					noBubbling(event);
+				} else {
+					notSuperuser();
+				}
+			}
+			el_TokensAndPoints.appendChild(el_ScoreToken);
+
+			var el_Score = document.createElement("div");
+			el_Score.className = 'objTokensScore';
+			el_Score.innerHTML = vpHtml;
+			el_TokensAndPoints.appendChild(el_Score);
+			el_TokensWrapper.appendChild(el_TokensAndPoints);
+		}
+		el_VPWrapper.appendChild(el_TokensWrapper);
+		addEldiv.appendChild(el_VPWrapper);
 	}
 
 	function bigletterHide() {
@@ -881,25 +2214,94 @@
 		event.stopPropagation();
 	}
 
-	function objectiveCategory(event, category) {
+	// Function to generate dynamic objective menu tabs
+	function generateObjectiveMenuTabs() {
+		var tabsContainer = document.getElementById('objectiveMenuTabs');
+		if (!tabsContainer) return;
+		
+		tabsContainer.innerHTML = '';
+		
+		// Create tabs for each stage type
+		var stageTypes = [
+			{ key: 'stage1', label: 'Stage 1' },
+			{ key: 'stage2', label: 'Stage 2' },
+			{ key: 'secret', label: 'Secret' }
+		];
+		
+		stageTypes.forEach(function(stageType) {
+			var tab = document.createElement('div');
+			tab.className = 'objectiveMenuTab';
+			tab.textContent = stageType.label;
+			tab.onclick = function(event) {
+				objectiveCategory(event, stageType.key);
+			};
+			tabsContainer.appendChild(tab);
+		});
+	}
+	
+	// Function to get objectives by category and stage
+	function getObjectivesByCategoryAndStage(categoryKey, stageKey) {
+		var objectives = [];
+		
+		// Filter objectives based on category and stage
+		allObjectives.forEach(function(objective) {
+			if (objective.category === categoryKey && objective.stage === stageKey) {
+				objectives.push(objective);
+			}
+		});
+		
+		return objectives;
+	}
+	
+	function objectiveCategory(event, stageType) {
 		$('#objectiveList').html("");
-		switch (category) {
-			case ("stage1"): var objArray = stageOneObjectives; break;
-			case ("stage2"): var objArray = stageTwoObjectives; break;
-			case ("secret"): var objArray = secretObjectives; break;
+		
+		var objArray = [];
+		
+		// Get objectives for the specified stage type from all categories
+		if (stageType === 'stage1') {
+			objArray = stageOneObjectives;
+		} else if (stageType === 'stage2') {
+			objArray = stageTwoObjectives;
+		} else if (stageType === 'secret') {
+			objArray = secretObjectives;
 		}
-		for (var i = 0; i < objArray.length; i++) {
-			var objId = objArray[i].id;
-			var el_ListItem = document.createElement("div");
+		
+		// Group objectives by category
+		var objectivesByCategory = {};
+		objArray.forEach(function(objective) {
+			if (!objectivesByCategory[objective.category]) {
+				objectivesByCategory[objective.category] = [];
+			}
+			objectivesByCategory[objective.category].push(objective);
+		});
+		
+		// Create category sections
+		for (var categoryKey in objectivesByCategory) {
+			var categoryObjectives = objectivesByCategory[categoryKey];
+			
+			// Create category header
+			var categoryHeader = document.createElement('div');
+			categoryHeader.className = 'objectiveCategoryHeader';
+			categoryHeader.textContent = categoryObjectives[0].categoryName || categoryKey;
+			document.getElementById('objectiveList').appendChild(categoryHeader);
+			
+			// Create objectives for this category
+			categoryObjectives.forEach(function(objective) {
+				var el_ListItem = document.createElement("div");
 				el_ListItem.className = "objectiveListItem";
-				el_ListItem.innerHTML = objArray[i].name;
-				el_ListItem.id = objArray[i].id;
+				el_ListItem.innerHTML = objective.name;
+				el_ListItem.id = objective.id;
 				el_ListItem.onclick = function() {
-					var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
-					window.location = serverUrl + urlVars;
-				}
-			document.getElementById('objectiveList').appendChild(el_ListItem);
+					// Direct Socket.IO emission instead of page redirect
+					var cardData = [cardPressed, this.id, "normal", deviceId]; // Include device ID
+					console.log('📡 CLIENT: Emitting card selection:', cardData);
+					socket.emit('update', cardData);
+				};
+				document.getElementById('objectiveList').appendChild(el_ListItem);
+			});
 		}
+		
 		event.stopPropagation();
 	}
 
@@ -912,6 +2314,8 @@
 		document.getElementById('editScoreWrapper').style.visibility = 'hidden';
 		document.getElementById('addCardWrapper').style.visibility = 'hidden';
 		document.getElementById('newGameWrapper').style.visibility = 'hidden';
+		var factionPicker = document.getElementById('factionPickerWrapper');
+		if (factionPicker) factionPicker.style.visibility = 'hidden';
 		document.getElementById('warnTop').style.visibility = 'hidden';
 		document.getElementById('warnBottom').style.visibility = 'hidden';
 		document.getElementById('warnLeft').style.visibility = 'hidden';
@@ -936,11 +2340,19 @@
 	}
 	
 	function getCardInfo(id) {
+		console.log('🔍 CLIENT: getCardInfo called with id:', id);
+		console.log('🔍 CLIENT: allObjectives length:', allObjectives.length);
+		var theObj = null;
 		for (var allCardIndex = 0; allCardIndex < allObjectives.length; allCardIndex++) {
-			if (cardPressed == allObjectives[allCardIndex].id) {
-				var theObj = allObjectives[allCardIndex];
+			if (id == allObjectives[allCardIndex].id) {
+				theObj = allObjectives[allCardIndex];
+				console.log('✅ CLIENT: Found card info:', theObj);
 				break;
 			}
+		}
+		if (!theObj) {
+			console.error('❌ CLIENT: Card info not found for id:', id);
+			console.log('🔍 CLIENT: Available card IDs:', allObjectives.map(obj => obj.id));
 		}
 		return theObj;
 	}
@@ -958,13 +2370,22 @@
 				var cardPhase = cardItem.phase;
 				var phaseColor = "";
 				if (cardPhase == "Action Phase") phaseColor = "red";
-				var html = 	'<div class="blPlayers">' + blTokensHtml + '</div>'+
+				
+				// Check if this is a community card and add icon if needed
+				var cardIcon = "";
+				if (cardItem.category && cardItem.category !== 'base') {
+					cardIcon = getCardIcon(cardItem.category, 'small');
+				}
+				
+				var html = 	'<div class="bigletter-content">' +
+							'<div class="blPlayers">' + blTokensHtml + '</div>'+
 							'<div class="blTitle">' + cardItem.name + '</div>'+
 							'<div class="blText">' + cardItem.text + '</div>'+
 							'<div class="blPhaseAndPoints">'+
 								'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(0, cardPhase.indexOf(" ")) + '</div>'+
 								'<div class="blPoint">' + cardItem.points + '</div>'+
 								'<div class="blPhase ' + phaseColor + '">' + cardPhase.substring(cardPhase.indexOf(" ") + 1, cardPhase.length) + '</div>'+
+							'</div>' + cardIcon +
 							'</div>';
 				$('#bigletter').html(html);
 				document.getElementById('bigletter').style.visibility = 'visible';
@@ -975,7 +2396,6 @@
 	}
 
 	function chooseCard(event, style) {
-
 		document.getElementById('objectiveStyleWrapper').style.visibility = 'hidden';
 		
 		if (style == "random") {
@@ -994,15 +2414,17 @@
 				var objArray = stageTwoObjectives;
 			}
 
-			var randomCard = Math.floor((Math.random() * (objArray.length - 1)) + 1);
+			var randomCard = Math.floor(Math.random() * objArray.length);
 			while (illegalObjectives.includes(objArray[randomCard].id)) {
-				randomCard = Math.floor((Math.random() * objArray.length - 1) + 1);
+				randomCard = Math.floor(Math.random() * objArray.length);
 			}
 
-			var mode = "new";
-			if (clickMode != null) mode = "change";
-			var urlVars = "?request=card&card=" + cardPressed + "&id=" + objArray[randomCard].id + "&mode=" + mode;
-				window.location = serverUrl + urlVars;
+					var mode = "new";
+		if (clickMode != null) mode = "change";
+		// Direct Socket.IO emission for random card assignment
+		var cardData = [cardPressed, objArray[randomCard].id, mode];
+		console.log('📡 CLIENT: Emitting random card assignment:', cardData);
+		socket.emit('update', cardData);
 
 		} else {
 			$('#objectiveList').html("");
@@ -1016,12 +2438,14 @@
 				var el_ListItem = document.createElement("div");
 					el_ListItem.className = "objectiveListItem";
 					el_ListItem.innerHTML = objArray[j].name;
-					el_ListItem.id = objArray[j].id;
-					el_ListItem.onclick = function() {
-						var urlVars = "?request=card&card=" + cardPressed + "&id=" + this.id;
-						window.location = serverUrl + urlVars;
-					}
-				document.getElementById('objectiveList').appendChild(el_ListItem);
+									el_ListItem.id = objArray[j].id;
+				el_ListItem.onclick = function() {
+					// Direct Socket.IO emission instead of page redirect
+					var cardData = [cardPressed, this.id, "normal"];
+					console.log('📡 CLIENT: Emitting card selection (community):', cardData);
+					socket.emit('update', cardData);
+				}
+			document.getElementById('objectiveList').appendChild(el_ListItem);
 			}
 			document.getElementById('objectiveMenuWrapper').style.visibility = 'visible';
 			document.getElementById('objectiveMenu').style.visibility = 'visible';
@@ -1042,51 +2466,413 @@
 	}
 
 	function addCard(event, stage) {
-		var urlVars = "?request=addCard&stage=" + stage;
-		window.location = serverUrl + urlVars;
+		// Direct Socket.IO emission for adding cards
+		console.log('📡 CLIENT: Emitting add card for stage:', stage);
+		socket.emit('addCard', stage);
+		closeMenu(); // Close the menu after action
 	}
 
+	// Function to validate new game data before starting
+	function validateNewGameData(players) {
+		console.log('🔍 CLIENT: Validating new game data...');
+		
+		// Filter out completely empty players (no name and no faction)
+		var playersWithData = players.filter(function(player) {
+			return (player.name && player.name.trim() !== '') || (player.faction && player.faction.trim() !== '');
+		});
+		
+		// Check if there are any players with data
+		if (playersWithData.length === 0) {
+			alert('Please add at least one player to start a game.');
+			return false;
+		}
+		
+		// Check that all players with data have complete information
+		var missingData = [];
+		for (var i = 0; i < players.length; i++) {
+			var player = players[i];
+			// Only check players that have at least some data
+			if ((player.name && player.name.trim() !== '') || (player.faction && player.faction.trim() !== '')) {
+				if (!player.name || player.name.trim() === '') {
+					missingData.push('Player ' + (i + 1) + ' is missing a name');
+				}
+				if (!player.faction || player.faction.trim() === '') {
+					missingData.push('Player ' + (i + 1) + ' (' + (player.name || 'Unnamed') + ') has not chosen a faction');
+				}
+			}
+		}
+		
+		if (missingData.length > 0) {
+			alert('Please complete the following:\n\n' + missingData.join('\n'));
+			return false;
+		}
+		
+		// Check for duplicate colors
+		var colorCounts = {};
+		var duplicateColors = [];
+		
+		for (var i = 0; i < players.length; i++) {
+			var player = players[i];
+			// Only check players that have complete data
+			if (player.name && player.name.trim() !== '' && player.faction && player.faction.trim() !== '') {
+				var color = player.color || 'red';
+				if (!colorCounts[color]) {
+					colorCounts[color] = [];
+				}
+				colorCounts[color].push(player.name);
+			}
+		}
+		
+		// Find colors with multiple players
+		for (var color in colorCounts) {
+			if (colorCounts[color].length > 1) {
+				duplicateColors.push({
+					color: color,
+					players: colorCounts[color]
+				});
+			}
+		}
+		
+		// If there are duplicate colors, ask for confirmation
+		if (duplicateColors.length > 0) {
+			var message = 'The following players have chosen the same color:\n\n';
+			duplicateColors.forEach(function(duplicate) {
+				message += duplicate.color.charAt(0).toUpperCase() + duplicate.color.slice(1) + ' color:\n';
+				duplicate.players.forEach(function(playerName) {
+					message += '  • ' + playerName + '\n';
+				});
+				message += '\n';
+			});
+			message += 'Are you sure you want to continue with players having the same color?';
+			
+			if (!confirm(message)) {
+				return false;
+			}
+		}
+		
+		console.log('✅ CLIENT: New game validation passed');
+		return true;
+	}
+
+	function submitNewGame(event) {
+		event.preventDefault(); // Prevent default form submission
+		
+		console.log('🎮 CLIENT: Collecting new game data...');
+		
+		// Get form data
+		var form = document.getElementById('newGameForm');
+		var formData = new FormData(form);
+		
+		// Extract flipped objectives setting
+		var flippedObjectives = formData.get('flippedobjectives') || '3';
+		
+		// Extract starting cards setting
+		var startingCards = formData.get('startingcards') || '5';
+		
+		// Extract dynamic objective category settings
+		var objectiveCategories = {};
+		var checkboxes = document.querySelectorAll('#objectiveCategoryCheckboxes input[type="checkbox"]');
+		checkboxes.forEach(function(checkbox) {
+			var categoryKey = checkbox.name.replace('cards', '');
+			var hiddenInput = document.querySelector('input[name="' + categoryKey + 'cards_hidden"]');
+			var isEnabled = hiddenInput ? hiddenInput.value === 'true' : checkbox.checked;
+			objectiveCategories[categoryKey] = isEnabled;
+		});
+		
+		console.log('🔍 CLIENT: Objective categories:', objectiveCategories);
+		
+		// Extract players data from dynamic list
+		var players = [];
+		var rows = document.querySelectorAll('#playersDynamic .player-row');
+		rows.forEach(function(row) {
+			var nameInput = row.querySelector('input[name$="[name]"]');
+			var factionInput = row.querySelector('input[name$="[faction]"]');
+			var colorSelect = row.querySelector('select[name$="[color]"]');
+			var playerName = nameInput ? nameInput.value.trim() : '';
+			var playerFaction = factionInput ? factionInput.value.trim() : '';
+			var playerColor = colorSelect ? colorSelect.value : 'red';
+			
+			// Add all players to the array for validation (even if incomplete)
+			players.push({ 
+				name: playerName, 
+				faction: playerFaction, 
+				color: playerColor 
+			});
+		});
+		
+		// Validate the game data before proceeding
+		if (!validateNewGameData(players)) {
+			console.log('❌ CLIENT: New game validation failed');
+			return false;
+		}
+		
+		// Filter out players without complete data after validation passes
+		var validPlayers = players.filter(function(player) {
+			return player.name && player.name.trim() !== '' && player.faction && player.faction.trim() !== '';
+		});
+		
+		// Prepare data for server (matching expected format)
+		var newGameData = [startingCards, validPlayers, objectiveCategories, flippedObjectives];
+		
+		console.log('🎮 CLIENT: Starting new game with data:', newGameData);
+		console.log('📊 CLIENT: Settings - Cards:', startingCards, 'Categories:', objectiveCategories, 'Players:', validPlayers.length);
+		
+		// Emit new game data via Socket.IO
+		socket.emit('newgame', newGameData);
+		
+		// Close the new game menu
+		closeMenu();
+		
+		return false; // Prevent form submission
+	}
+
+	// Dynamic players UI
+	var selectedFactionTargetInput = null;
+	var factionsData = {};
+
+	function nameToSlug(name) {
+		if (!name) return 'empty';
+		
+		// Convert faction name to slug format
+		// Keep all letters and digits, remove special characters (except spaces), make lowercase, replace spaces with nothing
+		var cleaned = name.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+		var slug = cleaned.replace(/\s+/g, '').toLowerCase();
+		return slug;
+	}
+
+	function ensureAddButtonVisibility() {
+		var addBtn = document.getElementById('addPlayerButton');
+		var count = document.querySelectorAll('#playersDynamic .player-row').length;
+		if (addBtn) addBtn.style.display = (count >= 8) ? 'none' : '';
+	}
+
+	function addPlayerRow() {
+		var container = document.getElementById('playersDynamic');
+		var index = document.querySelectorAll('#playersDynamic .player-row').length;
+		if (index >= 8) return;
+		var row = document.createElement('div');
+		row.className = 'player-row';
+		row.innerHTML =
+			'<input type="text" name="players[' + index + '][name]" placeholder="Player name"> ' +
+			'<input type="hidden" name="players[' + index + '][faction]" value="">' +
+			'<button type="button" class="pick-faction" onclick="openFactionPicker(this)">Faction</button> ' +
+			'<select name="players[' + index + '][color]">' +
+				'<option value="black">Black</option>' +
+				'<option value="blue">Blue</option>' +
+				'<option value="green">Green</option>' +
+				'<option value="purple">Purple</option>' +
+				'<option value="red">Red</option>' +
+				'<option value="yellow">Yellow</option>' +
+				'<option value="orange">Orange</option>' +
+				'<option value="pink">Pink</option>' +
+			'</select> ' +
+			'<button type="button" onclick="removePlayerRow(this)">✕</button>';
+		container.appendChild(row);
+		ensureAddButtonVisibility();
+	}
+
+	function removePlayerRow(btn) {
+		var row = btn.closest('.player-row');
+		if (!row) return;
+		row.remove();
+		ensureAddButtonVisibility();
+	}
+
+	function openFactionPicker(triggerBtn) {
+		var row = triggerBtn.closest('.player-row');
+		if (!row) return;
+		selectedFactionTargetInput = row.querySelector('input[name$="[faction]"]');
+		buildFactionTabsAndList();
+		document.getElementById('factionPickerWrapper').style.visibility = 'visible';
+	}
+
+	function closeFactionPicker(event) {
+		if (event) event.stopPropagation();
+		document.getElementById('factionPickerWrapper').style.visibility = 'hidden';
+	}
+
+	function loadFactionsIfNeeded(callback) {
+		// Check if factions are already loaded
+		var hasFactions = false;
+		for (var key in factionsData) {
+			if (factionsData[key] && factionsData[key].factions && factionsData[key].factions.length > 0) {
+				hasFactions = true;
+				break;
+			}
+		}
+		
+		if (hasFactions) {
+			callback && callback();
+			return;
+		}
+		
+		var jsonBuster = "?v=" + Date.now();
+		$.getJSON("database.json" + jsonBuster, function(db) {
+			// Clear existing factions data
+			factionsData = {};
+			
+			// Find factions category
+			for (var i = 0; i < db.length; i++) {
+				if (db[i].category === 'factions') {
+					// Iterate through all faction categories dynamically
+					for (var categoryKey in db[i]) {
+						if (categoryKey === 'category') continue; // Skip the category field
+						
+						if (db[i][categoryKey] && typeof db[i][categoryKey] === 'object') {
+							// New structure with name and factions fields
+							if (db[i][categoryKey].factions && Array.isArray(db[i][categoryKey].factions)) {
+								factionsData[categoryKey] = {
+									name: db[i][categoryKey].name || categoryKey,
+									factions: db[i][categoryKey].factions
+								};
+							}
+						} else if (db[i][categoryKey] && Array.isArray(db[i][categoryKey])) {
+							// Legacy structure - just an array of factions
+							factionsData[categoryKey] = {
+								name: categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1),
+								factions: db[i][categoryKey]
+							};
+						}
+					}
+					break;
+				}
+			}
+			callback && callback();
+		});
+	}
+
+	function buildFactionTabsAndList() {
+		loadFactionsIfNeeded(function() {
+			var tabBar = document.getElementById('factionTabBar');
+			var list = document.getElementById('factionList');
+			if (!tabBar || !list) return;
+			
+			tabBar.innerHTML = '';
+			list.innerHTML = '';
+			
+			// Generate tabs dynamically for all faction categories
+			var categoryKeys = Object.keys(factionsData);
+			if (categoryKeys.length === 0) {
+				var empty = document.createElement('div');
+				empty.className = 'text-ccc';
+				empty.textContent = 'No factions available';
+				list.appendChild(empty);
+				return;
+			}
+			
+			categoryKeys.forEach(function(categoryKey, idx) {
+				var el = document.createElement('button');
+				el.textContent = factionsData[categoryKey].name; // Use the name field
+				el.onclick = function() { renderFactionList(categoryKey); };
+				tabBar.appendChild(el);
+				if (idx === 0) { /* default */ renderFactionList(categoryKey); }
+			});
+		});
+	}
+
+	function renderFactionList(key) {
+		var list = document.getElementById('factionList');
+		if (!list) return;
+		list.innerHTML = '';
+		var categoryData = factionsData[key];
+		if (!categoryData || !categoryData.factions || categoryData.factions.length === 0) {
+			var empty = document.createElement('div');
+			empty.className = 'text-ccc';
+			empty.textContent = 'No factions available';
+			list.appendChild(empty);
+			return;
+		}
+		categoryData.factions.forEach(function(name) {
+			var item = document.createElement('div');
+			item.className = 'objectiveListItem';
+			item.textContent = name;
+			item.onclick = function() {
+				if (selectedFactionTargetInput) {
+					selectedFactionTargetInput.value = nameToSlug(name);
+					var btn = selectedFactionTargetInput.parentElement.querySelector('.pick-faction');
+					if (btn) btn.textContent = name;
+				}
+				closeFactionPicker();
+			};
+			list.appendChild(item);
+		});
+	}
+
+	// Initialize with one row by default
+	document.addEventListener('DOMContentLoaded', function() {
+		if (document.getElementById('playersDynamic')) {
+			addPlayerRow();
+		}
+		ensureAddButtonVisibility();
+	});
+
 	function changeVP(event, adjustment) {
+		// Check if game is paused
+		if (isPaused) {
+			console.log('❌ CLIENT: Cannot change VP - game is paused');
+			// Show a message to the user that the game is paused
+			alert('Game Paused\nCannot change scores while the game is paused');
+			return;
+		}
+		
 		if (adjustment == "+") {
 			adjustment = "up";
 		} else {
 			adjustment = "down";
 		}
-		var urlVars = "?request=changeVP&player=" + vpPressed.player + "&category=" + vpPressed.category + "&adjust=" + adjustment;
-		window.location = serverUrl + urlVars;
+		// Direct Socket.IO emission for VP adjustment
+		var vpData = [vpPressed.player, vpPressed.category, adjustment];
+		console.log('📡 CLIENT: Emitting VP adjustment:', vpData);
+		socket.emit('changeVP', vpData);
 	}
 
 	function buttonClick(event, id) {
 		if (id == "btnReset" && superuser) {
 			closeMenu();
 			if (confirm("Are you sure you want to reset?\nThis will hide all cards, zero all points and remove all players.")) {
-				var urlVars = "?request=reset";
-				window.location = serverUrl + urlVars;
+				// Direct Socket.IO emission for game reset
+				console.log('📡 CLIENT: Emitting game reset');
+				socket.emit('reset', {});
 			}
-		} else if (id == "btnEdit" && superuser) {
-			closeMenu();
-			document.getElementById('editScoreWrapper').innerHTML = "";
-			var playersHtml = "";
-			
-			for (var i = 0; i < allPlayers.length; i++) {
-				playersHtml = playersHtml + decodeURIComponent(allPlayers[i].player) + ': <input type="text" name="player' + (i + 1) + '_score" value="' + allScores[i] + '" size="6"><br>'
-			}
-			var fullHtml = '<form action="' + serverUrl + '"><input type="hidden" name="request" value="editscore">' + playersHtml + '<input type="submit" value="Set scores"></form>';
 
-			var el_FormScore = document.createElement("div");
-				el_FormScore.className = "newGameForm right";
-				el_FormScore.innerHTML = fullHtml;
-				el_FormScore.onclick = function(event) { noBubbling(event); }
-			document.getElementById('editScoreWrapper').appendChild(el_FormScore);
-
-			document.getElementById('editScoreWrapper').style.visibility = 'visible';
 		} else if (id == "btnNew" && superuser) {
 			closeMenu();
-			document.getElementById('newGameWrapper').style.visibility = 'visible';
+			
+			// Check if there's already a game in progress
+			var hasActiveGame = false;
+			if (allPlayers && allPlayers.length > 0) {
+				hasActiveGame = true;
+			}
+			
+			if (hasActiveGame) {
+				if (confirm("A game is already in progress. Starting a new game will clear the current game and all progress. Are you sure you want to continue?")) {
+					document.getElementById('newGameWrapper').style.visibility = 'visible';
+				}
+			} else {
+				document.getElementById('newGameWrapper').style.visibility = 'visible';
+			}
+		} else if (id == "btnLoadGame" && superuser) {
+			closeMenu();
+			showLoadGameForm();
+		} else if (id == "btnEndGame" && superuser) {
+			closeMenu();
+			showEndGamePrompt();
 		} else if (id == "btnAddcard" && superuser) {
+			// Check if game is ended
+			var gameData = window.currentGameData || null;
+			if (gameData && gameData[3] && gameData[3].gameEnded) {
+				console.log('🎮 CLIENT: Cannot add card - game is ended');
+				return;
+			}
 			closeMenu();
 			document.getElementById('addCardWrapper').style.visibility = 'visible';
 		} else if (id == "btnAdjustcard" && superuser) {
+			// Check if game is ended
+			var gameData = window.currentGameData || null;
+			if (gameData && gameData[3] && gameData[3].gameEnded) {
+				console.log('🎮 CLIENT: Cannot adjust card - game is ended');
+				return;
+			}
 			closeMenu();
 			document.getElementById('adjustCardWrapper').style.visibility = 'visible';
 		} else if (id == "sideMenuTime" && superuser) {
@@ -1097,7 +2883,10 @@
 				localStorage.setItem('autorefresh', "false");
 			} else {
 				localStorage.setItem('autorefresh', "true");
-				document.getElementById("sideMenuRefresh").innerHTML = refreshCounter;
+				var refreshElement = document.getElementById("sideMenuRefresh");
+				if (refreshElement) {
+					refreshElement.innerHTML = refreshCounter;
+				}
 				autorefreshInterval = setInterval(refreshPage, 1000);
 				// window.location.reload()
 			}
@@ -1113,12 +2902,552 @@
 	}
 
 	function notSuperuser() {
-		var html = '<div class="blTitle"><img style="max-width:20vw" src="assets/media/buttons/superuser_n.png"></div><div class="blText">Not allowed as non-superuser</div>';
+		var html = '<div class="blTitle"><img class="max-width-20vw" src="assets/media/buttons/superuser_n.png"></div><div class="blText">Not allowed as non-superuser</div>';
 		$('#bigletter').html(html);
 		document.getElementById('bigletter').style.visibility = 'visible';
 		event.stopPropagation();
 	}
 	
+	// Function to check if a game is in progress
+	function isGameInProgress(data) {
+		// Check if there are any players with factions
+		if (data[2] && data[2].players) {
+			for (var i = 0; i < data[2].players.length; i++) {
+				if (data[2].players[i].faction != null) {
+					return true;
+				}
+			}
+		}
+		
+		// Check if there are any cards with actual IDs (not null)
+		if (data[0] && data[0].cards) {
+			for (var i = 0; i < data[0].cards.length; i++) {
+				if (data[0].cards[i].id != null) {
+					return true;
+				}
+			}
+		}
+		
+		if (data[1] && data[1].cards) {
+			for (var i = 0; i < data[1].cards.length; i++) {
+				if (data[1].cards[i].id != null) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	// Function to show the start new game button
+	function showStartNewGameButton() {
+		console.log('🎮 CLIENT: showStartNewGameButton() called');
+		
+		// Clear existing objectives
+		var objectives1 = document.getElementById("objectives1");
+		var objectives2 = document.getElementById("objectives2");
+		
+		if (objectives1) {
+			objectives1.innerHTML = '';
+			// Override the float styling for the button container
+			objectives1.style.float = 'none';
+			objectives1.style.textAlign = 'center';
+			objectives1.style.display = 'flex';
+			objectives1.style.justifyContent = 'center';
+			objectives1.style.alignItems = 'center';
+			objectives1.style.minHeight = '50vh';
+		}
+		if (objectives2) objectives2.innerHTML = '';
+		
+		// Check if there are saved games
+		$.getJSON('/games', function(games) {
+			console.log('📁 CLIENT: Found', games.length, 'saved games');
+			
+			var buttonHTML = '';
+			
+			if (games.length === 0) {
+				// No saved games, show only "Start New Game" button
+				buttonHTML = '<div id="startNewGameButton" class="bigButton" onclick="console.log(\'🎮 CLIENT: Start New Game button clicked\'); showNewGameForm();">' +
+					'<h1>Start New Game</h1>' +
+				'</div>';
+			} else {
+				// Has saved games, show both buttons
+				buttonHTML = '<div class="flex-column-center">' +
+					'<div id="startNewGameButton" class="bigButton" onclick="console.log(\'🎮 CLIENT: Start New Game button clicked\'); showNewGameForm();">' +
+						'<h1>Start New Game</h1>' +
+					'</div>' +
+					'<div id="loadGameButton" class="bigButton" onclick="console.log(\'🎮 CLIENT: Load Game button clicked\'); showLoadGameForm();">' +
+						'<h1>Load Game</h1>' +
+					'</div>' +
+				'</div>';
+			}
+			
+			console.log('🎮 CLIENT: Setting objectives1.innerHTML to:', buttonHTML);
+			objectives1.innerHTML = buttonHTML;
+			
+			// Verify the buttons were created
+			var newGameButton = document.getElementById("startNewGameButton");
+			var loadGameButton = document.getElementById("loadGameButton");
+			console.log('🎮 CLIENT: Created new game button:', newGameButton);
+			console.log('🎮 CLIENT: Created load game button:', loadGameButton);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to check for saved games:', errorThrown);
+			// Fallback to just showing the new game button
+			var startButtonHTML = '<div id="startNewGameButton" onclick="console.log(\'🎮 CLIENT: Start New Game button clicked\'); showNewGameForm();">' +
+				'<div class="font-size-2-5vw font-bold text-white margin-bottom-20px">Start New Game</div>' +
+			'</div>';
+			objectives1.innerHTML = startButtonHTML;
+		});
+	}
+
+	// Function to show the new game form (same as btnNew click)
+	function showNewGameForm() {
+		var newGameWrapper = document.getElementById('newGameWrapper');
+		if (newGameWrapper) {
+			buttonClick(event, 'btnNew');
+		} else {
+			console.error('❌ CLIENT: newGameWrapper element not found!');
+		}
+	}
+	
+	// Function to show the load game form
+	function showLoadGameForm() {
+		console.log('🎮 CLIENT: showLoadGameForm() called');
+		var loadGameWrapper = document.getElementById('loadGameWrapper');
+		if (loadGameWrapper) {
+			loadGameWrapper.style.visibility = 'visible';
+			loadSavedGames();
+		} else {
+			console.error('❌ CLIENT: loadGameWrapper element not found!');
+		}
+	}
+	
+	// Function to close the load game form
+	function closeLoadGameForm(event) {
+		if (event) {
+			event.stopPropagation();
+		}
+		var loadGameWrapper = document.getElementById('loadGameWrapper');
+		if (loadGameWrapper) {
+			loadGameWrapper.style.visibility = 'hidden';
+		}
+	}
+	
+	// Function to load and display saved games
+	function loadSavedGames() {
+		console.log('📁 CLIENT: Loading saved games...');
+		$.getJSON('/games', function(games) {
+			console.log('📁 CLIENT: Received', games.length, 'saved games');
+			
+			var loadGameList = document.getElementById('loadGameList');
+			if (!loadGameList) {
+				console.error('❌ CLIENT: loadGameList element not found!');
+				return;
+			}
+			
+			if (games.length === 0) {
+				loadGameList.innerHTML = '<div class="text-center text-white font-size-1-5vw padding-20px">No saved games found</div>';
+				return;
+			}
+			
+			var gamesHTML = '';
+			games.forEach(function(game) {
+				var playerList = game.players.length > 0 ? game.players.join(', ') : 'No players';
+				gamesHTML += '<div class="loadGameItem">' +
+					'<div class="loadGameItemContent" onclick="loadGame(\'' + game.filename + '\')">' +
+						'<div class="font-size-1-8vw font-bold text-white margin-bottom-10px">' + game.date + '</div>' +
+						'<div class="font-size-1-2vw text-ccc">' + playerList + '</div>' +
+					'</div>' +
+					'<div class="loadGameItemDelete" onclick="deleteGame(\'' + game.filename + '\', \'' + game.date + '\')">' +
+						'<img src="assets/media/delete.png" alt="Delete" class="width-20px height-20px">' +
+					'</div>' +
+				'</div>';
+			});
+			
+			loadGameList.innerHTML = gamesHTML;
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error('❌ CLIENT: Failed to load saved games:', errorThrown);
+			var loadGameList = document.getElementById('loadGameList');
+			if (loadGameList) {
+				loadGameList.innerHTML = '<div class="text-center text-white font-size-1-5vw padding-20px">Error loading saved games</div>';
+			}
+		});
+	}
+	
+	// Function to load a specific game
+	function loadGame(filename) {
+		console.log('🎮 CLIENT: Loading game:', filename);
+		
+		// Emit load game event via Socket.IO
+		socket.emit('loadgame', filename);
+		
+		// Close the load game menu
+		closeMenu();
+	}
+	
+	// Function to delete a specific game
+	function deleteGame(filename, gameDate) {
+		console.log('🗑️ CLIENT: Attempting to delete game:', filename);
+		
+		// Show confirmation prompt
+		if (confirm('Are you sure you want to delete the savegame from ' + gameDate + '?\n\nThis action is irreversible and will permanently remove this saved game.\n\nDo you want to continue?')) {
+			console.log('🗑️ CLIENT: User confirmed delete game');
+			
+			// Emit delete game event via Socket.IO
+			socket.emit('deletegame', filename);
+		} else {
+			console.log('🗑️ CLIENT: User cancelled delete game');
+		}
+	}
+	
+	// Function to show end game confirmation prompt
+	function showEndGamePrompt() {
+		if (confirm("Are you sure you want to end the game?\n\nThis action is irreversible and will end the game at the current scores. The timer will stop and no new points can be assigned.\n\nDo you want to continue?")) {
+			console.log('🏁 CLIENT: User confirmed end game');
+			socket.emit('endgame', { superuser: superuser });
+		} else {
+			console.log('🏁 CLIENT: User cancelled end game');
+		}
+	}
+	
+	// Function to display winners
+	function showWinners(winners, finalTime) {
+		console.log('🏁 CLIENT: showWinners called with:', winners, finalTime);
+		var html = '<div class="blTitle">Winner!</div>';
+		
+		if (winners.length === 1) {
+			html += '<div class="blText">' + escapeHtml(winners[0].name) + '</div>';
+			html += '<div class="blScore">' + winners[0].score + '</div>';
+		} else if (winners.length > 1) {
+			html += '<div class="blText">Tie between:</div>';
+			winners.forEach(function(winner) {
+				html += '<div class="blText">' + escapeHtml(winner.name) + ' - ' + winner.score + '</div>';
+			});
+		} else {
+			html += '<div class="blText">No winners found</div>';
+		}
+		
+		// Add game time
+		if (finalTime !== undefined) {
+			var hours = Math.floor(finalTime / 3600);
+			var minutes = Math.floor((finalTime % 3600) / 60);
+			var seconds = finalTime % 60;
+			var timeString = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+			html += '<div class="blGameTime">Game Time: ' + timeString + '</div>';
+		}
+		
+		// Add all players and their scores (sorted by score, highest first)
+		var gameData = window.currentGameData || null;
+		if (gameData && gameData[2] && gameData[2].players) {
+			html += '<div class="blAllPlayers">';
+			
+			// Create array of player-score pairs for sorting
+			var playerScorePairs = [];
+			gameData[2].players.forEach(function(player, index) {
+				if (player.faction && player.player) {
+					var playerScore = calculatePlayerScore(player, index);
+					playerScorePairs.push({
+						player: player,
+						score: playerScore,
+						index: index
+					});
+				}
+			});
+			
+			// Sort players by score (highest first)
+			playerScorePairs.sort(function(a, b) {
+				return b.score - a.score; // Sort in descending order (highest first)
+			});
+			
+			// Build HTML for sorted players
+			for (var i = 0; i < playerScorePairs.length; i++) {
+				var player = playerScorePairs[i].player;
+				var score = playerScorePairs[i].score;
+				html += '<div class="blPlayerScore">';
+				html += getFactionIcon(player.faction).replace('<img', '<img class="blPlayerIcon"');
+				html += ' ' + escapeHtml(player.player) + ': ' + score;
+				html += '</div>';
+			}
+			html += '</div>';
+		}
+		
+		console.log('🏁 CLIENT: Setting bigletter HTML:', html);
+		$('#bigletter').html(html);
+		document.getElementById('bigletter').style.visibility = 'visible';
+		console.log('🏁 CLIENT: Bigletter should now be visible');
+		
+		// Automatically open the Additional Scores tab
+		setTimeout(function() {
+			var additionalWrapper = document.getElementById('additionalElementsWrapper');
+			if (additionalWrapper) {
+				// Open the Additional Scores tab
+				$("#additionalElementsWrapper").addClass("open");
+				$("#additionalElementsArrowLeft").addClass("open");
+				$("#additionalElementsArrowRight").addClass("open");
+				
+				// Track menu state
+				additionalScoresMenuOpen = true;
+				console.log('📊 CLIENT: Additional Scores menu automatically opened after game end');
+			} else {
+				console.log('⚠️ CLIENT: Additional Elements wrapper not found, cannot open tab');
+			}
+		}, 1000); // Wait 1 second after showing winner window
+	}
+	
+	// Function to get card points from loaded database
+	function getCardPointsClient(cardId) {
+		// Search in allObjectives array (which contains both main and community cards)
+		for (var i = 0; i < allObjectives.length; i++) {
+			if (allObjectives[i].id === cardId) {
+				return allObjectives[i].points || 1; // Default to 1 if points not found
+			}
+		}
+		console.log('⚠️ CLIENT: Could not find points for card ID:', cardId);
+		return 1; // Default to 1 point if card not found
+	}
+	
+	// Function to calculate individual player score (same logic as server)
+	function calculatePlayerScore(player, playerIndex) {
+		var totalScore = 0;
+		var gameData = window.currentGameData || null;
+		
+		// Add VP from player object
+		totalScore += (player.vp_custodian === true ? 1 : 0);
+		totalScore += (player.vp_imperial || 0);
+		totalScore += (player.vp_secrets || 0);
+		totalScore += (player.vp_riders || 0);
+		totalScore += (player.vp_other || 0);
+		
+		// Add objective card points - use actual points value from database
+		if (gameData && gameData[0] && gameData[0].cards) {
+			for (var j = 0; j < gameData[0].cards.length; j++) {
+				var card = gameData[0].cards[j];
+				if (card.id && card.scores && card.scores[playerIndex] && card.scores[playerIndex].scored) {
+					var cardPoints = getCardPointsClient(card.id);
+					totalScore += cardPoints;
+				}
+			}
+		}
+		if (gameData && gameData[1] && gameData[1].cards) {
+			for (var j = 0; j < gameData[1].cards.length; j++) {
+				var card = gameData[1].cards[j];
+				if (card.id && card.scores && card.scores[playerIndex] && card.scores[playerIndex].scored) {
+					var cardPoints = getCardPointsClient(card.id);
+					totalScore += cardPoints;
+				}
+			}
+		}
+		
+		return totalScore;
+	}
+	
+	// Function to update end game button state
+	function updateEndGameButton(gameEnded) {
+		var endGameButton = document.getElementById('btnEndGame');
+		if (endGameButton) {
+			if (gameEnded) {
+				endGameButton.innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText text-888">Game ended</div>';
+				endGameButton.onclick = null; // Disable click
+				endGameButton.style.opacity = '0.5';
+			} else {
+				endGameButton.innerHTML = '<img class="sideMenuItemIcon" src="assets/media/buttons/reset.png"><div class="sideMenuItemText">End game</div>';
+				endGameButton.onclick = function(event) { buttonClick(event, 'btnEndGame'); };
+				endGameButton.style.opacity = '1';
+			}
+		}
+		
+		// Also update timer display
+		var gameTimerElement = document.getElementById('gameTimer');
+		if (gameTimerElement) {
+			if (gameEnded) {
+				gameTimerElement.style.opacity = '0.5';
+				gameTimerElement.style.cursor = 'default';
+				gameTimerElement.title = 'Game ended - timer disabled';
+			} else {
+				gameTimerElement.style.opacity = '1';
+				gameTimerElement.style.cursor = 'pointer';
+				gameTimerElement.title = 'Click to pause/resume game (superuser only)';
+			}
+		}
+		
+		// Update Add card and Adjust card buttons
+		updateGameActionButtons(gameEnded);
+		
+		// Update pause button state
+		updatePauseButtonState();
+	}
+	
+	// Function to update Add card and Adjust card button states
+	function updateGameActionButtons(gameEnded) {
+		console.log('🎮 CLIENT: updateGameActionButtons called with gameEnded:', gameEnded);
+		var addCardButton = document.getElementById('btnAddcard');
+		var adjustCardButton = document.getElementById('btnAdjustcard');
+		var pauseGameButton = document.getElementById('btnPauseGame');
+		
+		if (addCardButton) {
+			if (gameEnded) {
+				addCardButton.style.opacity = '0.5';
+				addCardButton.style.cursor = 'default';
+				addCardButton.title = 'Game ended - cannot add cards';
+				console.log('🎮 CLIENT: Add card button disabled');
+			} else {
+				addCardButton.style.opacity = '1';
+				addCardButton.style.cursor = 'pointer';
+				addCardButton.title = 'Add new objective card (superuser only)';
+				console.log('🎮 CLIENT: Add card button enabled');
+			}
+		}
+		
+		if (adjustCardButton) {
+			if (gameEnded) {
+				adjustCardButton.style.opacity = '0.5';
+				adjustCardButton.style.cursor = 'default';
+				adjustCardButton.title = 'Game ended - cannot adjust cards';
+				console.log('🎮 CLIENT: Adjust card button disabled');
+			} else {
+				adjustCardButton.style.opacity = '1';
+				adjustCardButton.style.cursor = 'pointer';
+				adjustCardButton.title = 'Adjust objective cards (superuser only)';
+				console.log('🎮 CLIENT: Adjust card button enabled');
+			}
+		}
+		
+		// Update pause button state based on game progress
+		updatePauseButtonState();
+	}
+	
+	// Function to update pause button state
+	function updatePauseButtonState() {
+		var pauseGameButton = document.getElementById('btnPauseGame');
+		var gameTimerElement = document.getElementById('gameTimer');
+		
+		if (!pauseGameButton || !gameTimerElement) {
+			console.log('🎮 CLIENT: Pause button or timer element not found');
+			return;
+		}
+		
+		// Check if there's a game in progress
+		var gameData = window.currentGameData || null;
+		var gameInProgress = false;
+		
+		if (gameData) {
+			gameInProgress = isGameInProgress(gameData);
+		}
+		
+		if (gameInProgress) {
+			// Game is in progress - enable pause button
+			pauseGameButton.style.opacity = '1';
+			pauseGameButton.style.cursor = 'pointer';
+			pauseGameButton.title = 'Pause/resume game (superuser only)';
+			gameTimerElement.style.opacity = '1';
+			gameTimerElement.style.cursor = 'pointer';
+			gameTimerElement.title = 'Click to pause/resume game (superuser only)';
+			console.log('🎮 CLIENT: Pause button enabled - game in progress');
+		} else {
+			// No game in progress - disable pause button
+			pauseGameButton.style.opacity = '0.5';
+			pauseGameButton.style.cursor = 'default';
+			pauseGameButton.title = 'No game in progress - cannot pause';
+			gameTimerElement.style.opacity = '0.5';
+			gameTimerElement.style.cursor = 'default';
+			gameTimerElement.title = 'No game in progress - timer disabled';
+			console.log('🎮 CLIENT: Pause button disabled - no game in progress');
+		}
+	}
+	
+	// Function to generate dynamic checkboxes for objective categories
+	function generateObjectiveCategoryCheckboxes(objectivesData) {
+		var container = document.getElementById('objectiveCategoryCheckboxes');
+		if (!container) return;
+		
+		container.innerHTML = '';
+		
+		if (objectivesData && objectivesData[0] && objectivesData[0].category === 'objectives') {
+			// Iterate through all objective categories
+			for (var categoryKey in objectivesData[0]) {
+				if (categoryKey === 'category' || categoryKey === 'base') continue; // Skip the category field and base category
+				
+				var category = objectivesData[0][categoryKey];
+				if (category && typeof category === 'object' && category.name) {
+					// Create checkbox container
+					var checkboxContainer = document.createElement('div');
+					checkboxContainer.className = 'objective-category-checkbox';
+					
+					// Create checkbox
+					var checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.className = 'checkbox';
+					checkbox.name = categoryKey + 'cards';
+					checkbox.value = 'true';
+					checkbox.checked = false; // Default to unchecked
+					checkbox.onchange = function() {
+						updateObjectiveCategoryHidden(this);
+					};
+					
+					// Create hidden input
+					var hiddenInput = document.createElement('input');
+					hiddenInput.type = 'hidden';
+					hiddenInput.name = categoryKey + 'cards_hidden';
+					hiddenInput.value = 'false';
+					
+					// Create label
+					var label = document.createElement('label');
+					label.appendChild(checkbox);
+					label.appendChild(document.createTextNode(' ' + category.name));
+					
+					// Assemble the checkbox container
+					checkboxContainer.appendChild(label);
+					checkboxContainer.appendChild(hiddenInput);
+					checkboxContainer.appendChild(document.createElement('br'));
+					
+					container.appendChild(checkboxContainer);
+				}
+			}
+		}
+	}
+	
+	// Function to update hidden input for objective category checkboxes
+	function updateObjectiveCategoryHidden(checkbox) {
+		var categoryKey = checkbox.name.replace('cards', '');
+		var hiddenInput = document.querySelector('input[name="' + categoryKey + 'cards_hidden"]');
+		if (hiddenInput) {
+			hiddenInput.value = checkbox.checked ? 'true' : 'false';
+		}
+	}
+
+	// Function to get card icon based on category
+	function getCardIcon(categoryKey, iconSize) {
+		if (!categoryKey || categoryKey === 'base') return ''; // Base cards don't have icons
+		
+		var iconPath = 'assets/media/cardicons/' + categoryKey + '.png';
+		var iconClass = iconSize === 'large' ? 'card-icon-large' : 'card-icon-small';
+		
+		return "<div class='" + iconClass + "'><img src='" + iconPath + "' class='width-100-percent height-100-percent opacity-0-8' onerror='this.style.display=\"none\"'></div>";
+	}
+
+	// Function to get faction icon with fallback to empty.png
+	function getFactionIcon(factionName) {
+		if (!factionName) return '<img src="assets/media/factions/empty.png">';
+		
+		// Check if the faction name is already a slug (no spaces, lowercase)
+		var slug = factionName;
+		if (factionName.includes(' ') || /[A-Z]/.test(factionName)) {
+			// It's a full name, convert to slug
+			slug = nameToSlug(factionName);
+		} else {
+			// It's already a slug, but check if it's missing the "the" prefix
+			// If it doesn't start with "the" and it's not "empty", add "the" prefix
+			if (!slug.startsWith('the') && slug !== 'empty') {
+				slug = 'the' + slug;
+			}
+		}
+		
+		var iconPath = 'assets/media/factions/' + slug + '.png';
+		
+		// Return img tag with onerror fallback to empty.png
+		return '<img src="' + iconPath + '" onerror="this.onerror=null; this.src=\'assets/media/factions/empty.png\'">';
+	}
+
 </script>
 
 </body>
