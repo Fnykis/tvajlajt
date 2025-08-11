@@ -38,8 +38,16 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 - **npm** (comes with Node.js)
 
 ### Quick Start
-1. **Clone or download** this repository
-2. **Navigate** to the project directory in your terminal/command prompt
+
+#### Option 1: Git Clone (Recommended - Enables Auto-Updates)
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Fnykis/tvajlajt.git
+   ```
+2. **Navigate** to the project directory:
+   ```bash
+   cd tvajlajt
+   ```
 3. **Install dependencies**:
    ```bash
    npm install
@@ -49,6 +57,22 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
    npm start
    ```
 5. **Access the app** at `http://localhost:3000`
+
+#### Option 2: Manual Download (No Auto-Updates)
+1. **Download the ZIP file** from GitHub (click "Code" → "Download ZIP")
+2. **Extract** the ZIP file to your desired location
+3. **Navigate** to the extracted folder in your terminal/command prompt
+4. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+5. **Start the server**:
+   ```bash
+   npm start
+   ```
+6. **Access the app** at `http://localhost:3000`
+
+> **Note**: Only Git clone installations support automatic updates. Manual downloads will still work for version checking but cannot auto-download updates.
 
 ### Network Access
 To allow other devices on your network to access the app:
@@ -83,16 +107,31 @@ To allow other devices on your network to access the app:
 #### Mobile Responsiveness
 - **Small screens**: The app is not yet fully implemented to use with smaller screens but navigating the UI should work fine on mobile
 
+### Update System
+
+#### Auto-Updates (Git Clone Only)
+- **Automatic version checking**: Server checks for updates after startup
+- **Interactive updates**: Prompts user before downloading and installing
+- **Automatic backups**: Creates backups before updating
+- **Dependency management**: Automatically installs new dependencies
+
+#### Version Checking (All Installations)
+- **Version comparison**: Shows current vs. latest available version
+- **Update notifications**: Warns when newer versions are available
+- **Manual update option**: Users can manually download updates from GitHub
+
 ### Data Management
 
 #### Backup and Restore
 - **Automatic backups**: Game states are automatically saved in the `games/` directory
+- **Update backups**: Automatic backups created before updates (Git installations only)
 - **Manual backup**: Copy `database.json` before major changes
 - **Restore**: Replace `database.json` with a backup file
 
 #### Custom Objectives
 - **Adding objectives**: Follow the format in existing objectives
 - **Unique IDs**: Ensure each objective has a unique identifier
+- **Update safety**: Custom content is preserved during updates
 
 ---
 

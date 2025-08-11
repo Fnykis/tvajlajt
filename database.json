@@ -986,6 +986,14 @@
                 "name": "Thunder's Edge",
                 "factions":
                 []
+            },
+        "codex":
+            {
+                "name": "Codex",
+                "factions":
+                [   
+                    "The Council Keleres"
+                ]
             }
     }
 ]

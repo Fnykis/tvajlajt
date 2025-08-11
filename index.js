@@ -21,16 +21,8 @@ var jsonDatabase = null;
 
 // Helper function to get current game data
 function getCurrentGameData() {
-    if (!currentGameData) {
-        // If no current game, load default data
-        try {
-            var defaultData = fs.readFileSync(`${__dirname}/data_default.json`, 'utf8');
-            currentGameData = JSON.parse(defaultData);
-        } catch (err) {
-            console.error('❌ FILE: Error loading default data:', err);
-            return null;
-        }
-    }
+    // Only return current game data if it exists
+    // Don't automatically load default data - let the /current-game endpoint handle that
     return currentGameData;
 }
 
@@ -306,76 +298,21 @@ function calculateWinners() {
 
 // Function to restore timer state on server startup
 function restoreTimerState() {
-    // Check if there are any saved games
-    fs.readdir(`${__dirname}/games`, function(err, files) {
-        if (err) {
-            console.log('📁 SERVER: No games directory found, starting fresh');
-            return;
-        }
-        
-        var jsonFiles = files.filter(file => file.endsWith('.json'));
-        if (jsonFiles.length === 0) {
-            console.log('📁 SERVER: No saved games found, starting fresh');
-            return;
-        }
-        
-        var filesWithStats = [];
-        var processedCount = 0;
-        
-        jsonFiles.forEach(function(filename) {
-            fs.stat(`${__dirname}/games/${filename}`, function(statErr, stats) {
-                if (statErr) {
-                    console.error('❌ FILE: Error getting stats for file:', filename, statErr);
-                    processedCount++;
-                    if (processedCount === jsonFiles.length) {
-                        processFiles();
-                    }
-                    return;
-                }
-                
-                filesWithStats.push({
-                    filename: filename,
-                    createdAt: stats.birthtime || stats.mtime
-                });
-                
-                processedCount++;
-                if (processedCount === jsonFiles.length) {
-                    processFiles();
-                }
-            });
-        });
-        
-        function processFiles() {
-            // Sort by creation date (newest first)
-            filesWithStats.sort(function(a, b) {
-                return b.createdAt.getTime() - a.createdAt.getTime(); // Newest first
-            });
-            
-            var mostRecentFile = filesWithStats[0].filename;
-            console.log('📁 SERVER: Restoring timer state from most recent game:', mostRecentFile);
-            
-            fs.readFile(`${__dirname}/games/${mostRecentFile}`, 'utf8', function(err, data) {
-                if (err) {
-                    console.error('❌ SERVER: Error reading most recent game file:', err);
-                    return;
-                }
-                
-                try {
-                    var gameData = JSON.parse(data);
-                    currentGameData = gameData;
-                    
-                    // Restore timer state
-                    var savedElapsedTime = gameData[3].elapsedSeconds || 0;
-                    setElapsedTime(savedElapsedTime);
-                    startGameTimer(); // Resume timer
-                    
-                    console.log('✅ SERVER: Timer state restored with', savedElapsedTime, 'seconds');
-                } catch (parseErr) {
-                    console.error('❌ SERVER: Error parsing most recent game file:', parseErr);
-                }
-            });
-        }
-    });
+    // On server restart, don't automatically restore any games
+    // This allows users to choose whether to start a new game or load an existing one
+    console.log('📁 SERVER: Server restarted - no games automatically restored');
+    console.log('📁 SERVER: Users must manually start a new game or load an existing game');
+    
+    // Reset game state to ensure no active game
+    currentGameData = null;
+    isGameActive = false;
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+    elapsedSeconds = 0;
+    pauseCounter = false;
+    pauseStartTime = 0;
 }
 
 console.log('🚀 SERVER: Starting Tvajlajt server...');
@@ -1320,5 +1257,16 @@ http.listen(3000, '0.0.0.0', function(){
 	
 	// Restore timer state from most recent game on server startup
 	restoreTimerState();
+	
+	// Check for updates after server is fully started
+	setTimeout(async () => {
+		try {
+			const UpdateChecker = require('./update-checker');
+			const updateChecker = new UpdateChecker();
+			await updateChecker.checkForUpdates();
+		} catch (error) {
+			console.error('❌ UPDATE: Error initializing update checker:', error.message);
+		}
+	}, require('./update-config').update.checkDelay); // Use configured delay
 });
 }
