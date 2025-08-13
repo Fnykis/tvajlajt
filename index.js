@@ -29,58 +29,79 @@ function getCurrentGameData() {
 // Helper function to save current game data
 function saveCurrentGameData() {
     if (currentGameData) {
-        // Save to the most recent game file if it exists
-        fs.readdir(`${__dirname}/games`, function(err, files) {
-            if (err) {
-                console.error('❌ FILE: Error reading games directory:', err);
-                return;
+        // Ensure games directory exists before saving
+        const gamesDir = `${__dirname}/games`;
+        fs.access(gamesDir, fs.constants.F_OK, function(accessErr) {
+            if (accessErr) {
+                // Directory doesn't exist, create it
+                fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+                    if (mkdirErr) {
+                        console.error('❌ FILE: Error creating games directory for save:', mkdirErr);
+                        return;
+                    }
+                    // Directory created, proceed with save
+                    proceedWithSave();
+                });
+            } else {
+                // Directory exists, proceed with save
+                proceedWithSave();
             }
-            
-            var jsonFiles = files.filter(file => file.endsWith('.json'));
-            if (jsonFiles.length > 0) {
-                var filesWithStats = [];
-                var processedCount = 0;
+        });
+        
+        function proceedWithSave() {
+            // Save to the most recent game file if it exists
+            fs.readdir(`${__dirname}/games`, function(err, files) {
+                if (err) {
+                    console.error('❌ FILE: Error reading games directory:', err);
+                    return;
+                }
                 
-                jsonFiles.forEach(function(filename) {
-                    fs.stat(`${__dirname}/games/${filename}`, function(statErr, stats) {
-                        if (statErr) {
-                            console.error('❌ FILE: Error getting stats for file:', filename, statErr);
+                var jsonFiles = files.filter(file => file.endsWith('.json'));
+                if (jsonFiles.length > 0) {
+                    var filesWithStats = [];
+                    var processedCount = 0;
+                    
+                    jsonFiles.forEach(function(filename) {
+                        fs.stat(`${__dirname}/games/${filename}`, function(statErr, stats) {
+                            if (statErr) {
+                                console.error('❌ FILE: Error getting stats for file:', filename, statErr);
+                                processedCount++;
+                                if (processedCount === jsonFiles.length) {
+                                    processFiles();
+                                }
+                                return;
+                            }
+                            
+                            filesWithStats.push({
+                                filename: filename,
+                                createdAt: stats.birthtime || stats.mtime
+                            });
+                            
                             processedCount++;
                             if (processedCount === jsonFiles.length) {
                                 processFiles();
                             }
-                            return;
-                        }
-                        
-                        filesWithStats.push({
-                            filename: filename,
-                            createdAt: stats.birthtime || stats.mtime
                         });
-                        
-                        processedCount++;
-                        if (processedCount === jsonFiles.length) {
-                            processFiles();
-                        }
-                    });
-                });
-                
-                function processFiles() {
-                    // Sort by creation date (newest first)
-                    filesWithStats.sort(function(a, b) {
-                        return b.createdAt.getTime() - a.createdAt.getTime(); // Newest first
                     });
                     
-                    var mostRecentFile = filesWithStats[0].filename;
-                    fs.writeFile(`${__dirname}/games/${mostRecentFile}`, JSON.stringify(currentGameData), (err) => {
-                        if (err) {
-                            console.error('❌ FILE: Error saving current game data:', err);
-                        } else {
-                            console.log('✅ FILE: Updated game file:', mostRecentFile);
-                        }
-                    });
+                    function processFiles() {
+                        // Sort by creation date (newest first)
+                        filesWithStats.sort(function(a, b) {
+                            return b.createdAt.getTime() - a.createdAt.getTime(); // Newest first
+                        });
+                        
+                        var mostRecentFile = filesWithStats[0].filename;
+                        fs.writeFile(`${__dirname}/games/${mostRecentFile}`, JSON.stringify(currentGameData), (err) => {
+                            if (err) {
+                                console.error('❌ FILE: Error saving current game data:', err);
+                            } else {
+                                console.log('✅ FILE: Updated game file:', mostRecentFile);
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
 
@@ -369,40 +390,51 @@ app.get('/data_default.json', function(req, res){
 // New route to list saved games
 app.get('/games', function(req, res){
 	console.log('📁 REQUEST: Listing saved games');
-	fs.readdir(`${__dirname}/games`, function(err, files) {
-		if (err) {
-			console.error('❌ FILE: Error reading games directory:', err);
-			res.json([]);
-			return;
-		}
-		
-		// Filter for JSON files only
-		var jsonFiles = files.filter(file => file.endsWith('.json'));
-		console.log('📁 SERVER: Found', jsonFiles.length, 'saved games');
-		
-		var gamesList = [];
-		var processedCount = 0;
-		
-		if (jsonFiles.length === 0) {
-			res.json([]);
-			return;
-		}
-		
-		jsonFiles.forEach(function(filename) {
-			// Get file stats for creation date
-			fs.stat(`${__dirname}/games/${filename}`, function(statErr, stats) {
-				if (statErr) {
-					console.error('❌ FILE: Error getting stats for file:', filename, statErr);
-					processedCount++;
-					if (processedCount === jsonFiles.length) {
-						res.json(gamesList);
-					}
-					return;
+	
+	// Ensure games directory exists before reading
+	const gamesDir = `${__dirname}/games`;
+	fs.access(gamesDir, fs.constants.F_OK, function(accessErr) {
+		if (accessErr) {
+			// Directory doesn't exist, create it and return empty list
+			console.log('📁 SERVER: Games directory not found, creating...');
+			fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+				if (mkdirErr) {
+					console.error('❌ FILE: Error creating games directory:', mkdirErr);
+					console.log('📁 SERVER: Returning empty games list due to directory creation failure');
+					res.json([]);
+				} else {
+					console.log('✅ FILE: Games directory created successfully');
+					res.json([]); // Return empty list for new directory
 				}
-				
-				fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
-					if (err) {
-						console.error('❌ FILE: Error reading game file:', filename, err);
+			});
+			return;
+		}
+		
+		// Directory exists, proceed with reading games
+		fs.readdir(`${__dirname}/games`, function(err, files) {
+			if (err) {
+				console.error('❌ FILE: Error reading games directory:', err);
+				res.json([]);
+				return;
+			}
+			
+			// Filter for JSON files only
+			var jsonFiles = files.filter(file => file.endsWith('.json'));
+			console.log('📁 SERVER: Found', jsonFiles.length, 'saved games');
+			
+			var gamesList = [];
+			var processedCount = 0;
+			
+			if (jsonFiles.length === 0) {
+				res.json([]);
+				return;
+			}
+			
+			jsonFiles.forEach(function(filename) {
+				// Get file stats for creation date
+				fs.stat(`${__dirname}/games/${filename}`, function(statErr, stats) {
+					if (statErr) {
+						console.error('❌ FILE: Error getting stats for file:', filename, statErr);
 						processedCount++;
 						if (processedCount === jsonFiles.length) {
 							res.json(gamesList);
@@ -410,47 +442,58 @@ app.get('/games', function(req, res){
 						return;
 					}
 					
-					try {
-						var gameData = JSON.parse(data);
-						
-						// Extract date from filename (YYYY_MM_DD_XXXX.json)
-						var dateMatch = filename.match(/^(\d{4})_(\d{2})_(\d{2})_(\d{4})\.json$/);
-						var formattedDate = '';
-						var players = [];
-						
-						if (dateMatch) {
-							formattedDate = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+					fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
+						if (err) {
+							console.error('❌ FILE: Error reading game file:', filename, err);
+							processedCount++;
+							if (processedCount === jsonFiles.length) {
+								res.json(gamesList);
+							}
+							return;
 						}
 						
-						// Extract player names
-						if (gameData[2] && gameData[2].players) {
-							gameData[2].players.forEach(function(player) {
-								if (player.player && player.faction) {
-									players.push(player.player);
-								}
+						try {
+							var gameData = JSON.parse(data);
+							
+							// Extract date from filename (YYYY_MM_DD_XXXX.json)
+							var dateMatch = filename.match(/^(\d{4})_(\d{2})_(\d{2})_(\d{4})\.json$/);
+							var formattedDate = '';
+							var players = [];
+							
+							if (dateMatch) {
+								formattedDate = `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}`;
+							}
+							
+							// Extract player names
+							if (gameData[2] && gameData[2].players) {
+								gameData[2].players.forEach(function(player) {
+									if (player.player && player.faction) {
+										players.push(player.player);
+									}
+								});
+							}
+							
+							gamesList.push({
+								filename: filename,
+								date: formattedDate,
+								players: players,
+								playerCount: players.length,
+								createdAt: stats.birthtime || stats.mtime // Use birthtime if available, otherwise mtime
 							});
+							
+						} catch (parseErr) {
+							console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
 						}
 						
-						gamesList.push({
-							filename: filename,
-							date: formattedDate,
-							players: players,
-							playerCount: players.length,
-							createdAt: stats.birthtime || stats.mtime // Use birthtime if available, otherwise mtime
-						});
-						
-					} catch (parseErr) {
-						console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
-					}
-					
-					processedCount++;
-					if (processedCount === jsonFiles.length) {
-						// Sort by creation date (newest first)
-						gamesList.sort(function(a, b) {
-							return b.createdAt.getTime() - a.createdAt.getTime(); // Newest first
-						});
-						res.json(gamesList);
-					}
+						processedCount++;
+						if (processedCount === jsonFiles.length) {
+							// Sort by creation date (newest first)
+							gamesList.sort(function(a, b) {
+								return b.createdAt.getTime() - a.createdAt.getTime(); // Newest first
+							});
+							res.json(gamesList);
+						}
+					});
 				});
 			});
 		});
@@ -468,20 +511,40 @@ app.get('/games/:filename', function(req, res){
 		return;
 	}
 	
-	fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
-		if (err) {
-			console.error('❌ FILE: Error reading game file:', filename, err);
-			res.status(404).json({ error: 'Game file not found' });
+	// Ensure games directory exists before reading
+	const gamesDir = `${__dirname}/games`;
+	fs.access(gamesDir, fs.constants.F_OK, function(accessErr) {
+		if (accessErr) {
+			// Directory doesn't exist, create it and return error
+			console.log('📁 SERVER: Games directory not found, creating...');
+			fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+				if (mkdirErr) {
+					console.error('❌ FILE: Error creating games directory:', mkdirErr);
+					res.status(500).json({ error: 'Games directory unavailable' });
+				} else {
+					console.log('✅ FILE: Games directory created successfully');
+					res.status(404).json({ error: 'Game file not found' });
+				}
+			});
 			return;
 		}
 		
-		try {
-			var gameData = JSON.parse(data);
-			res.json(gameData);
-		} catch (parseErr) {
-			console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
-			res.status(500).json({ error: 'Invalid game file format' });
-		}
+		// Directory exists, proceed with reading
+		fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
+			if (err) {
+				console.error('❌ FILE: Error reading game file:', filename, err);
+				res.status(404).json({ error: 'Game file not found' });
+				return;
+			}
+			
+			try {
+				var gameData = JSON.parse(data);
+				res.json(gameData);
+			} catch (parseErr) {
+				console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
+				res.status(500).json({ error: 'Invalid game file format' });
+			}
+		});
 	});
 });
 
@@ -1019,26 +1082,48 @@ io.on('connection', function(socket){
                 var randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
                 var filename = `${dateStr}_${randomDigits}.json`;
                 
-                console.log('💾 FILE: Writing new game data to games/' + filename);
-                fs.writeFile(`${__dirname}/games/${filename}`, JSON.stringify(jsonData), (err) => {  
-                    if (err) {
-                        console.error('❌ FILE: Error writing new game data to games/' + filename, err);
-                        throw err;
+                // Ensure games directory exists before writing
+                const gamesDir = `${__dirname}/games`;
+                fs.access(gamesDir, fs.constants.F_OK, function(accessErr) {
+                    if (accessErr) {
+                        // Directory doesn't exist, create it
+                        console.log('📁 SERVER: Games directory not found, creating...');
+                        fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+                            if (mkdirErr) {
+                                console.error('❌ FILE: Error creating games directory for new game:', mkdirErr);
+                                return;
+                            }
+                            // Directory created, proceed with save
+                            proceedWithSave();
+                        });
+                    } else {
+                        // Directory exists, proceed with save
+                        proceedWithSave();
                     }
-                    console.log('✅ GAME: New game started successfully! Data saved to games/' + filename);
-                    console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
-                    
-                    // Store in memory as current game
-                    currentGameData = jsonData;
-                    console.log('✅ MEMORY: Updated current game data in memory');
-                    
-                    // Start the game timer
-                    setElapsedTime(0); // Reset timer for new game
-                    startGameTimer();
-                    
-                    // Notify all clients to reload the page
-                    io.emit('newGameStarted', {});
                 });
+                
+                function proceedWithSave() {
+                    console.log('💾 FILE: Writing new game data to games/' + filename);
+                    fs.writeFile(`${__dirname}/games/${filename}`, JSON.stringify(jsonData), (err) => {  
+                        if (err) {
+                            console.error('❌ FILE: Error writing new game data to games/' + filename, err);
+                            throw err;
+                        }
+                        console.log('✅ GAME: New game started successfully! Data saved to games/' + filename);
+                        console.log('🎉 GAME: Game ready with', dataToProcess[1].length, 'players and', dataToProcess[0], 'cards per stage');
+                        
+                        // Store in memory as current game
+                        currentGameData = jsonData;
+                        console.log('✅ MEMORY: Updated current game data in memory');
+                        
+                        // Start the game timer
+                        setElapsedTime(0); // Reset timer for new game
+                        startGameTimer();
+                        
+                        // Notify all clients to reload the page
+                        io.emit('newGameStarted', {});
+                    });
+                }
             }
 
             // Timer is now handled by the new timer system
@@ -1094,39 +1179,61 @@ io.on('connection', function(socket){
             return;
         }
         
-        fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
-            if (err) {
-                console.error('❌ FILE: Error reading game file:', filename, err);
-                return;
-            }
-            
-            try {
-                var gameData = JSON.parse(data);
-                
-                // Store in memory as current game
-                currentGameData = gameData;
-                console.log('✅ SOCKET: Game loaded successfully:', filename);
-                
-                // Restore timer state from loaded game
-                var savedElapsedTime = gameData[3].elapsedSeconds || 0;
-                setElapsedTime(savedElapsedTime);
-                
-                // Check if game is ended
-                if (gameData[3].gameEnded) {
-                    console.log('🏁 GAME: Loaded game is already ended');
-                    stopGameTimer();
-                } else {
-                    startGameTimer(); // Resume timer
-                    console.log('⏰ TIMER: Restored timer with', savedElapsedTime, 'seconds');
-                }
-                
-                // Notify all clients to refresh
-                io.emit('gameLoaded', { filename: filename });
-                
-            } catch (parseErr) {
-                console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
+        // Ensure games directory exists before loading
+        const gamesDir = `${__dirname}/games`;
+        fs.access(gamesDir, fs.constants.F_OK, function(accessErr) {
+            if (accessErr) {
+                // Directory doesn't exist, create it
+                console.log('📁 SOCKET: Games directory not found, creating...');
+                fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+                    if (mkdirErr) {
+                        console.error('❌ FILE: Error creating games directory for load:', mkdirErr);
+                        return;
+                    }
+                    // Directory created, proceed with load
+                    proceedWithLoad();
+                });
+            } else {
+                // Directory exists, proceed with load
+                proceedWithLoad();
             }
         });
+        
+        function proceedWithLoad() {
+            fs.readFile(`${__dirname}/games/${filename}`, 'utf8', function(err, data) {
+                if (err) {
+                    console.error('❌ FILE: Error reading game file:', filename, err);
+                    return;
+                }
+                
+                try {
+                    var gameData = JSON.parse(data);
+                    
+                    // Store in memory as current game
+                    currentGameData = gameData;
+                    console.log('✅ SOCKET: Game loaded successfully:', filename);
+                    
+                    // Restore timer state from loaded game
+                    var savedElapsedTime = gameData[3].elapsedSeconds || 0;
+                    setElapsedTime(savedElapsedTime);
+                    
+                    // Check if game is ended
+                    if (gameData[3].gameEnded) {
+                        console.log('🏁 GAME: Loaded game is already ended');
+                        stopGameTimer();
+                    } else {
+                        startGameTimer(); // Resume timer
+                        console.log('⏰ TIMER: Restored timer with', savedElapsedTime, 'seconds');
+                    }
+                    
+                    // Notify all clients to refresh
+                    io.emit('gameLoaded', { filename: filename });
+                    
+                } catch (parseErr) {
+                    console.error('❌ PARSE: Error parsing game file:', filename, parseErr);
+                }
+            });
+        }
     });
     
     socket.on('endgame', function(dataToProcess){
@@ -1207,14 +1314,42 @@ fs.readFile(`${__dirname}/database.json`, 'utf8', function(err, database) {
         jsonDatabase = JSON.parse(database);
         console.log('✅ FILE: Database loaded successfully');
         
-        // Start server after database is loaded
-        startServer();
+        // Ensure games directory exists before starting server
+        ensureGamesDirectory();
         
     } catch (parseErr) {
         console.error('❌ PARSE: Error parsing database:', parseErr);
         return;
     }
 });
+
+// Function to ensure games directory exists
+function ensureGamesDirectory() {
+    const gamesDir = `${__dirname}/games`;
+    
+    // Check if games directory exists
+    fs.access(gamesDir, fs.constants.F_OK, function(err) {
+        if (err) {
+            // Directory doesn't exist, create it
+            console.log('📁 SERVER: Games directory not found, creating...');
+            fs.mkdir(gamesDir, { recursive: true }, function(mkdirErr) {
+                if (mkdirErr) {
+                    console.error('❌ FILE: Error creating games directory:', mkdirErr);
+                    console.log('⚠️  SERVER: Continuing without games directory - some features may not work');
+                } else {
+                    console.log('✅ FILE: Games directory created successfully');
+                }
+                
+                // Start server regardless of directory creation result
+                startServer();
+            });
+        } else {
+            // Directory exists, check if it's accessible
+            console.log('✅ FILE: Games directory found and accessible');
+            startServer();
+        }
+    });
+}
 
 // Global variable to store server IP
 var serverIP = null;
