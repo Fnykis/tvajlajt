@@ -1,4 +1,4 @@
-# 🚀 Tvajlajt 
+![Tvajlajt](assets/media/tvajlajt.png)
 
 A simple web application for managing Twilight Imperium 4 objectives and scoring. Designed to run locally and provide real-time game management. Players can connect to the session via their mobile device's browser to read objectives and view scoring.
 
