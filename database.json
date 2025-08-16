@@ -704,6 +704,37 @@
                         }
                     ]
             },
+        "monuments":
+            {
+                "name": "Monuments",
+                "stage1":
+                    [
+                        
+                    ],
+                "stage2":
+                    [
+                        
+                    ],
+                "secret":
+                    [
+                        {
+                            "id": "objMSecret01",
+                            "name": "Great Work",
+                            "text": "Have a monument on the game board and 3 ground forces on its planet",
+                            "points": 1,
+                            "phase": "Status Phase",
+                            "stage": "secret"
+                        },
+                        {
+                            "id": "objMSecret02",
+                            "name": "Topple Monument",
+                            "text": "Destroy another player's monument during an invasion",
+                            "points": 1,
+                            "phase": "Action Phase",
+                            "stage": "secret"
+                        }
+                    ]
+            },
         "community":
             {
             "name": "Community",
@@ -993,6 +1024,47 @@
                 "factions":
                 [   
                     "The Council Keleres"
+                ]
+            },
+        "discordantstars":
+            {
+                "name": "Discordant Stars",
+                "factions":
+                [
+                    "The Shipwrights of Axis",
+                    "The Celdauri Trade Confederation",
+                    "The Savages of Cymiae",
+                    "The Dih-Mohn Flotilla",
+                    "The Florzen Profiteers",
+                    "The Free Systems Compact",
+                    "The Ghemina Raiders",
+                    "The Augurs of Ilyxum",
+                    "The Kollecc Society",
+                    "The Kortali Tribunal",
+                    "The Li-Zho Dynasty",
+                    "The L'tokk Khrask",
+                    "The Mirveda Protectorate",
+                    "The Glimmer of Mortheus",
+                    "The Myko-Mentori",
+                    "The Nivyn Star Kings",
+                    "The Olradin League",
+                    "The Zealots of Rhodun",
+                    "Roh'Dhna Mechatronics",
+                    "The Tnelis Syndicate",
+                    "The Vaden Banking Clans",
+                    "The Vaylerian Scourge",
+                    "The Veldyr Sovereignty",
+                    "The Zelian Purifier",
+                    "The Bentor Conglomerate",
+                    "The Cheiran Hordes",
+                    "The Edyn Mandate",
+                    "The Ghoti Wayfarers",
+                    "The GLEdge Union",
+                    "The Berserkers of Kjalengard",
+                    "The Monks of Kolume",
+                    "The Kyro Sodality",
+                    "The Lanefir Remnants",
+                    "The Nokar Sellships"
                 ]
             }
     }

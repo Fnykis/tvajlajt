@@ -7,12 +7,13 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 ## Features
 
 ### Objective Management
-- **Stage I & II Objectives**: Pre-loaded with vanilla, PoK and community-created objectives
+- **Stage I & II Objectives**: Pre-loaded with vanilla, PoK, Monuments and community-created objectives
 - **Custom Objectives**: Add your own objectives following the established format
 - **Objective Flipping**: Automatic and manual objective revelation
 - **Secret Objectives**: Support for public secret objective cards
 
 ### Scoring System
+- **Assign player scores**: Pre-loaded with vanilla, PoK, Codex and Discordant Stars factions
 - **Real-time VP Calculation**: Automatic victory point tracking
 - **Winner Calculation**: Automatic determination of game winners
 
@@ -27,7 +28,7 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 - **Socket.io Integration**: Efficient real-time communication
 
 ### Device Support
-- **Desktop**: Needed to run server
+- **Desktop**: Needed to run server locally
 - **Mobile**: Responsive design for player access
 - **Cross-browser**: Works on modern browsers
 
@@ -80,6 +81,17 @@ To allow other devices on your network to access the app:
 2. Other devices can access via: `http://[YOUR_IP]:3000`
    - Example: `http://192.168.1.22:3000`
 
+## Adding custom objectives and factions
+
+All objectives and factions are saved in the file database.json. This is where you can add your own data or edit existing data.
+Follow the format in existing objectives and factions. You can add new categories (ie. a new expansion). The app will automatically recognise new categories.
+**Custom content is preserved during updates but always save a backup of the database file to be sure.**
+
+#### Custom objectives
+For objectives, ensure each objective has a unique identifier.
+#### Custom factions
+To add an icon for the faction. Put it in assets/media/factions and name it the exact way you named it in database.json but without special characters and in lowercase. The file format should be PNG and the size is recommended to be 500 x 300 px. A Photoshop-file is available to make the token look like the pre-loaded factions'.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -106,32 +118,6 @@ To allow other devices on your network to access the app:
 
 #### Mobile Responsiveness
 - **Small screens**: The app is not yet fully implemented to use with smaller screens but navigating the UI should work fine on mobile
-
-### Update System
-
-#### Auto-Updates (Git Clone Only)
-- **Automatic version checking**: Server checks for updates after startup
-- **Interactive updates**: Prompts user before downloading and installing
-- **Automatic backups**: Creates backups before updating
-- **Dependency management**: Automatically installs new dependencies
-
-#### Version Checking (All Installations)
-- **Version comparison**: Shows current vs. latest available version
-- **Update notifications**: Warns when newer versions are available
-- **Manual update option**: Users can manually download updates from GitHub
-
-### Data Management
-
-#### Backup and Restore
-- **Automatic backups**: Game states are automatically saved in the `games/` directory
-- **Update backups**: Automatic backups created before updates (Git installations only)
-- **Manual backup**: Copy `database.json` before major changes
-- **Restore**: Replace `database.json` with a backup file
-
-#### Custom Objectives
-- **Adding objectives**: Follow the format in existing objectives
-- **Unique IDs**: Ensure each objective has a unique identifier
-- **Update safety**: Custom content is preserved during updates
 
 ---
 
