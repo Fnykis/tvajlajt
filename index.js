@@ -715,9 +715,15 @@ io.on('connection', function(socket){
             return;
         }
 
+        // Create scores array dynamically based on current number of players
+        var scoresArray = [];
+        for (var j = 0; j < jsonData[2].players.length; j++) {
+            scoresArray.push({"scored": false});
+        }
+        
         jsonData[dataToProcess[1] - 1].cards[parseInt(dataToProcess[3])] = {
             "id": null,
-            "scores":[{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false}]
+            "scores": scoresArray
         };
         
         var cards = jsonData[dataToProcess[1] - 1].cards;
@@ -757,9 +763,15 @@ io.on('connection', function(socket){
             return;
         }
         
+        // Create scores array dynamically based on current number of players
+        var scoresArray = [];
+        for (var j = 0; j < jsonData[2].players.length; j++) {
+            scoresArray.push({"scored": false});
+        }
+        
         jsonData[stageIndex].cards.push({
             "id": null,
-            "scores":[{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false}]
+            "scores": scoresArray
         });
 
         currentGameData = jsonData;
@@ -793,7 +805,11 @@ io.on('connection', function(socket){
                 if (err) throw err;
                 jsonDatabase = JSON.parse(database);
 
-                var playerScores = [0, 0, 0, 0, 0, 0, 0, 0];
+                // Create playerScores array dynamically based on current number of players
+                var playerScores = [];
+                for (var j = 0; j < jsonData[2].players.length; j++) {
+                    playerScores.push(0);
+                }
                 for (var i = 0; i < dataToProcess.length; i++) {
                     if (isNaN(parseInt(dataToProcess[i]))) continue;
                     for (var j = 0; j < jsonData[0].cards.length; j++) {
@@ -910,36 +926,23 @@ io.on('connection', function(socket){
             console.log('✅ FILE: Successfully read data_default.json for new game');
             jsonData = JSON.parse(data);
 
-            // Create players
+            // Create players dynamically - only add active players
             console.log('👥 GAME: Creating players, received:', dataToProcess[1].length, 'players');
-            for (var i = 0; i < jsonData[2].players.length; i++) {
-                if (i < dataToProcess[1].length) {
-                    var player = dataToProcess[1][i];
-                    jsonData[2].players[i] = {
-                        "faction": player.faction,
-                        "color": player.color,
-                        "player": player.name,
-                        "secrets": [],
-                        "vp_custodian": false,
-                        "vp_imperial": 0,
-                        "vp_secrets": 0,
-                        "vp_riders": 0,
-                        "vp_other": 0
-                    };
-                    console.log('👤 GAME: Created player', i + 1, ':', player.name, '-', player.faction);
-                } else {
-                    jsonData[2].players[i] = {
-                        "faction": null,
-                        "color": null,
-                        "player": null,
-                        "secrets": null,
-                        "vp_custodian": false,
-                        "vp_imperial": 0,
-                        "vp_secrets": 0,
-                        "vp_riders": 0,
-                        "vp_other": 0
-                    };
-                }
+            jsonData[2].players = []; // Clear the players array
+            for (var i = 0; i < dataToProcess[1].length; i++) {
+                var player = dataToProcess[1][i];
+                jsonData[2].players.push({
+                    "faction": player.faction,
+                    "color": player.color,
+                    "player": player.name,
+                    "secrets": [],
+                    "vp_custodian": false,
+                    "vp_imperial": 0,
+                    "vp_secrets": 0,
+                    "vp_riders": 0,
+                    "vp_other": 0
+                });
+                console.log('👤 GAME: Created player', i + 1, ':', player.name, '-', player.faction);
             }
 
             // Create cards
@@ -947,13 +950,19 @@ io.on('connection', function(socket){
             jsonData[0].cards = [];
             jsonData[1].cards = [];
             for (var i = 0; i < parseInt(dataToProcess[0]); i++) {
+                // Create scores array dynamically based on number of players
+                var scoresArray = [];
+                for (var j = 0; j < dataToProcess[1].length; j++) {
+                    scoresArray.push({"scored": false});
+                }
+                
                 jsonData[0].cards.push({
                     "id": null,
-                    "scores":[{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false}]
+                    "scores": scoresArray
                 })
                 jsonData[1].cards.push({
                     "id": null,
-                    "scores":[{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false},{"scored": false}]
+                    "scores": scoresArray
                 })
             }
             console.log('✅ GAME: Created', jsonData[0].cards.length, 'stage 1 cards and', jsonData[1].cards.length, 'stage 2 cards');

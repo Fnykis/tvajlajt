@@ -510,20 +510,25 @@
 				showScoreboardDetails(players, playerScores);
 			};
 			
-			for (var i = 0; i < players.length; i++) { // Iterate players
-				var el_ScoreToken = document.createElement("div");
-				el_ScoreToken.className = 'scoretile';
-				
-				// Add color class based on player's color
-				if (players[i].color) {
-					el_ScoreToken.className += ' color-' + players[i].color;
+			// Only create scoreboard if there are players
+			if (players && players.length > 0) {
+				for (var i = 0; i < players.length; i++) { // Iterate players
+					var el_ScoreToken = document.createElement("div");
+					el_ScoreToken.className = 'scoretile';
+					
+					// Add color class based on player's color
+					if (players[i].color) {
+						el_ScoreToken.className += ' color-' + players[i].color;
+					}
+					
+					el_ScoreToken.title = decodeURIComponent(players[i].player) + ' - ' + playerScores[i];
+					el_ScoreToken.innerHTML = getFactionIcon(players[i].faction) + '<span>' + decodeURIComponent(players[i].player) + '</span><span class="score-value">' + playerScores[i] + '</span>';
+					scoreboardDiv.appendChild(el_ScoreToken);
 				}
-				
-				el_ScoreToken.title = decodeURIComponent(players[i].player) + ' - ' + playerScores[i];
-				el_ScoreToken.innerHTML = getFactionIcon(players[i].faction) + '<span>' + decodeURIComponent(players[i].player) + '</span><span class="score-value">' + playerScores[i] + '</span>';
-				scoreboardDiv.appendChild(el_ScoreToken);
+				console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
+			} else {
+				console.log('ℹ️ CLIENT: No players to display in scoreboard');
 			}
-			console.log('✅ CLIENT: Scoreboard created with', players.length, 'players');
 		} else {
 			console.error('❌ CLIENT: Scoreboard div not found!');
 		}
@@ -577,13 +582,10 @@
 		}
 		
 		// Get current players and scores
-		var players = [];
+		var players = gameData[2].players || [];
 		var playerScores = [];
-		for (var i = 0; i < gameData[2].players.length; i++) {
-			if (gameData[2].players[i].faction != null) {
-				players.push(gameData[2].players[i]);
-				playerScores.push(0); // Initialize to 0, will be calculated
-			}
+		for (var i = 0; i < players.length; i++) {
+			playerScores.push(0); // Initialize to 0, will be calculated
 		}
 		
 		// Calculate current scores
@@ -858,7 +860,7 @@
 		
 		// Add additional VPs
 		for (var i = 0; i < data[2].players.length; i++) {
-			if (data[2].players[i].faction != null && i < playerScores.length) {
+			if (i < playerScores.length) {
 				var additionalVP = data[2].players[i].vp_custodian + data[2].players[i].vp_imperial + data[2].players[i].vp_secrets + data[2].players[i].vp_riders + data[2].players[i].vp_other;
 				playerScores[i] += additionalVP;
 				if (additionalVP > 0) {
@@ -1071,16 +1073,13 @@
 			}
 			
 			// Process players data
-			var players = [];
+			var players = data[2].players || [];
 			var playerScores = [];
-			for (var i = 0; i < data[2].players.length; i++) {
-				if (data[2].players[i].faction != null) {
-					var playah = data[2].players[i];
-					allPlayers.push(playah);
-					allScores.push(0);
-					players.push(playah);
-					playerScores.push(0); // Initialize to 0, will be calculated from objectives
-				}
+			for (var i = 0; i < players.length; i++) {
+				var playah = players[i];
+				allPlayers.push(playah);
+				allScores.push(0);
+				playerScores.push(0); // Initialize to 0, will be calculated from objectives
 			};
 			
 			// Calculate scores from objectives
@@ -1119,8 +1118,8 @@
 			
 			console.log('✅ CLIENT: Objectives data looks valid, continuing with interface creation...');
 
-			// If there's players in game, create Mecatol/Secrets/Riders/Prommisory elements
-			if (players.length != 0) {
+			// If there are players in game, create Mecatol/Secrets/Riders/Prommisory elements
+			if (players && players.length > 0) {
 				var el_AddWrapperDiv = document.createElement("div");
 					el_AddWrapperDiv.id = "additionalElementsWrapper";
 					el_AddWrapperDiv.onclick = function() {
@@ -1325,11 +1324,7 @@
 					} else {
 						var tokensHTML = "";
 						for (var j = 0; j < players.length; j++) {
-							if (players[j].faction == null) {
-								var token = "empty"
-							} else {
-								var token = players[j].faction;
-							}
+							var token = players[j].faction;
 							tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '">' + getFactionIcon(token) + '</div>';
 						}
 						
@@ -1381,6 +1376,12 @@
 			function createAdditionalPoints(players) {
 
 				var addEldiv = document.getElementById("additionalElements");
+				
+				// Only create elements if there are players
+				if (!players || players.length === 0) {
+					console.log('ℹ️ CLIENT: No players to create additional points elements for');
+					return;
+				}
 
 				// Mecatol VP
 				var custodianHtml = "";
@@ -1460,54 +1461,54 @@
 							el_VPPicture.innerHTML = picture;
 						el_VPWrapper.appendChild(el_VPPicture);
 
-							var el_TokensWrapper = document.createElement("div");
-								el_TokensWrapper.className = "objTokensWrapper"
+						var el_TokensWrapper = document.createElement("div");
+							el_TokensWrapper.className = "objTokensWrapper"
 
-							for (var i = 0; i < players.length; i++) { // Iterate players
+						for (var i = 0; i < players.length; i++) { // Iterate players
 
-								switch (idPrefix) {
-									case "imperial": var vpHtml = players[i].vp_imperial; break;
-									case "secrets": var vpHtml = players[i].vp_secrets; break;
-									case "riders": var vpHtml = players[i].vp_riders; break;
-									case "other": var vpHtml = players[i].vp_other; break;
-								}
-
-								var el_TokensAndPoints = document.createElement("div");
-
-								var el_ScoreToken = document.createElement("div");
-									el_ScoreToken.className = 'objTokens scored';
-									el_ScoreToken.style = 'float: left;';
-									el_ScoreToken.title = decodeURIComponent(players[i].player);
-									el_ScoreToken.id = idPrefix + "_" + i;
-									el_ScoreToken.innerHTML = getFactionIcon(players[i].faction);
-									el_ScoreToken.onclick = function(event) {
-										if (superuser) {
-											// Check if game is paused
-											if (isPaused) {
-												console.log('❌ CLIENT: Cannot change VP - game is paused');
-												// Show a message to the user that the game is paused
-												alert('Game Paused\nCannot change scores while the game is paused');
-												return;
-											}
-											
-											var playerID = this.id.substring(this.id.length - 1, this.id.length);
-											var category = this.id.substring(0, this.id.length - 2);
-											vpPressed = { "player": playerID, "category": category };
-											document.getElementById('changeVPWrapper').style.visibility = 'visible';
-											noBubbling(event);
-										} else {
-											notSuperuser();
-										}
-									}
-								el_TokensAndPoints.appendChild(el_ScoreToken);
-
-								var el_Score = document.createElement("div");
-									el_Score.className = 'objTokensScore';
-									el_Score.innerHTML = vpHtml;
-								el_TokensAndPoints.appendChild(el_Score);
-								el_TokensWrapper.appendChild(el_TokensAndPoints);
+							switch (idPrefix) {
+								case "imperial": var vpHtml = players[i].vp_imperial; break;
+								case "secrets": var vpHtml = players[i].vp_secrets; break;
+								case "riders": var vpHtml = players[i].vp_riders; break;
+								case "other": var vpHtml = players[i].vp_other; break;
 							}
-							el_VPWrapper.appendChild(el_TokensWrapper);
+
+							var el_TokensAndPoints = document.createElement("div");
+
+							var el_ScoreToken = document.createElement("div");
+								el_ScoreToken.className = 'objTokens scored';
+								el_ScoreToken.style = 'float: left;';
+								el_ScoreToken.title = decodeURIComponent(players[i].player);
+								el_ScoreToken.id = idPrefix + "_" + i;
+								el_ScoreToken.innerHTML = getFactionIcon(players[i].faction);
+								el_ScoreToken.onclick = function(event) {
+									if (superuser) {
+										// Check if game is paused
+										if (isPaused) {
+											console.log('❌ CLIENT: Cannot change VP - game is paused');
+											// Show a message to the user that the game is paused
+											alert('Game Paused\nCannot change scores while the game is paused');
+											return;
+										}
+										
+										var playerID = this.id.substring(this.id.length - 1, this.id.length);
+										var category = this.id.substring(0, this.id.length - 2);
+										vpPressed = { "player": playerID, "category": category };
+										document.getElementById('changeVPWrapper').style.visibility = 'visible';
+										noBubbling(event);
+									} else {
+										notSuperuser();
+									}
+								}
+							el_TokensAndPoints.appendChild(el_ScoreToken);
+
+							var el_Score = document.createElement("div");
+								el_Score.className = 'objTokensScore';
+								el_Score.innerHTML = vpHtml;
+							el_TokensAndPoints.appendChild(el_Score);
+							el_TokensWrapper.appendChild(el_TokensAndPoints);
+						}
+						el_VPWrapper.appendChild(el_TokensWrapper);
 					addEldiv.appendChild(el_VPWrapper);
 				}
 			}
@@ -1747,16 +1748,13 @@
 				}
 				
 				// Rebuild players array
-				var players = [];
+				var players = data[2].players || [];
 				var playerScores = [];
-				for (var i = 0; i < data[2].players.length; i++) {
-					if (data[2].players[i].faction != null) {
-						var playah = data[2].players[i];
-						allPlayers.push(playah);
-						allScores.push(0);
-						players.push(playah);
-						playerScores.push(0); // Initialize to 0, will be calculated from objectives
-					}
+				for (var i = 0; i < players.length; i++) {
+					var playah = players[i];
+					allPlayers.push(playah);
+					allScores.push(0);
+					playerScores.push(0); // Initialize to 0, will be calculated from objectives
 				}
 				
 				// Calculate scores from objectives
@@ -1777,7 +1775,7 @@
 			createScoreboard(players, playerScores);
 			
 			// Recreate additional elements if there are players
-			if (players.length > 0) {
+			if (players && players.length > 0) {
 				console.log('🎮 CLIENT: Rebuilding additional elements...');
 				createAdditionalPointsForUpdate(players, data);
 				
@@ -1985,14 +1983,10 @@
 					}
 				}
 			} else {
-				// Handle null card IDs - create empty card slots (same as original createObjectives)
+				// Create empty card slots (same as original createObjectives)
 				var tokensHTML = "";
 				for (var j = 0; j < players.length; j++) {
-					if (players[j].faction == null) {
-						var token = "empty"
-					} else {
-						var token = players[j].faction;
-					}
+					var token = players[j].faction;
 					tokensHTML = tokensHTML + '<div class="objTokens" title="' + decodeURIComponent(players[j].player) + '">' + getFactionIcon(token) + '</div>';
 				}
 				
@@ -2081,6 +2075,12 @@
 	// Complete implementation of additional points creation
 	function createAdditionalPointsComplete(players, data) {
 		var addEldiv = document.getElementById("additionalElements");
+		
+		// Only create elements if there are players
+		if (!players || players.length === 0) {
+			console.log('ℹ️ CLIENT: No players to create additional points elements for update');
+			return;
+		}
 
 		// Mecatol VP
 		var custodianHtml = "";
@@ -2161,7 +2161,9 @@
 		var el_TokensWrapper = document.createElement("div");
 		el_TokensWrapper.className = "objTokensWrapper"
 
-		for (var i = 0; i < players.length; i++) { // Iterate players
+		// Only create elements if there are players
+		if (players && players.length > 0) {
+			for (var i = 0; i < players.length; i++) { // Iterate players
 			switch (idPrefix) {
 				case "imperial": var vpHtml = players[i].vp_imperial; break;
 				case "secrets": var vpHtml = players[i].vp_secrets; break;
@@ -2195,6 +2197,7 @@
 			el_Score.innerHTML = vpHtml;
 			el_TokensAndPoints.appendChild(el_Score);
 			el_TokensWrapper.appendChild(el_TokensAndPoints);
+		}
 		}
 		el_VPWrapper.appendChild(el_TokensWrapper);
 		addEldiv.appendChild(el_VPWrapper);
@@ -2592,6 +2595,15 @@
 			var playerFaction = factionInput ? factionInput.value.trim() : '';
 			var playerColor = colorSelect ? colorSelect.value : 'red';
 			
+			// Auto-fill player name with faction name if no name is provided
+			if (!playerName && playerFaction) {
+				playerName = slugToName(playerFaction);
+				// Update the input field with the auto-filled name
+				if (nameInput) {
+					nameInput.value = playerName;
+				}
+			}
+			
 			// Add all players to the array for validation (even if incomplete)
 			players.push({ 
 				name: playerName, 
@@ -2640,20 +2652,37 @@
 		return slug;
 	}
 
+	function slugToName(slug) {
+		if (!slug || slug === 'empty') return '';
+		
+		// Search through all faction categories to find the matching faction name
+		for (var categoryKey in factionsData) {
+			if (factionsData[categoryKey] && factionsData[categoryKey].factions) {
+				for (var i = 0; i < factionsData[categoryKey].factions.length; i++) {
+					var factionName = factionsData[categoryKey].factions[i];
+					if (nameToSlug(factionName) === slug) {
+						return factionName;
+					}
+				}
+			}
+		}
+		return slug; // Return original slug if no match found
+	}
+
 	function ensureAddButtonVisibility() {
 		var addBtn = document.getElementById('addPlayerButton');
 		var count = document.querySelectorAll('#playersDynamic .player-row').length;
-		if (addBtn) addBtn.style.display = (count >= 8) ? 'none' : '';
+		if (addBtn) addBtn.style.display = (count >= 10) ? 'none' : '';
 	}
 
 	function addPlayerRow() {
 		var container = document.getElementById('playersDynamic');
 		var index = document.querySelectorAll('#playersDynamic .player-row').length;
-		if (index >= 8) return;
+		if (index >= 10) return;
 		var row = document.createElement('div');
 		row.className = 'player-row';
 		row.innerHTML =
-			'<input type="text" name="players[' + index + '][name]" placeholder="Player name"> ' +
+			'<input type="text" name="players[' + index + '][name]" placeholder="Player name (optional)"> ' +
 			'<input type="hidden" name="players[' + index + '][faction]" value="">' +
 			'<button type="button" class="pick-faction" onclick="openFactionPicker(this)">Faction</button> ' +
 			'<select name="players[' + index + '][color]">' +
@@ -2910,13 +2939,9 @@
 	
 	// Function to check if a game is in progress
 	function isGameInProgress(data) {
-		// Check if there are any players with factions
-		if (data[2] && data[2].players) {
-			for (var i = 0; i < data[2].players.length; i++) {
-				if (data[2].players[i].faction != null) {
-					return true;
-				}
-			}
+		// Check if there are any players
+		if (data[2] && data[2].players && data[2].players.length > 0) {
+			return true;
 		}
 		
 		// Check if there are any cards with actual IDs (not null)
