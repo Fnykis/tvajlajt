@@ -1016,7 +1016,11 @@
             {
                 "name": "Thunder's Edge",
                 "factions":
-                []
+                [   
+                    "Last Bastion",
+                    "Deepwrought Scholarate",
+                    "The Council Keleres"
+                ]
             },
         "codex":
             {
