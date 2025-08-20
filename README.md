@@ -1,4 +1,4 @@
-# 🚀 Tvajlajt 
+![Tvajlajt](assets/media/tvajlajt.png)
 
 A simple web application for managing Twilight Imperium 4 objectives and scoring. Designed to run locally and provide real-time game management. Players can connect to the session via their mobile device's browser to read objectives and view scoring.
 
@@ -15,6 +15,7 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 ### Scoring System
 - **Assign player scores**: Pre-loaded with vanilla, PoK, Codex and Discordant Stars factions
 - **Real-time VP Calculation**: Automatic victory point tracking
+- **No winning score cap**: End the game whenever
 - **Winner Calculation**: Automatic determination of game winners
 
 ### Game Timer
