@@ -30,8 +30,8 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 
 ### Device Support
 - **Desktop**: Needed to run server locally
-- **Mobile**: Responsive design for player access
-- **Cross-browser**: Works on modern browsers
+- **Mobile**: Responsive design for player access (although not completely trouble free)
+- **Cross-browser**: Should work on all modern browsers
 
 ## Installation
 
@@ -128,5 +128,6 @@ If you encounter issues not covered here:
 2. Verify all dependencies are installed correctly
 3. Ensure you're using a supported Node.js version
 4. Check the project's issue tracker for known problems
+5. Report problems
 
 ###### _This app is partially created with the use of AI_
