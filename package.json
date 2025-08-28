@@ -1,6 +1,6 @@
 {
   "name": "tvajlajt",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A web app to help you with your public objectives needs and scoring",
   "main": "index.js",
   "scripts": {
