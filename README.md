@@ -42,23 +42,24 @@ The app is designed to be displayed on a large screen (TV/monitor) while allowin
 ### Quick Start
 
 #### Option 1: Git Clone (Recommended - Enables Auto-Updates)
-1. **Clone the repository**:
+1. **Open your terminal** and navigate to a preferred location
+2. **Clone the repository**:
    ```bash
    git clone https://github.com/Fnykis/tvajlajt.git
    ```
-2. **Navigate** to the project directory:
+3. **Navigate** to the project directory:
    ```bash
    cd tvajlajt
    ```
-3. **Install dependencies**:
+4. **Install dependencies**:
    ```bash
    npm install
    ```
-4. **Start the server**:
+5. **Start the server**:
    ```bash
    npm start
    ```
-5. **Access the app** at `http://localhost:3000`
+6. **Access the app** in your browser at `http://localhost:3000`
 
 #### Option 2: Manual Download (No Auto-Updates)
 1. **Download the ZIP file** from GitHub (click "Code" → "Download ZIP")
