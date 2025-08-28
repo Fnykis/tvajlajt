@@ -1192,7 +1192,7 @@
 
 								var el_Objective = document.createElement("div");
 									el_Objective.className = 'objContainer';
-									el_Objective.id = i;
+									el_Objective.id = "stage" + stage + "_card_" + i;
 									el_Objective.innerHTML = "<img src='assets/media/objectivecard_bg_" + cardStage + ".png'>";
 								el_TokensAndCard.appendChild(el_Objective);
 
@@ -1208,7 +1208,7 @@
 								
 									el_ObjectiveText.innerHTML = "<h2>" + escapeHtml(cardName) + "</h2><p>" + escapeHtml(cardText) + "</p><h3>" + escapeHtml(cardPoints) + "</h3><p class='card-phase-margin " + escapeHtml(phaseColor) + "'>" + escapeHtml(cardPhase) + "</p>" + cardIcon + "</div>";
 									el_ObjectiveText.onclick = function() {
-										var cardPressedIndex = parseInt(this.parentNode.id);
+										var cardPressedIndex = parseInt(this.parentNode.id.split('_').pop());
 										stagePressed = this.parentNode.parentNode.parentNode.id;
 										stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
 										
@@ -1278,7 +1278,7 @@
 
 								var el_TokensWrapper = document.createElement("div");
 									el_TokensWrapper.className = "objTokensWrapper";
-									el_TokensWrapper.id = i;
+									el_TokensWrapper.id = "stage" + stage + "_card_" + i;
 
 								var tokensHTML = "";
 								for (var j = 0; j < players.length; j++) {
@@ -1303,8 +1303,11 @@
 											}
 											
 											tokenPressed = this.id;
+											// Extract card index from the wrapper ID
+											var wrapperId = this.parentNode.id;
+											var cardIndex = parseInt(wrapperId.split('_').pop());
 											// Direct Socket.IO emission for token scoring
-											var tokenData = [stageIndex, this.parentNode.id, tokenPressed];
+											var tokenData = [stageIndex, cardIndex, tokenPressed];
 											console.log('📡 CLIENT: Emitting token scoring:', tokenData);
 											socket.emit('token', tokenData);
 										} else {
@@ -1345,7 +1348,7 @@
 									cardPressed = this.id;
 									stagePressed = this.parentNode.parentNode.id;
 									stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
-									var cardPressedIndex = parseInt(this.parentNode.id);
+									var cardPressedIndex = parseInt(this.parentNode.id.split('_').pop());
 																	if (clickMode == "remove") {
 									if (confirm("Are you sure you want to remove this card?")) {
 										// Direct Socket.IO emission for card removal
@@ -1863,7 +1866,7 @@
 						
 						// Add click handler (same as original)
 						el_ObjectiveText.onclick = function() {
-							var cardPressedIndex = parseInt(this.parentNode.id);
+							var cardPressedIndex = parseInt(this.parentNode.id.split('_').pop());
 							stagePressed = this.parentNode.parentNode.parentNode.id;
 							stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
 							
@@ -1933,7 +1936,7 @@
 						// Create token wrapper and tokens
 						var el_TokensWrapper = document.createElement("div");
 						el_TokensWrapper.className = "objTokensWrapper";
-						el_TokensWrapper.id = i;
+						el_TokensWrapper.id = "stage" + stage + "_card_" + i;
 
 						for (var j = 0; j < players.length; j++) {
 							var el_Token = document.createElement("div");
@@ -1963,7 +1966,9 @@
 										
 										var tokenPressed = this.id;
 										var stagePressed = stage;
-										var cardPressed = cardIndex;
+										// Extract card index from the wrapper ID
+										var wrapperId = this.parentNode.id;
+										var cardPressed = parseInt(wrapperId.split('_').pop());
 										
 										// Direct Socket.IO emission for token scoring
 										var tokenData = [stagePressed - 1, cardPressed, tokenPressed]; // stageIndex, cardIndex, playerIndex
@@ -2007,7 +2012,7 @@
 						cardPressed = this.id;
 						stagePressed = this.parentNode.parentNode.id;
 						stagePressed = stagePressed.substring(stagePressed.length - 1, stagePressed.length);
-						var cardPressedIndex = parseInt(this.parentNode.id);
+						var cardPressedIndex = parseInt(this.parentNode.id.split('_').pop());
 						if (clickMode == "remove") {
 							if (confirm("Are you sure you want to remove this card?")) {
 								// Direct Socket.IO emission for card removal
